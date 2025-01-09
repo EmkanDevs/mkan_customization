@@ -1,0 +1,30 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition": "doc.custom_status==\"Done\"",
+ "creation": "2025-01-08 07:51:29.706044",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Request for a New Item",
+ "enabled": 1,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Your New Items has been Created for: {{ doc.name }}",
+ "message_type": "Markdown",
+ "modified": "2025-01-08 08:08:14.764723",
+ "modified_by": "Administrator",
+ "module": "CPC Needs2",
+ "name": "Notify the Creation of the New Items",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_document_field": "owner"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "subject": "New Items has been Created for: {{ doc.name }}",
+ "value_changed": "custom_status"
+}

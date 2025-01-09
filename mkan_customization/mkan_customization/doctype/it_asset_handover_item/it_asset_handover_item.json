@@ -1,0 +1,63 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2024-12-31 15:58:53.454057",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset_local_code",
+  "item",
+  "item_name",
+  "serial_number",
+  "quantity"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset_local_code",
+   "fieldtype": "Link",
+   "label": "Asset Tag/ID",
+   "options": "IT Asset Management"
+  },
+  {
+   "fetch_from": "asset_local_code.item",
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset_local_code.serial_number",
+   "fieldname": "serial_number",
+   "fieldtype": "Data",
+   "label": "Serial Number",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "label": "Quantity"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-09 12:00:46.975580",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "IT Asset Handover Item",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

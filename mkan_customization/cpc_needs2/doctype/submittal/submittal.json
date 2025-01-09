@@ -1,0 +1,229 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-11-26 13:44:51.070386",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "submittal_date",
+  "submittal_descriptionsubject",
+  "revision",
+  "active",
+  "column_break_4wgj",
+  "submittal_type",
+  "project",
+  "project_title",
+  "client",
+  "project_name",
+  "discipline",
+  "section_break_0o96",
+  "consultant_received_date",
+  "consultant_response_status",
+  "consultant_response_date",
+  "issued_to",
+  "column_break_wvf5",
+  "nhc_approval_status",
+  "nhc_response_date",
+  "comments",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Series",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "submittal_date",
+   "fieldtype": "Date",
+   "label": "Submittal Date"
+  },
+  {
+   "fieldname": "submittal_descriptionsubject",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Submittal Description/Subject"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "revision",
+   "fieldtype": "Select",
+   "label": "Revision",
+   "options": "0\n1\n2\n3\n4\n5\n6\n7\n8\n9"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4wgj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "submittal_type",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Submittal Type",
+   "options": "Submittal Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "project.custom_project_title",
+   "fieldname": "project_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Project Title"
+  },
+  {
+   "fetch_from": "project.customer",
+   "fieldname": "client",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Client"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1,
+   "report_hide": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "discipline",
+   "fieldtype": "Select",
+   "label": "Discipline",
+   "options": "\nCivil\nArchitecture\nElectrical\nMechanical\nGeneral\nOthers"
+  },
+  {
+   "fieldname": "section_break_0o96",
+   "fieldtype": "Section Break",
+   "label": "Consultant Replies:"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "consultant_received_date",
+   "fieldtype": "Date",
+   "label": "Consultant Received Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "consultant_response_status",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Consultant Response Status",
+   "options": "\nApproved\nApproved with Comments\nRevise and Resubmit\nRejected"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "consultant_response_date",
+   "fieldtype": "Date",
+   "label": "Consultant Response Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "issued_to",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Issued To",
+   "options": "\nFor Action\nFor Approve\nRe-Submission\nClosed"
+  },
+  {
+   "fieldname": "column_break_wvf5",
+   "fieldtype": "Column Break",
+   "label": "NHC Replies:"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "nhc_approval_status",
+   "fieldtype": "Select",
+   "label": "NHC Approval Status",
+   "options": "\nApproved\nApproved with Comments\nRevise and Resubmit\nRejected"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "nhc_response_date",
+   "fieldtype": "Date",
+   "label": "NHC Response Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "comments",
+   "fieldtype": "Small Text",
+   "label": "Comments"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Submittal",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Submittal Supplier",
+   "link_fieldname": "Submittal"
+  },
+  {
+   "link_doctype": "Submittal Materials",
+   "link_fieldname": "Submittal"
+  }
+ ],
+ "modified": "2025-01-07 09:08:44.398056",
+ "modified_by": "Administrator",
+ "module": "CPC Needs2",
+ "name": "Submittal",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
