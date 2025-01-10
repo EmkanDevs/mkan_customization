@@ -1,0 +1,43 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2024-12-22 16:44:32.210983",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "parent",
+   "fieldtype": "Data",
+   "label": "Sub-Contractor - Contract ID",
+   "mandatory": 0,
+   "wildcard_filter": 1
+  }
+ ],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "CPC Letter Head",
+ "letterhead": null,
+ "modified": "2025-01-10 08:35:16.706277",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Project Sub-Contractor Payment Plan",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "SELECT idx AS \"Ser\",\r\nname AS \"LineID\",\r\nfully_paid AS \"Fully Paied Y/N\",\r\ncreation AS \"Created On\",\r\nmodified AS \"Modified On\",\r\nmodified_by AS \"Modified By\",\r\nowner AS \"Owner\",\r\ndocstatus AS \"Status\",\r\nfulfilled AS \"Fulfilled Y/N\",\r\nactivity_id AS \"Activity ID\",\r\nstructure AS \"Structure\",\r\nsub_structure AS \"Sub-Structure\",\r\nrequirement AS \"Requirement\",\r\nnotes AS \"Note\",\r\nstart_on AS \"Start On\",\r\ndue_on AS \"End On\",\r\ndue_percentage AS \"Percentage\",\r\namended_from AS \"Amended From\",\r\nparent AS \"Parent Contracts\",\r\nparentfield AS \"Parent Field\",\r\nparenttype AS \"Project Sub-Contracts\",\r\nquantity AS \"Quantity\",\r\nuom AS \"Unit of Measure\",\r\nbusiness_statement AS \"Business Atatement\",\r\npayment_percentage AS \"Payment Percentage\",\r\npayment_amount AS \"Payment Amount\"\r\nFROM `tabContract Payment Checklist`\r\nWHERE parenttype = 'Project Sub-Contracts'\r\nORDER BY idx ASC;\r\n",
+ "ref_doctype": "Project Sub-Contracts",
+ "report_name": "Project Sub-Contractor Payment Plan",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "Purchase Manager"
+  },
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Projects Manager"
+  }
+ ],
+ "timeout": 0
+}

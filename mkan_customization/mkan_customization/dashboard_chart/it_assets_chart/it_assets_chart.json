@@ -1,0 +1,42 @@
+{
+ "based_on": "date_of_purchase_acquisition",
+ "chart_name": "IT Assets Chart",
+ "chart_type": "Count",
+ "creation": "2024-12-30 16:53:33.135584",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "document_type": "IT Asset Management",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[]",
+ "group_by_type": "Count",
+ "idx": 7,
+ "is_public": 1,
+ "is_standard": 1,
+ "last_synced_on": "2025-01-10 08:08:11.338972",
+ "modified": "2025-01-10 08:30:45.146781",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "IT Assets Chart",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "parent_document_type": "",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "IT Support Manager"
+  },
+  {
+   "role": "IT Support User"
+  }
+ ],
+ "source": "",
+ "time_interval": "Weekly",
+ "timeseries": 1,
+ "timespan": "Last Month",
+ "type": "Pie",
+ "use_report_chart": 0,
+ "value_based_on": "",
+ "y_axis": []
+}

@@ -1,0 +1,56 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition": "doc.material_request_type == \"Purchase\"",
+ "creation": "2024-11-24 15:29:38.335436",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Material Request",
+ "enabled": 1,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "",
+ "message_type": "Markdown",
+ "modified": "2025-01-10 08:37:55.752284",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Purchase Request - Submission",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "condition": " doc.workflow_state == \"Approved\"",
+   "receiver_by_document_field": "owner"
+  },
+  {
+   "condition": " doc.workflow_state == \"Approved\"",
+   "receiver_by_role": "Purchase User"
+  },
+  {
+   "condition": "doc.workflow_state == \"Pending\"",
+   "receiver_by_role": "Technical Team Lead"
+  },
+  {
+   "condition": "doc.workflow_state == \"Pending Approval (Project Manager)\"",
+   "receiver_by_document_field": "",
+   "receiver_by_role": "Projects Manager"
+  },
+  {
+   "condition": "doc.workflow_state == \"Pending Approval (Warehouse Manager)\"",
+   "receiver_by_role": "Stock Manager"
+  },
+  {
+   "condition": " doc.workflow_state == \"Pending Approval (Procurements Manager)\"",
+   "receiver_by_role": "Purchase Manager"
+  },
+  {
+   "condition": " doc.workflow_state == \"Rejected\"",
+   "receiver_by_document_field": "owner"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "subject": "Purchase Request {{doc.name}} {{doc.workflow}} ",
+ "value_changed": "status"
+}
