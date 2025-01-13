@@ -1,0 +1,140 @@
+{
+ "charts": [
+  {
+   "chart_name": "IT Asset Group by Location",
+   "label": "IT Asset Group by Location"
+  },
+  {
+   "chart_name": "IT Asset Group by Status",
+   "label": "IT Asset Group by Status"
+  },
+  {
+   "chart_name": "IT Assets Chart",
+   "label": "IT Assets Chart"
+  }
+ ],
+ "content": "[{\"id\":\"KwPBYbexCz\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Information Technology</span>\",\"col\":12}},{\"id\":\"ZvVeRckzPy\",\"type\":\"chart\",\"data\":{\"chart_name\":\"IT Asset Group by Location\",\"col\":12}},{\"id\":\"Lh5UyN-Xi3\",\"type\":\"chart\",\"data\":{\"chart_name\":\"IT Asset Group by Status\",\"col\":6}},{\"id\":\"SVHSbsing-\",\"type\":\"chart\",\"data\":{\"chart_name\":\"IT Assets Chart\",\"col\":6}},{\"id\":\"_Ajjpqbe50\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ZATCA Assets\",\"col\":3}},{\"id\":\"WSRmZGBY8B\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Assets Mapped with Accounts\",\"col\":3}},{\"id\":\"MNR1MfgVUX\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"0sUt1vRhtX\",\"type\":\"card\",\"data\":{\"card_name\":\"Manage\",\"col\":4}},{\"id\":\"t5y6KjctRJ\",\"type\":\"card\",\"data\":{\"card_name\":\"Requests\",\"col\":4}}]",
+ "creation": "2024-12-30 13:56:54.790578",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "change",
+ "idx": 2,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "IT",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Manage",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Location",
+   "link_count": 0,
+   "link_to": "Location",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "Saudi Arabia",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "IT Asset Management",
+   "link_count": 0,
+   "link_to": "IT Asset Management",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "Saudi Arabia",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Requests",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Request for a New Item",
+   "link_count": 0,
+   "link_to": "Request for a New Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Material Request",
+   "link_count": 0,
+   "link_to": "Material Request",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "IT Asset Handover",
+   "link_count": 0,
+   "link_to": "IT Asset Handover",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-01-13 08:50:08.747792",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "IT",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "IT Support Manager"
+  },
+  {
+   "role": "IT Support User"
+  }
+ ],
+ "sequence_id": 21.0,
+ "shortcuts": [
+  {
+   "color": "Cyan",
+   "doc_view": "List",
+   "label": "ZATCA Assets",
+   "link_to": "IT Asset Management",
+   "stats_filter": "[[\"IT Asset Management\",\"custom_serial_number\",\"is\",\"set\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Assets Mapped with Accounts",
+   "link_to": "IT Asset Management",
+   "stats_filter": "[[\"IT Asset Management\",\"asset\",\"is\",\"set\",false]]",
+   "type": "DocType"
+  }
+ ],
+ "title": "IT"
+}

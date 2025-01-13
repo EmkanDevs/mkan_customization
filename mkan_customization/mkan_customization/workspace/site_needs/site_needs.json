@@ -1,0 +1,218 @@
+{
+ "charts": [
+  {
+   "chart_name": "Support Stats Dashboard",
+   "label": "Support Stats Dashboard"
+  }
+ ],
+ "content": "[{\"id\":\"N4NwWj_sAQ\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Support Stats Dashboard\",\"col\":12}},{\"id\":\"8VA-sEti6P\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"OPENED\",\"col\":3}},{\"id\":\"6XEOgahP_6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ON HOLD\",\"col\":3}},{\"id\":\"_GN2c47Qw7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"RESOLVED\",\"col\":3}},{\"id\":\"ygsmqgQpBh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ON REQUEST\",\"col\":3}},{\"id\":\"SAGzTH7PCm\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ITEM REQUESTS - To Approve\",\"col\":3}},{\"id\":\"ZJ1TiebE-I\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Material Request - To Approve\",\"col\":3}},{\"id\":\"2yBcKJ5fmx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Site Needs</span>\",\"col\":12}},{\"id\":\"NKANTLiXpJ\",\"type\":\"card\",\"data\":{\"card_name\":\"Requests\",\"col\":4}},{\"id\":\"tw-c0zGYOY\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
+ "creation": "2024-11-02 16:18:12.942868",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "insert-above",
+ "idx": 7,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Site Needs",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Requests",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "New Requisition",
+   "link_count": 0,
+   "link_to": "New Requisition",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Site Requisition",
+   "link_count": 0,
+   "link_to": "Issue",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "Saudi Arabia",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "New Item Request",
+   "link_count": 0,
+   "link_to": "Request for a New Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Material Request",
+   "link_count": 0,
+   "link_to": "Material Request",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "Saudi Arabia",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Settings",
+   "link_count": 5,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Issue Type",
+   "link_count": 0,
+   "link_to": "Issue Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "Saudi Arabia",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Issue Priority",
+   "link_count": 0,
+   "link_to": "Issue Priority",
+   "link_type": "DocType",
+   "onboard": 0,
+   "only_for": "Saudi Arabia",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Manufacturer",
+   "link_count": 0,
+   "link_to": "Manufacturer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Group",
+   "link_count": 0,
+   "link_to": "Service Group",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Department Service List",
+   "link_count": 0,
+   "link_to": "Department Service List",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-01-13 08:49:31.542322",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Site Needs",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "MR Approver"
+  },
+  {
+   "role": "MR Requester"
+  },
+  {
+   "role": "Site Coordinator"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Stock Manager"
+  }
+ ],
+ "sequence_id": 22.0,
+ "shortcuts": [
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "ITEM REQUESTS - To Approve",
+   "link_to": "Request for a New Item",
+   "stats_filter": "[[\"Request for a New Item\",\"workflow_state\",\"=\",\"To Approve\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Material Request - To Approve",
+   "link_to": "Material Request",
+   "stats_filter": "[[\"Material Request\",\"workflow_state\",\"=\",\"To Approve\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Yellow",
+   "doc_view": "List",
+   "label": "ON HOLD",
+   "link_to": "Issue",
+   "stats_filter": "[[\"Issue\",\"status\",\"=\",\"On Hold\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "OPENED",
+   "link_to": "Issue",
+   "stats_filter": "[[\"Issue\",\"status\",\"=\",\"Open\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "ON REQUEST",
+   "link_to": "Material Request",
+   "stats_filter": "[[\"Material Request\",\"custom_issue\",\"is\",\"set\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "RESOLVED",
+   "link_to": "Issue",
+   "stats_filter": "[[\"Issue\",\"status\",\"=\",\"Resolved\",false]]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Site Needs"
+}
