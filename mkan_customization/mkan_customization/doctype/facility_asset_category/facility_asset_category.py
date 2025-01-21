@@ -1,11 +1,11 @@
-# Copyright (c) 2025, Frappe Technologies and contributors
+# Copyright (c) 2025, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
 # import frappe
 from frappe.model.document import Document
 
 
-class DepartmentServiceGroup(Document):
+class FacilityAssetCategory(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -14,9 +14,8 @@ class DepartmentServiceGroup(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		parent: DF.Data
-		parentfield: DF.Data
-		parenttype: DF.Data
-		service_group: DF.Link | None
+		category_group: DF.Check
+		facility_category: DF.Data
+		parent_facility_category: DF.Link | None
 	# end: auto-generated types
 	pass

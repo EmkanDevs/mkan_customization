@@ -1,0 +1,137 @@
+{
+    "actions": [],
+    "allow_import": 1,
+    "allow_rename": 1,
+    "autoname": "field:compound_code",
+    "creation": "2025-01-14 13:03:33.328275",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+     "basic_lodge_information_section",
+     "active",
+     "compound_code",
+     "compound_name",
+     "contact_information",
+     "compound_address",
+     "column_break_vnpy",
+     "open",
+     "current_capacity",
+     "max_capacity",
+     "location",
+     "location_url",
+     "section_break_glzq",
+     "compound_picture",
+     "location_geolocation"
+    ],
+    "fields": [
+     {
+      "fieldname": "basic_lodge_information_section",
+      "fieldtype": "Section Break",
+      "label": "Basic Lodge Information"
+     },
+     {
+      "bold": 1,
+      "fieldname": "compound_code",
+      "fieldtype": "Data",
+      "label": "Compound Code",
+      "unique": 1
+     },
+     {
+      "fieldname": "compound_name",
+      "fieldtype": "Data",
+      "in_global_search": 1,
+      "in_standard_filter": 1,
+      "label": "Compound Name"
+     },
+     {
+      "fieldname": "column_break_vnpy",
+      "fieldtype": "Column Break"
+     },
+     {
+      "fieldname": "location",
+      "fieldtype": "Link",
+      "in_global_search": 1,
+      "in_standard_filter": 1,
+      "label": "Location",
+      "options": "Location"
+     },
+     {
+      "fieldname": "location_url",
+      "fieldtype": "Data",
+      "label": "Location URL"
+     },
+     {
+      "fieldname": "compound_picture",
+      "fieldtype": "Attach Image",
+      "hidden": 1,
+      "label": "Compound Picture"
+     },
+     {
+      "fieldname": "location_geolocation",
+      "fieldtype": "Geolocation",
+      "label": "Location Geolocation"
+     },
+     {
+      "fieldname": "compound_address",
+      "fieldtype": "Data",
+      "label": "Compound Address"
+     },
+     {
+      "fieldname": "section_break_glzq",
+      "fieldtype": "Section Break"
+     },
+     {
+      "fieldname": "contact_information",
+      "fieldtype": "Data",
+      "label": "Contact Information"
+     },
+     {
+      "fieldname": "max_capacity",
+      "fieldtype": "Int",
+      "label": "Max Capacity"
+     },
+     {
+      "fieldname": "current_capacity",
+      "fieldtype": "Int",
+      "label": "Current Capacity"
+     },
+     {
+      "default": "1",
+      "fieldname": "active",
+      "fieldtype": "Check",
+      "label": "Active"
+     },
+     {
+      "default": "1",
+      "fieldname": "open",
+      "fieldtype": "Check",
+      "label": "Open"
+     }
+    ],
+    "image_field": "compound_picture",
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2025-01-14 14:50:16.840765",
+    "modified_by": "Administrator",
+    "module": "Mkan Customization",
+    "name": "Lodge",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+     {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+     }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
+   }
