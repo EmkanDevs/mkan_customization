@@ -1,0 +1,186 @@
+{
+    "actions": [],
+    "autoname": "PTC-REQ-.####",
+    "creation": "2024-11-02 16:05:47.323406",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+     "employee",
+     "employee_name",
+     "status",
+     "date_required_on",
+     "project",
+     "justification",
+     "section_break_tda8",
+     "company",
+     "department",
+     "priority",
+     "required_amount",
+     "cost_center",
+     "payment_entry",
+     "amended_from",
+     "petty_cash_link"
+    ],
+    "fields": [
+     {
+      "fieldname": "amended_from",
+      "fieldtype": "Link",
+      "label": "Amended From",
+      "no_copy": 1,
+      "options": "Petty Cash Request",
+      "print_hide": 1,
+      "read_only": 1,
+      "search_index": 1
+     },
+     {
+      "fieldname": "section_break_tda8",
+      "fieldtype": "Column Break"
+     },
+     {
+      "fieldname": "employee",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Employee",
+      "options": "Petty Cash Authorized Employees",
+      "reqd": 1
+     },
+     {
+      "fetch_from": "employee.employee_name",
+      "fieldname": "employee_name",
+      "fieldtype": "Data",
+      "label": "Employee Name",
+      "read_only": 1
+     },
+     {
+      "allow_on_submit": 1,
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Active\nInactive\nResolved"
+     },
+     {
+      "fieldname": "date_required_on",
+      "fieldtype": "Date",
+      "label": "Date Required on"
+     },
+     {
+      "fieldname": "project",
+      "fieldtype": "Link",
+      "label": "Project",
+      "options": "Project"
+     },
+     {
+      "fieldname": "justification",
+      "fieldtype": "Small Text",
+      "label": "Justification"
+     },
+     {
+      "fieldname": "company",
+      "fieldtype": "Link",
+      "label": "Company",
+      "options": "Company",
+      "reqd": 1
+     },
+     {
+      "fieldname": "department",
+      "fieldtype": "Link",
+      "label": "Department",
+      "options": "Department"
+     },
+     {
+      "fieldname": "priority",
+      "fieldtype": "Select",
+      "label": "Priority",
+      "options": "\nHigh\nMedium\nLow"
+     },
+     {
+      "fieldname": "required_amount",
+      "fieldtype": "Float",
+      "label": "Required Amount"
+     },
+     {
+      "fieldname": "cost_center",
+      "fieldtype": "Link",
+      "label": "Cost Center",
+      "options": "Cost Center"
+     },
+     {
+      "allow_on_submit": 1,
+      "fieldname": "payment_entry",
+      "fieldtype": "Link",
+      "label": "Payment Entry",
+      "options": "Payment Entry"
+     },
+     {
+      "fieldname": "petty_cash_link",
+      "fieldtype": "Data",
+      "label": "Petty Cash Link",
+      "options": "Petty Cash Authorized Employees"
+     }
+    ],
+    "index_web_pages_for_search": 1,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2025-01-19 10:45:28.555689",
+    "modified_by": "Administrator",
+    "module": "Mkan Customization",
+    "name": "Petty Cash Request",
+    "naming_rule": "By \"Naming Series\" field",
+    "owner": "Administrator",
+    "permissions": [
+     {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "select": 1,
+      "share": 1,
+      "submit": 1,
+      "write": 1
+     },
+     {
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Employee",
+      "share": 1
+     },
+     {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "HR User",
+      "share": 1,
+      "submit": 1,
+      "write": 1
+     },
+     {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "HR Manager",
+      "select": 1,
+      "share": 1,
+      "submit": 1,
+      "write": 1
+     }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
+   }

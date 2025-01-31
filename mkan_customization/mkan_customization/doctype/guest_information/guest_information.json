@@ -1,0 +1,141 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-22 07:17:55.631119",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "type",
+  "employee",
+  "full_name",
+  "sister_company_name",
+  "name1",
+  "column_break_ccbo",
+  "contact_number",
+  "email_address",
+  "room_details_section",
+  "room_type",
+  "room_number",
+  "number_of_occupants",
+  "column_break_wltb",
+  "check_in_date",
+  "check_out_date",
+  "duration_of_stay"
+ ],
+ "fields": [
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "\nEmployee\nSister Company Staff",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.type == \"Employee\"",
+   "fetch_from": "employee.employee_name",
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name"
+  },
+  {
+   "depends_on": "eval:doc.type == \"Employee\"",
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "depends_on": "eval:doc.type == \"Sister Company Staff\"",
+   "fieldname": "sister_company_name",
+   "fieldtype": "Link",
+   "label": "Sister Company Name",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_ccbo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contact Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email_address",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email Address"
+  },
+  {
+   "depends_on": "eval:doc.type == \"Sister Company Staff\"",
+   "fetch_from": "sister_company_name.customer_name",
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Full Name"
+  },
+  {
+   "fieldname": "room_details_section",
+   "fieldtype": "Section Break",
+   "label": "Room Details"
+  },
+  {
+   "fieldname": "room_type",
+   "fieldtype": "Select",
+   "label": "Room Type",
+   "options": "\nSingle\nDouble\nSuite",
+   "reqd": 1
+  },
+  {
+   "fieldname": "room_number",
+   "fieldtype": "Int",
+   "label": "Room Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "number_of_occupants",
+   "fieldtype": "Int",
+   "label": "Number of Occupants",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_wltb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "check_in_date",
+   "fieldtype": "Date",
+   "label": "Check in Date"
+  },
+  {
+   "default": "Today",
+   "fieldname": "check_out_date",
+   "fieldtype": "Date",
+   "label": "Check out Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "duration_of_stay",
+   "fieldtype": "Int",
+   "label": "Duration of Stay",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-28 12:20:40.851966",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Guest Information",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

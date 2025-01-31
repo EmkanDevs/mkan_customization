@@ -5,6 +5,5 @@
 from frappe.model.document import Document
 
 
-class Lodge(Document):
-	def validate(self):
-		self.available_capacity = self.max_capacity - self.current_capacity
+class Discussion(Document):
+	pass

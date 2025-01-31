@@ -1,0 +1,269 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:reservation_id",
+ "creation": "2025-01-22 07:14:05.586386",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "reservation_details_section",
+  "reservation_id",
+  "lodge",
+  "current_capacity",
+  "available_capacity",
+  "column_break_rqco",
+  "date_of_reservation",
+  "purpose_of_stay",
+  "total_capacity",
+  "guest_information_section",
+  "details",
+  "room_details_section",
+  "total_number_of_occupants",
+  "column_break_bbps",
+  "additional_details_section",
+  "special_requests",
+  "column_break_qyub",
+  "payment_mode",
+  "approval_status",
+  "billing_information_section",
+  "chargeable_to",
+  "project",
+  "estimated_cost",
+  "column_break_mbqd",
+  "final_amount",
+  "administrative_details_section",
+  "reserverd_type",
+  "reserved_by",
+  "reserved_by_employee",
+  "reservation_status",
+  "column_break_shcs",
+  "commentsnotes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "reservation_details_section",
+   "fieldtype": "Section Break",
+   "label": "Reservation Details"
+  },
+  {
+   "fieldname": "reservation_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Reservation ID",
+   "unique": 1
+  },
+  {
+   "fieldname": "lodge",
+   "fieldtype": "Link",
+   "label": "Lodge",
+   "options": "Lodge"
+  },
+  {
+   "fieldname": "column_break_rqco",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date_of_reservation",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date of Reservation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "purpose_of_stay",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Purpose of Stay",
+   "options": "\nBusiness\nLeisure\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "guest_information_section",
+   "fieldtype": "Section Break",
+   "label": "Guest Information"
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Table",
+   "label": "Details",
+   "options": "Guest Information"
+  },
+  {
+   "fieldname": "room_details_section",
+   "fieldtype": "Section Break",
+   "label": "Room Details"
+  },
+  {
+   "fieldname": "column_break_bbps",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_details_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Details"
+  },
+  {
+   "fieldname": "special_requests",
+   "fieldtype": "Small Text",
+   "label": "Special Requests"
+  },
+  {
+   "fieldname": "column_break_qyub",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "label": "Payment Mode",
+   "options": "\nCash\nCredit\nDirect Billing to Company",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Approval Status",
+   "options": "Pending\nApproved\nRejected"
+  },
+  {
+   "fieldname": "billing_information_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Information"
+  },
+  {
+   "fieldname": "chargeable_to",
+   "fieldtype": "Select",
+   "label": "Chargeable to",
+   "options": "Project\nCompany"
+  },
+  {
+   "fieldname": "estimated_cost",
+   "fieldtype": "Float",
+   "label": "Estimated Cost"
+  },
+  {
+   "fieldname": "final_amount",
+   "fieldtype": "Float",
+   "label": "Final Amount"
+  },
+  {
+   "fieldname": "column_break_mbqd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "administrative_details_section",
+   "fieldtype": "Section Break",
+   "label": "Administrative Details"
+  },
+  {
+   "depends_on": "eval:doc.reserverd_type == \"Sister Company\"",
+   "fieldname": "reserved_by",
+   "fieldtype": "Link",
+   "label": "Reserved By",
+   "options": "Customer"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "reservation_status",
+   "fieldtype": "Select",
+   "label": "Reservation Status",
+   "options": "Draft\nConfirmed\nCancelled"
+  },
+  {
+   "fieldname": "column_break_shcs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "commentsnotes",
+   "fieldtype": "Small Text",
+   "label": "Comments/Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Lodge Available Rooms",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "lodge.current_capacity",
+   "fieldname": "current_capacity",
+   "fieldtype": "Int",
+   "label": "Current Capacity",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "lodge.max_capacity",
+   "fieldname": "total_capacity",
+   "fieldtype": "Int",
+   "label": "Total Capacity ",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "lodge.available_capacity",
+   "fieldname": "available_capacity",
+   "fieldtype": "Int",
+   "label": "Available Capacity"
+  },
+  {
+   "fieldname": "total_number_of_occupants",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Total Number of Occupants",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reserverd_type",
+   "fieldtype": "Select",
+   "label": "Reserverd Type",
+   "options": "Employee\nSister Company"
+  },
+  {
+   "depends_on": "eval:doc.reserverd_type == \"Employee\"",
+   "fieldname": "reserved_by_employee",
+   "fieldtype": "Link",
+   "label": "Reserved By",
+   "options": "Employee"
+  },
+  {
+   "depends_on": "eval:doc.chargeable_to == \"Project\"",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-01-29 11:28:52.511751",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Lodge Available Rooms",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,30 @@
+<table class="table table-bordered small">
+    <thead>
+        <tr style="background-color: #fafafa;">
+            <th>{{ __("Supplier") }}</th>
+            <th>{{ __("Item Code") }}</th>
+            <th>{{ __("Item Name")}}</th>
+            <th>{{ __("Quantity") }}</th>
+            <th>{{ __("UOM")}}</th>
+            <th>{{ __("Price") }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for(var i = 0; i < schedule_details.length; i++) { %}
+        {% if (schedule_details[i].is_supplier_row) { %}
+        <tr>
+            <td colspan="4"><strong style="color: #28a745; text-decoration: none; font-weight: bold;">{{ schedule_details[i].supplier }}</strong></td>
+        </tr>
+        {% } else { %}
+        <tr>
+            <td></td>
+            <td style="font-weight: bold;">{{ schedule_details[i].item_code }}</td>
+            <td>{{ schedule_details[i].item_name }}</td>
+            <td>{{ schedule_details[i].qty }}</td>
+            <td>{{ schedule_details[i].uom }}</td>
+            <td>{{ schedule_details[i].price }}</td>
+        </tr>
+        {% } %}
+        {% } %}
+    </tbody>
+</table>

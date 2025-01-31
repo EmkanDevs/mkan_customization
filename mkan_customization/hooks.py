@@ -43,7 +43,9 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Material Request" : "public/js/material_request.js",
+            "Request for Quotation":"public/js/request_for_quotation.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -137,34 +139,25 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Purchase Order" :{
+      "before_insert": "mkan_customization.mkan_customization.doc_events.workflow_state_change.before_insert",
+      "before_validate": "mkan_customization.mkan_customization.doc_events.workflow_state_change.before_validate",
+  },
+  "Workflow":{
+    "before_validate":"mkan_customization.mkan_customization.doc_events.workflow.before_validate"
+  }
+
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"mkan_customization.tasks.all"
-# 	],
-# 	"daily": [
-# 		"mkan_customization.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"mkan_customization.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"mkan_customization.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"mkan_customization.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"all": [
+		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_lodge_capacity"
+	],
+}
 
 # Testing
 # -------

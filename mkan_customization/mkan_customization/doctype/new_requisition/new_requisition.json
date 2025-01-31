@@ -12,6 +12,7 @@
   "request_from",
   "service_group",
   "department_service",
+  "head_of_department",
   "status",
   "priority",
   "tag_idno",
@@ -24,7 +25,8 @@
   "employee_name",
   "designation",
   "section_break_wrd1",
-  "description"
+  "description",
+  "amended_from"
  ],
  "fields": [
   {
@@ -53,6 +55,7 @@
    "options": "Department"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
@@ -137,9 +140,26 @@
    "fieldtype": "Link",
    "label": "For Customer",
    "options": "Customer"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "New Requisition",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "head_of_department",
+   "fieldtype": "Table MultiSelect",
+   "label": "Head of Department",
+   "options": "Head of department"
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [
   {
    "group": "Actions",
@@ -147,7 +167,7 @@
    "link_fieldname": "custom_requisition"
   }
  ],
- "modified": "2025-01-22 11:45:49.470334",
+ "modified": "2025-01-30 15:49:07.166557",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "New Requisition",
@@ -163,11 +183,14 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }
