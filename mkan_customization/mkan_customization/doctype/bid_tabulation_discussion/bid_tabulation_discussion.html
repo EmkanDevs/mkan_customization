@@ -7,14 +7,25 @@
             <th>{{ __("Quantity") }}</th>
             <th>{{ __("UOM")}}</th>
             <th>{{ __("Price") }}</th>
+            <th>{{ __("Amount")}}</th>
         </tr>
     </thead>
     <tbody>
         {% for(var i = 0; i < schedule_details.length; i++) { %}
         {% if (schedule_details[i].is_supplier_row) { %}
         <tr>
-            <td colspan="4"><strong style="color: #28a745; text-decoration: none; font-weight: bold;">{{ schedule_details[i].supplier }}</strong></td>
+            <td colspan="7">
+                <strong style="color: #28a745; text-decoration: none; font-weight: bold;">
+                    {{ schedule_details[i].supplier }}
+                </strong>
+            </td>
         </tr>
+        {% if (schedule_details[i].total_qty !== null) { %}
+        <tr>
+            <td colspan="4" align="right"><strong>Total Quantity:</strong> {{ schedule_details[i].total_qty }}</td>
+            <td colspan="3" align="right"><strong>Total Amount:</strong> {{ schedule_details[i].total }}</td>
+        </tr>
+        {% } %}
         {% } else { %}
         <tr>
             <td></td>
@@ -23,6 +34,7 @@
             <td>{{ schedule_details[i].qty }}</td>
             <td>{{ schedule_details[i].uom }}</td>
             <td>{{ schedule_details[i].price }}</td>
+            <td>{{ schedule_details[i].amount }}</td>
         </tr>
         {% } %}
         {% } %}

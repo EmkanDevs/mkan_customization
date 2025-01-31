@@ -180,7 +180,7 @@ def before_validate(self, method):
                                 console.warn("custom_html field not found in the form!");
                             }}
                         }}).catch(err => {{
-                            frappe.msgprint(__('Error processing workflow: {0}', [err.message]));
+                            console.log("Error processing workflow");
                         }});
                     }}
 
