@@ -9,44 +9,39 @@ def before_validate(self, method):
         Progress = "workflow_progress"
         html_field_name = "custom_html"
         state_change_field_name = "state_change"
+        fieldnames = [df.fieldname for df in meta.get("fields")]
 
-        if frappe.db.exists("Custom Field", {"dt": self.document_type, "fieldname": Progress}):
-            frappe.delete_doc("Custom Field", {"dt": self.document_type, "fieldname": Progress})
+        if Progress not in fieldnames:
+            custom_progress_field = frappe.new_doc("Custom Field")
+            custom_progress_field.dt = self.document_type  
+            custom_progress_field.fieldname = Progress
+            custom_progress_field.label = "Progress"
+            custom_progress_field.fieldtype = "Tab Break"
+            custom_progress_field.insert_after = last_field  
+            custom_progress_field.insert()
+            frappe.msgprint(f"Created {Progress} field.")  
 
-        custom_progress_field = frappe.new_doc("Custom Field")
-        custom_progress_field.dt = self.document_type  
-        custom_progress_field.fieldname = Progress
-        custom_progress_field.label = "Progress"
-        custom_progress_field.fieldtype = "Tab Break"
-        custom_progress_field.insert_after = last_field  
-        custom_progress_field.insert()
 
-        if frappe.db.exists("Custom Field", {"dt": self.document_type, "fieldname": html_field_name}):
-            frappe.delete_doc("Custom Field", {"dt": self.document_type, "fieldname": html_field_name})
-            frappe.msgprint(f"Deleted existing {html_field_name} field.")  
+        if html_field_name not in fieldnames:
+            custom_html_field = frappe.new_doc("Custom Field")
+            custom_html_field.dt = self.document_type  
+            custom_html_field.fieldname = html_field_name
+            custom_html_field.label = "HTML"
+            custom_html_field.fieldtype = "HTML"
+            custom_html_field.insert_after = Progress  
+            custom_html_field.insert()
+            frappe.msgprint(f"Created {html_field_name} field.")  
 
-        custom_html_field = frappe.new_doc("Custom Field")
-        custom_html_field.dt = self.document_type  
-        custom_html_field.fieldname = html_field_name
-        custom_html_field.label = "HTML"
-        custom_html_field.fieldtype = "HTML"
-        custom_html_field.insert_after = Progress  
-        custom_html_field.insert()
-        frappe.msgprint(f"Created {html_field_name} field.")  
-
-        if frappe.db.exists("Custom Field", {"dt": self.document_type, "fieldname": state_change_field_name}):
-            frappe.delete_doc("Custom Field", {"dt": self.document_type, "fieldname": state_change_field_name})
-            frappe.msgprint(f"Deleted existing {state_change_field_name} field.")  
-
-        custom_state_change_field = frappe.new_doc("Custom Field")
-        custom_state_change_field.dt = self.document_type  
-        custom_state_change_field.fieldname = state_change_field_name
-        custom_state_change_field.label = "State Change"
-        custom_state_change_field.fieldtype = "Table" 
-        custom_state_change_field.options = "State Change Items"  
-        custom_state_change_field.insert_after = html_field_name  
-        custom_state_change_field.insert()
-        frappe.msgprint(f"Created {state_change_field_name} field.")  
+        if state_change_field_name not in fieldnames:
+            custom_state_change_field = frappe.new_doc("Custom Field")
+            custom_state_change_field.dt = self.document_type  
+            custom_state_change_field.fieldname = state_change_field_name
+            custom_state_change_field.label = "State Change"
+            custom_state_change_field.fieldtype = "Table" 
+            custom_state_change_field.options = "State Change Items"  
+            custom_state_change_field.insert_after = html_field_name  
+            custom_state_change_field.insert()
+            frappe.msgprint(f"Created {state_change_field_name} field.")  
 
         frappe.db.commit()  
         client_script_name = f"{self.document_type}-State Change"

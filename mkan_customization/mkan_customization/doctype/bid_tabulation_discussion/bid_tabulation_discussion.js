@@ -13,6 +13,7 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
             callback: function(r) {
                 if (r.message) {
                     $(frm.fields_dict.custom_html.wrapper).html(r.message);
+                    console.log(frm.fields_dict.custom_html.wrapper)
                 } else {
                     $(frm.fields_dict.custom_html.wrapper).html("<p>No attachments found.</p>");
                 }
