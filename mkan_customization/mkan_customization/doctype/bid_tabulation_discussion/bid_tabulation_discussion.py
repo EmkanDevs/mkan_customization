@@ -291,6 +291,9 @@ def make_quotation(source_name, target_doc=None):
 				"field_map": {
 					"name": "supplier_quotation",
 				},
+				"validation": {
+					"docstatus": ["=", 1],
+				},
 			},
 			"Supplier Quotation Item": {
 				"doctype": "Quotation Item",

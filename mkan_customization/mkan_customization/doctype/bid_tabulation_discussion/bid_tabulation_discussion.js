@@ -2,8 +2,11 @@ frappe.provide("frappe.bid_tabulation_discussion");
 frappe.ui.form.on("Bid Tabulation Discussion", {
     refresh:function(frm){
         frappe.bid_tabulation_discussion.render_schedule(frm);
-        frm.add_custom_button(__("Purchase Order"), () => frm.events.make_purchase_order(frm), __("Create"));
-        frm.add_custom_button(__("Quotation"), () => frm.events.make_quotation(frm), __("Create"));
+        if (frm.doc.docstatus == 1){
+            console.log("hello")
+            frm.add_custom_button(__("Purchase Order"), () => frm.events.make_purchase_order(frm), __("Create"));
+            frm.add_custom_button(__("Quotation"), () => frm.events.make_quotation(frm), __("Create"));
+        }
 
         if (!frm.doc.request_for_quotation) return; // Ensure RFQ exists
 
