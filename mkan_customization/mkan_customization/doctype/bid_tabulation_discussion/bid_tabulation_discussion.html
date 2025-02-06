@@ -16,14 +16,14 @@
         <tr>
             <td colspan="7">
                 <strong style="color: #28a745; text-decoration: none; font-weight: bold;">
-                    {{ schedule_details[i].supplier }}
+                    {{ schedule_details[i].supplier }}({{ schedule_details[i].supplier_name }})
                 </strong>
             </td>
         </tr>
         {% if (schedule_details[i].total_qty !== null) { %}
         <tr>
-            <td colspan="4" align="right"><strong>Total Quantity:</strong> {{ schedule_details[i].total_qty }}</td>
-            <td colspan="3" align="right"><strong>Total Amount:</strong> {{ schedule_details[i].total }}</td>
+            <td colspan="4" align="right" style="color: #007bff;"><strong>Total Quantity:</strong> {{ schedule_details[i].total_qty }}</td>
+            <td colspan="3" align="right" style="color: #007bff;"><strong>Total Amount:</strong> {{ schedule_details[i].total }}</td>
         </tr>
         {% } %}
         {% } else { %}

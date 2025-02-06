@@ -105,7 +105,7 @@ def fetch_attachments_and_display(request_for_quotation):
 		SELECT
 			sqi.name AS item_name,
 			sq.name AS parent_name,
-			sq.supplier AS supplier_name
+			sq.supplier AS supplier_id
 		FROM
 			`tabSupplier Quotation Item` sqi
 		JOIN
@@ -114,7 +114,7 @@ def fetch_attachments_and_display(request_for_quotation):
 			sqi.parent = sq.name
 		WHERE
 			sqi.request_for_quotation = %s
-		GROUP BY sq.name  # Add this to prevent duplicate suppliers
+		GROUP BY sq.name
 	""", (request_for_quotation,), as_dict=True)
 	
 	if not doc:
@@ -136,6 +136,8 @@ def fetch_attachments_and_display(request_for_quotation):
 		
 		for i in range(start_index, end_index):
 			row = doc[i]
+			supplier_name = frappe.db.get_value("Supplier", row.supplier_id, "supplier_name") or "Unknown Supplier"
+			
 			files = frappe.get_all("File", filters={
 				"attached_to_doctype": "Supplier Quotation",
 				"attached_to_name": row.parent_name
@@ -150,7 +152,7 @@ def fetch_attachments_and_display(request_for_quotation):
 			
 			html_content += f"""
 				<div style="flex: 1; min-width: 45%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: white;">
-					<strong style="color: #333;">Supplier:</strong> {row.supplier_name} <br>
+					<strong style="color: #333;">Supplier:</strong> {row.supplier_id} ({supplier_name}) <br>
 					<strong style="color: #333;">Supplier Quotation:</strong> <a href="{quotation_link}" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">{row.parent_name}</a><br>
 					<strong style="color: #333;">Attachments:</strong> {file_links}
 				</div>
@@ -166,6 +168,7 @@ def fetch_attachments_and_display(request_for_quotation):
 	html_content += "</div></div>"
 	
 	return html_content
+
 
 
 @frappe.whitelist()
@@ -190,8 +193,10 @@ def get_supplier_details(docname):
 
 	for sq in supplier_quotations:
 		if sq.supplier not in processed_suppliers:
+			supplier_name = frappe.db.get_value("Supplier", sq.supplier, "supplier_name") or ""
 			supplier_details.append({
 				"supplier": sq.supplier,
+				"supplier_name": supplier_name,  # Added supplier name
 				"item_code": None,
 				"item_name": None,
 				"qty": None,
@@ -199,8 +204,8 @@ def get_supplier_details(docname):
 				"price": None,
 				"amount": None,
 				"is_supplier_row": True,
-				"total_qty": sq.total_qty,  # Add the total quantity
-				"total": sq.total           # Add the total amount
+				"total_qty": sq.total_qty,  # Total quantity
+				"total": sq.total           # Total amount
 			})
 			processed_suppliers.add(sq.supplier)
 
@@ -215,6 +220,7 @@ def get_supplier_details(docname):
 			if unique_item_key not in processed_items:
 				supplier_details.append({
 					"supplier": sq.supplier,
+					"supplier_name": supplier_name,  # Ensuring supplier name is included
 					"item_code": item.item_code,
 					"item_name": item.item_name,
 					"qty": item.qty,
