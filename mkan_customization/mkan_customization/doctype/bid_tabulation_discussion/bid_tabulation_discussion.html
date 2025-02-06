@@ -16,14 +16,14 @@
         <tr>
             <td colspan="7">
                 <strong style="color: #28a745; text-decoration: none; font-weight: bold;">
-                    {{ schedule_details[i].supplier }}({{ schedule_details[i].supplier_name }})
+                    {{ schedule_details[i].supplier }} ({{ schedule_details[i].supplier_name }})
                 </strong>
             </td>
         </tr>
         {% if (schedule_details[i].total_qty !== null) { %}
         <tr>
             <td colspan="4" align="right" style="color: #007bff;"><strong>Total Quantity:</strong> {{ schedule_details[i].total_qty }}</td>
-            <td colspan="3" align="right" style="color: #007bff;"><strong>Total Amount:</strong> {{ schedule_details[i].total }}</td>
+            <td colspan="3" align="right" style="color: #007bff;"><strong>Total Amount:</strong>{{ frappe.format(schedule_details[i].total, {fieldtype: "Currency"}) }}</td>
         </tr>
         {% } %}
         {% } else { %}
@@ -33,8 +33,10 @@
             <td>{{ schedule_details[i].item_name }}</td>
             <td>{{ schedule_details[i].qty }}</td>
             <td>{{ schedule_details[i].uom }}</td>
-            <td>{{ schedule_details[i].price }}</td>
-            <td>{{ schedule_details[i].amount }}</td>
+            <td>{{ frappe.format(schedule_details[i].price, {fieldtype: "Currency"}) }}
+            </td>
+            <td>{{ frappe.format(schedule_details[i].amount, {fieldtype: "Currency"}) }}
+            </td>
         </tr>
         {% } %}
         {% } %}
