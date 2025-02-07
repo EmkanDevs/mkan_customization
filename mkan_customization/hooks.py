@@ -155,7 +155,7 @@ doc_events = {
 
 scheduler_events = {
 	"all": [
-		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_lodge_capacity"
+		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities"
 	],
 }
 
@@ -167,9 +167,10 @@ scheduler_events = {
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "mkan_customization.event.get_events"
-# }
+override_whitelisted_methods = {
+	"erpnext.stock.doctype.material_request.material_request.make_request_for_quotation": "mkan_customization.mkan_customization.override.material_request.make_request_for_quotation",
+    "erpnext.buying.doctype.request_for_quotation.request_for_quotation.make_supplier_quotation_from_rfq":"mkan_customization.mkan_customization.override.request_for_quotation.make_supplier_quotation_from_rfq"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
