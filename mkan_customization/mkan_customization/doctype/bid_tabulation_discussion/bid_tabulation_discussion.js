@@ -2,6 +2,9 @@ frappe.provide("frappe.bid_tabulation_discussion");
 frappe.ui.form.on("Bid Tabulation Discussion", {
     refresh:function(frm){
         frappe.bid_tabulation_discussion.render_schedule(frm);
+        frm.set_df_property('discussion', 'cannot_add_rows', true); // Hide add row button
+        frm.set_df_property('discussion', 'cannot_delete_rows', true); // Hide delete button
+        frm.set_df_property('discussion', 'cannot_delete_all_rows', true); // Hide delete all button
         if (frm.doc.docstatus == 1){
             console.log("hello")
             frm.add_custom_button(__("Purchase Order"), () => frm.events.make_purchase_order(frm), __("Create"));

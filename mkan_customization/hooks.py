@@ -139,16 +139,10 @@ doctype_js = {
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-	("Purchase Order","Material Request","Sales Order","Petty Cash Request","Sales Invoice","Journal Entry","Payment Entry","Purchase Invoice","Payment Request","Process Payment Reconciliation","Petty Cash Authorized Employees") :{
-      "before_insert": "mkan_customization.mkan_customization.doc_events.workflow_state_change.before_insert",
-      "before_validate": "mkan_customization.mkan_customization.doc_events.workflow_state_change.before_validate",
-  },
-  "Workflow":{
-    "before_validate":"mkan_customization.mkan_customization.doc_events.workflow.before_validate"
-  }
+# doc_events = {
+ 
 
-}
+# }
 
 # Scheduled Tasks
 # ---------------
