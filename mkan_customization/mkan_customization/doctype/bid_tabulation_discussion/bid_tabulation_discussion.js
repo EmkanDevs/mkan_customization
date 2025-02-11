@@ -137,7 +137,7 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
 });
 
 function get_suppliers_from_rfq(rfq) {
-    if(frm.doc.request_for_quotation){
+    
         let suppliers = [];
         frappe.call({
             method: "mkan_customization.mkan_customization.doctype.bid_tabulation_discussion.bid_tabulation_discussion.get_supplier_options",
@@ -150,7 +150,7 @@ function get_suppliers_from_rfq(rfq) {
             }
         });
         return suppliers;
-    }
+    
 }
 
 function get_suppliers_quotation(rfq) {
