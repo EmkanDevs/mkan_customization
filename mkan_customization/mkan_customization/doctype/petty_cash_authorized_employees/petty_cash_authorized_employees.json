@@ -11,6 +11,7 @@
   "department",
   "status",
   "user_id",
+  "head_of_department",
   "supervisor",
   "section_break_ttmw",
   "company",
@@ -46,7 +47,7 @@
   {
    "fetch_from": "employee.department",
    "fieldname": "department",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Department",
    "options": "Department",
    "read_only": 1
@@ -99,6 +100,13 @@
    "fieldtype": "Link",
    "label": "Supervisor",
    "options": "User"
+  },
+  {
+   "fieldname": "head_of_department",
+   "fieldtype": "Table MultiSelect",
+   "hidden": 1,
+   "label": "Head of Department",
+   "options": "Head of department"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -109,7 +117,7 @@
    "link_fieldname": "Employee"
   }
  ],
- "modified": "2025-02-11 15:02:07.021904",
+ "modified": "2025-02-12 16:07:00.978337",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Petty Cash Authorized Employees",
