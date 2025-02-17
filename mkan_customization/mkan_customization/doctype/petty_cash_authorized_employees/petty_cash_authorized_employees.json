@@ -98,6 +98,7 @@
    "options": "User"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "supervisor",
    "fieldtype": "Link",
    "label": "Supervisor",
@@ -119,7 +120,7 @@
    "link_fieldname": "Employee"
   }
  ],
- "modified": "2025-02-13 09:18:20.571598",
+ "modified": "2025-02-17 11:55:54.011412",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Petty Cash Authorized Employees",
