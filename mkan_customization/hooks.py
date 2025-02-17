@@ -163,7 +163,8 @@ scheduler_events = {
 #
 override_whitelisted_methods = {
 	"erpnext.stock.doctype.material_request.material_request.make_request_for_quotation": "mkan_customization.mkan_customization.override.material_request.make_request_for_quotation",
-    "erpnext.buying.doctype.request_for_quotation.request_for_quotation.make_supplier_quotation_from_rfq":"mkan_customization.mkan_customization.override.request_for_quotation.make_supplier_quotation_from_rfq"
+    "erpnext.buying.doctype.request_for_quotation.request_for_quotation.make_supplier_quotation_from_rfq":"mkan_customization.mkan_customization.override.request_for_quotation.make_supplier_quotation_from_rfq",
+    "frappe.desk.form.assign_to.add":"mkan_customization.mkan_customization.override.assign_to.add"
 }
 #
 # each overriding function accepts a `data` argument;

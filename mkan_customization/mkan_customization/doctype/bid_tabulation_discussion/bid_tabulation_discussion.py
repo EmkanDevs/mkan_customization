@@ -3,9 +3,23 @@ import frappe
 from frappe import _
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt
+from mkan_customization.mkan_customization.override import assign_to
 
 
 class BidTabulationDiscussion(Document):
+	def after_insert(self):
+		doc = frappe.get_doc("User Group",self.user_list)
+		for row in doc.user_group_members:
+			assign_to.add(
+				dict(
+					assign_to=[row.user],
+					doctype="Bid Tabulation Discussion",
+					name=self.name,
+					priority= "Medium",
+					notify=True,
+				),
+				ignore_permissions=True,
+			)
 	def before_insert(self):
 		existing_doc = frappe.get_all(
 			"Bid Tabulation Discussion",
@@ -35,10 +49,6 @@ class BidTabulationDiscussion(Document):
 			frappe.throw("Please set supplier")
 			
 		if self.supplier and self.reason:
-			# existing_rows = [row for row in self.discussion if row.supplier == self.supplier and row.user == frappe.session.user]
-
-			# if existing_rows:
-			# 	frappe.throw(_("You have already added a discussion for this supplier."))
 			
 			self.append("discussion", {
 				"supplier": self.supplier,

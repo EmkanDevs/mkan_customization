@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "custom_html",
+  "user_list",
   "request_for_quotation",
   "supplier",
   "reason",
@@ -84,6 +85,14 @@
    "fieldname": "custom_html",
    "fieldtype": "HTML",
    "label": "Custom Html"
+  },
+  {
+   "fieldname": "user_list",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User List",
+   "options": "User Group",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -98,7 +107,7 @@
    "link_fieldname": "bid_tabulation"
   }
  ],
- "modified": "2025-01-29 13:26:36.752298",
+ "modified": "2025-02-13 10:12:29.799513",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Bid Tabulation Discussion",
