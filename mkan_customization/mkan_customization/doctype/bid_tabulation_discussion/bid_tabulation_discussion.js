@@ -25,7 +25,6 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
                 }
             }
         });
-        frm.trigger("final_supplier")
     },
     final_supplier:function(frm){
         frappe.call({
@@ -37,6 +36,7 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
             callback: function(r) {
                 if (r.message) {
                     frm.set_value("supplier_quotation", r.message[0]);
+                    frm.save_or_update()
                 }
             }
         });
