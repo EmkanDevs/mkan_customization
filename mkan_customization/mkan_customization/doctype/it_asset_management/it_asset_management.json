@@ -29,8 +29,6 @@
   "department",
   "column_break_ttut",
   "project",
-  "section_break_swav",
-  "custom_asset_assignment",
   "asset_softwares_section",
   "oswindows_type",
   "windows_key",
@@ -231,21 +229,11 @@
    "fieldtype": "Table",
    "label": "Software details",
    "options": "IT Asset Software Subscriptions"
-  },
-  {
-   "fieldname": "section_break_swav",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "custom_asset_assignment",
-   "fieldtype": "Table",
-   "label": "Asset Assignment",
-   "options": "IT Asset Assigned User2"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-18 13:05:55.634696",
+ "modified": "2025-02-18 13:09:50.447094",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "IT Asset Management",
