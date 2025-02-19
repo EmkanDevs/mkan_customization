@@ -58,6 +58,7 @@
    "allow_on_submit": 1,
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_standard_filter": 1,
    "label": "Status",
    "options": "Open\nWorking\nPending Review\nCompleted\nCancelled"
   },
@@ -165,9 +166,14 @@
    "group": "Actions",
    "link_doctype": "Task",
    "link_fieldname": "custom_requisition"
+  },
+  {
+   "group": "Needs",
+   "link_doctype": "Material Request",
+   "link_fieldname": "custom_new_requisition"
   }
  ],
- "modified": "2025-01-30 15:49:07.166557",
+ "modified": "2025-02-19 07:05:16.098814",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "New Requisition",
@@ -189,6 +195,7 @@
    "write": 1
   }
  ],
+ "search_fields": "subject,request_from",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
