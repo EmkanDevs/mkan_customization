@@ -6,7 +6,6 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
         frm.set_df_property('discussion', 'cannot_delete_rows', true); // Hide delete button
         frm.set_df_property('discussion', 'cannot_delete_all_rows', true); // Hide delete all button
         if (frm.doc.docstatus == 1){
-            console.log("hello")
             frm.add_custom_button(__("Purchase Order"), () => frm.events.make_purchase_order(frm), __("Create"));
             frm.add_custom_button(__("Quotation"), () => frm.events.make_quotation(frm), __("Create"));
         }
@@ -19,7 +18,6 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
             callback: function(r) {
                 if (r.message) {
                     $(frm.fields_dict.custom_html.wrapper).html(r.message);
-                    console.log(frm.fields_dict.custom_html.wrapper)
                 } else {
                     $(frm.fields_dict.custom_html.wrapper).html("<p>No attachments found.</p>");
                 }

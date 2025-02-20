@@ -21,6 +21,7 @@ class BidTabulationDiscussion(Document):
 				ignore_permissions=True,
 			)
 	def before_insert(self):
+		
 		existing_doc = frappe.get_all(
 			"Bid Tabulation Discussion",
 			filters={
@@ -41,7 +42,9 @@ class BidTabulationDiscussion(Document):
 					""",
 					title="Duplicate Bid Tabulation"
 				)
-
+		data = frappe.get_doc("Request for Quotation", self.request_for_quotation)
+		value = data.items[0].material_request if data.items else ""
+		self.material_request = value
 	def before_save(self):
 		if self.supplier and not self.reason:
 			frappe.throw("Please add reason for supplier")
@@ -58,6 +61,9 @@ class BidTabulationDiscussion(Document):
 			
 			self.supplier = None
 			self.reason = None
+		data = frappe.get_doc("Request for Quotation", self.request_for_quotation)
+		value = data.items[0].material_request if data.items else ""
+		self.material_request = value
 
 	def before_submit(self):
 		supplier_count = {}

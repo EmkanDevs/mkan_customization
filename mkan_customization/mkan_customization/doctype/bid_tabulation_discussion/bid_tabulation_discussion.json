@@ -6,13 +6,17 @@
  "engine": "InnoDB",
  "field_order": [
   "custom_html",
+  "section_break_ygsy",
   "user_list",
   "request_for_quotation",
   "supplier",
   "reason",
-  "discussion",
-  "amended_from",
+  "column_break_cqhl",
   "naming_series",
+  "amended_from",
+  "material_request",
+  "section_break_bbja",
+  "discussion",
   "final_supplier_section",
   "final_supplier",
   "supplier_quotation"
@@ -93,6 +97,25 @@
    "label": "User List",
    "options": "User Group",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_ygsy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_cqhl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "material_request",
+   "fieldtype": "Link",
+   "label": "Material Request",
+   "options": "Material Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_bbja",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -107,7 +130,7 @@
    "link_fieldname": "bid_tabulation"
   }
  ],
- "modified": "2025-02-13 10:12:29.799513",
+ "modified": "2025-02-20 11:55:43.167734",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Bid Tabulation Discussion",
