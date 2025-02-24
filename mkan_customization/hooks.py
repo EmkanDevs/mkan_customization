@@ -44,7 +44,8 @@ app_license = "mit"
 
 # include js in doctype views
 doctype_js = {
-            "Request for Quotation":"public/js/request_for_quotation.js"
+            "Request for Quotation":"public/js/request_for_quotation.js",
+            "Purchase Order":"public/js/purchase_order.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -139,10 +140,15 @@ doctype_js = {
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
- 
+doc_events = {
+    "Purchase Order":{
+        "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert"
+    },
+    "Material Request":{
+        "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate"
+    },
 
-# }
+}
 
 # Scheduled Tasks
 # ---------------
