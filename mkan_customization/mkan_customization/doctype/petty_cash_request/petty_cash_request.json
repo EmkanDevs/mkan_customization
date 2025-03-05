@@ -19,9 +19,10 @@
   "priority",
   "required_amount",
   "cost_center",
-  "payment_entry",
+  "purchase_invoice",
   "amended_from",
-  "petty_cash_link"
+  "petty_cash_link",
+  "approval_status"
  ],
  "fields": [
   {
@@ -107,15 +108,8 @@
    "options": "Cost Center"
   },
   {
-   "allow_on_submit": 1,
-   "fieldname": "payment_entry",
-   "fieldtype": "Link",
-   "label": "Payment Entry",
-   "options": "Payment Entry"
-  },
-  {
    "fieldname": "petty_cash_link",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Petty Cash Link",
    "options": "Petty Cash Authorized Employees"
   },
@@ -132,12 +126,34 @@
    "fieldtype": "Link",
    "label": "User ID",
    "options": "User"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "options": "Purchase Invoice"
+  },
+  {
+   "fieldname": "approval_status",
+   "fieldtype": "Data",
+   "label": "Approval status",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2025-02-11 09:50:42.464171",
+ "links": [
+  {
+   "link_doctype": "Purchase Receipt",
+   "link_fieldname": "petty_cash_request"
+  },
+  {
+   "link_doctype": "Expense Claim",
+   "link_fieldname": "petty_cash_request"
+  }
+ ],
+ "modified": "2025-03-05 12:06:02.648708",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Petty Cash Request",
