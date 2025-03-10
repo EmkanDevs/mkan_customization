@@ -1,6 +1,7 @@
 import frappe
 from datetime import datetime, timedelta, date
 import calendar
+from frappe import _
 
 def execute(filters=None):
     if not filters:
@@ -14,7 +15,14 @@ def execute(filters=None):
         {"label": "Supervisor", "fieldname": "supervisor", "fieldtype": "Link", "options": "User"},
         {"label": "Petty Cash Request", "fieldname": "request", "fieldtype": "Link", "options": "Petty Cash Request"},
         {"label": "Request Date", "fieldname": "request_date", "fieldtype": "Date"},
-        {"label": "Amount", "fieldname": "amount", "fieldtype": "Currency"}
+        {"label": "Amount", "fieldname": "amount", "fieldtype": "Currency"},
+        {"label": "Cost Center", "fieldname": "cost_center", "fieldtype": "Link", "options": "Cost Center"},
+        {"label":"Status","fieldname":"status","fieldtype":"data"},
+        {"label":"Workflow Status","fieldname":"workflow_state","fieldtype":"data"},
+        {"label":"Project","fieldname":"project","fieldtype":"link","options":"Project"},
+        {"label":"Project Name","fieldname":"project_name","fieldtype":"data"},
+        {"label":"Priority","fieldname":"priority","fieldtype":"data"},
+        {"label": "Department", "fieldname": "department", "fieldtype": "Link", "options": "Department"},
     ]
     
     conditions = []
@@ -40,9 +48,17 @@ def execute(filters=None):
             e.supervisor, 
             pc.name AS request,
             DATE(pc.creation) AS request_date,
-            pc.required_amount AS amount
+            pc.required_amount AS amount,
+            pc.cost_center,
+            pc.status,
+            pc.workflow_state,
+            pc.project,
+            p.project_name,
+            pc.priority,
+            pc.department
         FROM `tabPetty Cash Authorized Employees` e
         JOIN `tabPetty Cash Request` pc ON e.name = pc.employee
+        JOIN `tabProject` p ON pc.project = p.name
         {where_clause}
         ORDER BY pc.creation
     """
@@ -50,7 +66,7 @@ def execute(filters=None):
     data = frappe.db.sql(query, tuple(values), as_dict=True)
     
     # Prepare chart data
-    chart = prepare_continuous_line_chart(data, duration, start_date, end_date)
+    chart = prepare_continuous_bar_chart(data, duration, start_date, end_date)
     
     return columns, data, None, chart
 
@@ -73,9 +89,8 @@ def get_date_range(duration):
     
     return None, None
 
-def prepare_continuous_line_chart(data, duration, start_date, end_date):
+def prepare_continuous_bar_chart(data, duration, start_date, end_date):
     if not data:
-        # If no data, still create a chart with the full date range
         data = []
     
     chart_data = {
@@ -88,20 +103,13 @@ def prepare_continuous_line_chart(data, duration, start_date, end_date):
                 }
             ]
         },
-        "type": "line",
+        "type": "bar",  # Changed to bar graph
         "colors": ["#7CD6FD"],  
-        "lineOptions": {
-            "regionFill": 1,     
-            "hideDots": 0,       # Show dots at data points
-            "spline": 1,         # Use curved lines
-            "heatline": 0        # No heatline coloring
-        },
         "axisOptions": {
             "xAxisMode": "tick",
             "yAxisMode": "tick",
             "xIsSeries": 1
         },
-        # Removed the JavaScript arrow function syntax
         "title": "Petty Cash Requests"
     }
     
@@ -122,7 +130,7 @@ def prepare_continuous_line_chart(data, duration, start_date, end_date):
     # Generate complete date series from start_date to end_date
     all_dates = generate_complete_date_series(start_date, end_date, duration)
     
-    # Fill in zeros for missing dates to ensure continuous line
+    # Fill in zeros for missing dates to ensure continuous bar chart
     for date_key in all_dates:
         if date_key not in date_counts:
             date_counts[date_key] = 0
@@ -156,7 +164,6 @@ def generate_complete_date_series(start_date, end_date, duration):
             current_date += timedelta(days=1)
     
     elif duration == "Weekly":
-        # Start from the beginning of the week containing start_date
         start_week = start_date - timedelta(days=start_date.weekday())
         current_date = start_week
         while current_date <= end_date:
@@ -175,7 +182,6 @@ def generate_complete_date_series(start_date, end_date, duration):
                 month = 1
                 year += 1
             
-            # Handle month transitions
             last_day = calendar.monthrange(year, month)[1]
             next_month = date(year, month, min(current_date.day, last_day))
             current_date = next_month.replace(day=1)
@@ -185,7 +191,6 @@ def generate_complete_date_series(start_date, end_date, duration):
         while current_date <= end_date:
             date_series.append(get_date_key(current_date, duration))
             
-            # Move to next quarter
             month = current_date.month + 3
             year = current_date.year
             if month > 12:
@@ -207,9 +212,8 @@ def get_date_key(date_str, duration):
         date_obj = date_str
     
     if duration == "Daily":
-        return date_obj.strftime("%d-%m-%Y")  # DD-MM-YYYY format
+        return date_obj.strftime("%d-%m-%Y")
     elif duration == "Weekly":
-        # Use the first day of the week as the key
         week_start = date_obj - timedelta(days=date_obj.weekday())
         return week_start.strftime("%d-%m-%Y")
     elif duration == "Monthly":
@@ -227,12 +231,10 @@ def get_sort_key(date_key, duration):
     if duration == "Daily":
         return datetime.strptime(date_key, "%d-%m-%Y")
     elif duration == "Weekly":
-        # Format depends on the get_date_key format
         return datetime.strptime(date_key, "%d-%m-%Y")
     elif duration == "Monthly":
         return datetime.strptime(date_key, "%b %Y")
     elif duration == "Quarterly":
-        # Format: "QX YYYY"
         quarter = int(date_key[1])
         year = int(date_key.split(" ")[1])
         month = (quarter - 1) * 3 + 1
@@ -241,3 +243,19 @@ def get_sort_key(date_key, duration):
         return datetime(int(date_key), 1, 1)
     
     return date_key
+
+@frappe.whitelist()
+def get_petty_cash_requests():
+    supervisor = frappe.session.user  # Ensure it always uses the logged-in user
+    
+    if not supervisor:
+        frappe.throw(_("Supervisor is required"))
+    
+    # Fetch all authorized user_ids for the supervisor
+    user_ids = frappe.get_all(
+        "Petty Cash Authorized Employees", 
+        filters={"supervisor": supervisor}, 
+        pluck="user_id"
+    )
+    
+    return user_ids if user_ids else []
