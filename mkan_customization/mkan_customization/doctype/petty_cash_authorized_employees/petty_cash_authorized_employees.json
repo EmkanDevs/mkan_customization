@@ -117,10 +117,10 @@
  "links": [
   {
    "link_doctype": "Petty Cash Request",
-   "link_fieldname": "Employee"
+   "link_fieldname": "employee"
   }
  ],
- "modified": "2025-02-17 11:55:54.011412",
+ "modified": "2025-02-20 10:29:36.210919",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Petty Cash Authorized Employees",

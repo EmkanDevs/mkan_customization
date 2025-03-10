@@ -8,9 +8,9 @@
  "filters": [],
  "idx": 0,
  "is_standard": "Yes",
- "letter_head": "CPC Letter Head",
+ "letter_head": "CPC Letterhead",
  "letterhead": null,
- "modified": "2025-03-06 07:49:41.143061",
+ "modified": "2025-03-09 13:57:22.079861",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "PO Details",
@@ -43,6 +43,9 @@
   },
   {
    "role": "Purchase Reviewer"
+  },
+  {
+   "role": "Project Control Manager"
   }
  ],
  "timeout": 0
