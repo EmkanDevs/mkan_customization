@@ -8,7 +8,7 @@ frappe.query_reports["Supervisor - Petty Cash Request"] = {
             "label": __("Duration"),
             "fieldtype": "Select",
             "options": ["Daily", "Weekly", "Monthly", "Quarterly", "Yearly"],
-            "default": "Daily",
+            "default": "Monthly",
             "reqd": 1,
             "on_change": function() {
                 frappe.query_report.refresh();
