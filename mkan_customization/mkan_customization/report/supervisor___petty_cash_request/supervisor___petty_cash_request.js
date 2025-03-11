@@ -11,6 +11,7 @@ frappe.query_reports["Supervisor - Petty Cash Request"] = {
             "default": "Monthly",
             "reqd": 1,
             "on_change": function() {
+                frappe.query_report.set_filter_value("duration", "Monthly");
                 frappe.query_report.refresh();
             }
         },
