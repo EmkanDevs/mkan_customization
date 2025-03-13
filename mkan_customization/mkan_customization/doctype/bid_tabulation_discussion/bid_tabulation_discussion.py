@@ -20,6 +20,21 @@ class BidTabulationDiscussion(Document):
 				),
 				ignore_permissions=True,
 			)
+		data = frappe.get_doc("Request for Quotation", self.request_for_quotation)
+		value = data.items[0].material_request if data.items else ""
+		self.material_request = value
+		if self.material_request:
+			doc = frappe.get_doc("Material Request",self.material_request)
+			assign_to.add(
+				dict(
+					assign_to=[doc.owner],
+					doctype="Bid Tabulation Discussion",
+					name=self.name,
+					priority= "Medium",
+					notify=True,
+				),
+				ignore_permissions=True,
+			)
 	def before_insert(self):
 		
 		existing_doc = frappe.get_all(
@@ -61,9 +76,7 @@ class BidTabulationDiscussion(Document):
 			
 			self.supplier = None
 			self.reason = None
-		data = frappe.get_doc("Request for Quotation", self.request_for_quotation)
-		value = data.items[0].material_request if data.items else ""
-		self.material_request = value
+		
 
 	def before_submit(self):
 		supplier_count = {}
