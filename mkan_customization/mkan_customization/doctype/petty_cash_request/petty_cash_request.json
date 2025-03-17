@@ -22,7 +22,8 @@
   "purchase_invoice",
   "amended_from",
   "petty_cash_link",
-  "approval_status"
+  "approval_status",
+  "supervisor"
  ],
  "fields": [
   {
@@ -139,6 +140,14 @@
    "fieldtype": "Data",
    "label": "Approval status",
    "read_only": 1
+  },
+  {
+   "fetch_from": "employee.supervisor",
+   "fieldname": "supervisor",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Supervisor",
+   "options": "User"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -153,7 +162,7 @@
    "link_fieldname": "petty_cash_request"
   }
  ],
- "modified": "2025-03-05 12:06:02.648708",
+ "modified": "2025-03-17 09:30:32.947789",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Petty Cash Request",
