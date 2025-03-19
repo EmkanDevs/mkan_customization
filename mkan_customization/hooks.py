@@ -45,7 +45,8 @@ app_license = "mit"
 # include js in doctype views
 doctype_js = {
             "Request for Quotation":"public/js/request_for_quotation.js",
-            "Purchase Order":"public/js/purchase_order.js"
+            # "Purchase Order":"public/js/purchase_order.js",
+            # "Expense Claim":"public/js/expense_claim.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -133,7 +134,7 @@ doctype_js = {
 # Override standard doctype classes
 
 # override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
+# 	"Expense Claim": "mkan_customization.mkan_customization.override.expense_claim.ExpenseClaim",
 # }
 
 # Document Events
@@ -147,6 +148,15 @@ doc_events = {
     "Material Request":{
         "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate"
     },
+    # "Purchase Receipt":{
+    #     "validate":"mkan_customization.mkan_customization.doc_events.purchase_receipt.validate",
+    #     "on_cancel":"mkan_customization.mkan_customization.doc_events.purchase_receipt.on_cancel",
+    # },
+    # "Expense Claim":{
+    #     "validate":"mkan_customization.mkan_customization.doc_events.expense_claim.validate",
+    #     "on_cancel":"mkan_customization.mkan_customization.doc_events.expense_claim.on_cancel",
+    # }
+
 
 }
 
@@ -170,7 +180,8 @@ scheduler_events = {
 override_whitelisted_methods = {
 	"erpnext.stock.doctype.material_request.material_request.make_request_for_quotation": "mkan_customization.mkan_customization.override.material_request.make_request_for_quotation",
     "erpnext.buying.doctype.request_for_quotation.request_for_quotation.make_supplier_quotation_from_rfq":"mkan_customization.mkan_customization.override.request_for_quotation.make_supplier_quotation_from_rfq",
-    "frappe.desk.form.assign_to.add":"mkan_customization.mkan_customization.override.assign_to.add"
+    "frappe.desk.form.assign_to.add":"mkan_customization.mkan_customization.override.assign_to.add",
+    "erpnext.stock.doctype.material_request.material_request.make_stock_entry":"mkan_customization.mkan_customization.override.material_request.make_stock_entry"
 }
 #
 # each overriding function accepts a `data` argument;
