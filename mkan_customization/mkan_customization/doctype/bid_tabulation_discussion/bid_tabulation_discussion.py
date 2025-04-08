@@ -142,7 +142,8 @@ def fetch_attachments_and_display(request_for_quotation):
 		ON
 			sqi.parent = sq.name
 		WHERE
-			sqi.request_for_quotation = %s
+			sqi.request_for_quotation = %s and 
+			sq.docstatus = 1
 		GROUP BY sq.name
 	""", (request_for_quotation,), as_dict=True)
 	
@@ -216,8 +217,9 @@ def get_supplier_details(docname):
 
 	supplier_quotations = frappe.get_all(
 		"Supplier Quotation",
-		filters={"request_for_quotation": rfq_doc.name},
-		fields=["name", "supplier", "total", "total_qty"]
+		filters={"request_for_quotation": rfq_doc.name,"docstatus":1},
+		fields=["name", "supplier", "total", "total_qty"],
+		group_by = "name"
 	)
 
 	for sq in supplier_quotations:
@@ -240,16 +242,15 @@ def get_supplier_details(docname):
 
 		items = frappe.get_all(
 			"Supplier Quotation Item",
-			filters={"parent": sq.name},
+			filters={"parent": sq.name,"docstatus":1},
 			fields=["item_code", "item_name", "qty", "uom", "rate", "amount"]
 		)
-
 		for item in items:
 			unique_item_key = f"{sq.supplier}-{item.item_code}-{item.qty}-{item.rate}"
 			if unique_item_key not in processed_items:
 				supplier_details.append({
 					"supplier": sq.supplier,
-					"supplier_name": supplier_name,  # Ensuring supplier name is included
+					"supplier_name": supplier_name, 
 					"item_code": item.item_code,
 					"item_name": item.item_name,
 					"qty": item.qty,
@@ -259,7 +260,7 @@ def get_supplier_details(docname):
 					"is_supplier_row": False
 				})
 				processed_items.add(unique_item_key)
-
+	supplier_details = sorted(supplier_details, key=lambda i: i['supplier'], reverse=True)
 	return supplier_details
 
 
@@ -349,7 +350,7 @@ def set_supplier_quotation_value(request_for_quotation,supplier):
 		ON
 			sqi.parent = sq.name
 		WHERE
-			sqi.request_for_quotation = %s and sq.supplier = %s
+			sqi.request_for_quotation = %s and sq.supplier = %s and sq.docstatus = 1
 		GROUP BY sq.name, sq.supplier
 	""", (request_for_quotation,supplier,), as_dict=True)
 
