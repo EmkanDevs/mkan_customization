@@ -45,9 +45,9 @@ app_license = "mit"
 # include js in doctype views
 doctype_js = {
             "Request for Quotation":"public/js/request_for_quotation.js",
-            "Stock Entry":"public/js/stock_entry.js"
-            # "Purchase Order":"public/js/purchase_order.js",
-            # "Expense Claim":"public/js/expense_claim.js"
+            "Stock Entry":"public/js/stock_entry.js",
+            "Purchase Order":"public/js/purchase_order.js",
+            "Expense Claim":"public/js/expense_claim.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -134,9 +134,9 @@ doctype_js = {
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"Expense Claim": "mkan_customization.mkan_customization.override.expense_claim.ExpenseClaim",
-# }
+override_doctype_class = {
+	"Expense Claim": "mkan_customization.mkan_customization.override.expense_claim.ExpenseClaim",
+}
 
 # Document Events
 # ---------------
@@ -149,14 +149,18 @@ doc_events = {
     "Material Request":{
         "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate"
     },
-    # "Purchase Receipt":{
-    #     "validate":"mkan_customization.mkan_customization.doc_events.purchase_receipt.validate",
-    #     "on_cancel":"mkan_customization.mkan_customization.doc_events.purchase_receipt.on_cancel",
-    # },
-    # "Expense Claim":{
-    #     "validate":"mkan_customization.mkan_customization.doc_events.expense_claim.validate",
-    #     "on_cancel":"mkan_customization.mkan_customization.doc_events.expense_claim.on_cancel",
-    # }
+    "Purchase Receipt":{
+        "validate":"mkan_customization.mkan_customization.doc_events.purchase_receipt.validate",
+        "on_cancel":"mkan_customization.mkan_customization.doc_events.purchase_receipt.on_cancel",
+        "after_insert":"mkan_customization.mkan_customization.doc_events.purchase_receipt.after_insert"
+    },
+    "Expense Claim":{
+        "validate":"mkan_customization.mkan_customization.doc_events.expense_claim.validate",
+        "on_cancel":"mkan_customization.mkan_customization.doc_events.expense_claim.on_cancel",
+    },
+    "Supplier Quotation":{
+        "on_cancel":"mkan_customization.mkan_customization.doc_events.supplier_quotation.on_cancel"
+    }
 
 
 }

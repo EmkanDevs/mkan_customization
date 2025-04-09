@@ -18,12 +18,15 @@
   "department",
   "priority",
   "required_amount",
+  "received_amount",
   "cost_center",
   "purchase_invoice",
   "amended_from",
   "petty_cash_link",
   "approval_status",
-  "supervisor"
+  "supervisor",
+  "request_details_tab",
+  "custom_html_tab"
  ],
  "fields": [
   {
@@ -149,6 +152,22 @@
    "in_standard_filter": 1,
    "label": "Supervisor",
    "options": "User"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "received_amount",
+   "fieldtype": "Float",
+   "label": "Received Amount"
+  },
+  {
+   "fieldname": "request_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Request Details"
+  },
+  {
+   "fieldname": "custom_html_tab",
+   "fieldtype": "HTML",
+   "label": "Custom Html tab"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -163,7 +182,7 @@
    "link_fieldname": "petty_cash_request"
   }
  ],
- "modified": "2025-03-17 09:49:16.747706",
+ "modified": "2025-03-25 07:53:29.647942",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Petty Cash Request",
