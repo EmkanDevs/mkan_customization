@@ -264,3 +264,7 @@ fixtures = [
     }
 ]
 
+from mkan_customization.mkan_customization.override.workflow_action import get_users_next_action_data_for_workflow
+import frappe.workflow.doctype.workflow_action.workflow_action as workflow_action_module
+workflow_action_module.get_users_next_action_data = get_users_next_action_data_for_workflow
+
