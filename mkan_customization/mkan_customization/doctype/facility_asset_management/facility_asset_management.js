@@ -6,3 +6,15 @@
 
 // 	},
 // });
+
+frappe.ui.form.on("Facility Asset Management", {
+    supplier: function(frm) {
+        frm.set_query("purchase_order", function() {
+            return {
+                filters: {
+                    supplier: frm.doc.supplier,
+                }
+            };
+        });
+    },
+});

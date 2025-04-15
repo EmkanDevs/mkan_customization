@@ -13,6 +13,8 @@
   "current_status",
   "hard_disk_type",
   "hard_disk_size_gb",
+  "supplier",
+  "purchase_order",
   "column_break_teqj",
   "ram_size",
   "generation",
@@ -229,11 +231,25 @@
    "fieldtype": "Table",
    "label": "Software details",
    "options": "IT Asset Software Subscriptions"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "depends_on": "eval:doc.supplier",
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-18 13:09:50.447094",
+ "modified": "2025-04-15 15:07:48.580967",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "IT Asset Management",
@@ -252,6 +268,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
