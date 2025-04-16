@@ -1,6 +1,6 @@
 import frappe
 
-def validate(self, method):
+def on_submit(self, method):
     if self.party_type == "Supplier" and self.party:
         missing_fields = []
 
