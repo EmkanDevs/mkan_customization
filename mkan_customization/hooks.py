@@ -47,7 +47,7 @@ doctype_js = {
             "Request for Quotation":"public/js/request_for_quotation.js",
             "Stock Entry":"public/js/stock_entry.js",
             "Purchase Order":"public/js/purchase_order.js",
-            "Expense Claim":"public/js/expense_claim.js"
+            "Expense Claim":"public/js/expense_claim.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -160,6 +160,9 @@ doc_events = {
     },
     "Supplier Quotation":{
         "on_cancel":"mkan_customization.mkan_customization.doc_events.supplier_quotation.on_cancel"
+    },
+    "Payment Request":{
+        "on_submit":"mkan_customization.mkan_customization.doc_events.payment_request.on_submit"
     }
 
 
