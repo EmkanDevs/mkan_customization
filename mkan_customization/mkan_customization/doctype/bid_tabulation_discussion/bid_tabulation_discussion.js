@@ -109,6 +109,7 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
     },
     
     onload: function (frm) {
+        // set filter on supplier, final supplier and supplier quotation
         if (frm.doc.request_for_quotation) {
             frm.set_query("supplier", function () {
                 return {
@@ -136,6 +137,7 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
 });
 
 function get_suppliers_from_rfq(rfq) {
+    // get suppliers from request for quotation
     if(rfq){
         let suppliers = [];
         frappe.call({
@@ -153,6 +155,7 @@ function get_suppliers_from_rfq(rfq) {
 }
 
 function get_suppliers_quotation(rfq) {
+    // get supplier quotation
     let suppliers = [];
     frappe.call({
         method: "mkan_customization.mkan_customization.doctype.bid_tabulation_discussion.bid_tabulation_discussion.set_supplier_quotation",

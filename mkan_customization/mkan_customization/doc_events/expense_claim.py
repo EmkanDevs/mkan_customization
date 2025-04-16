@@ -6,6 +6,9 @@ def validate(self, method):
     calculate_expense_tax(self,method)
 
 def validate_petty_cash(self,method):
+    #validation for total amount not greater then petty cash connected
+    
+    # compare both expense claim and purchase receipt grand total
     if not self.petty_cash_request:
         return
     total = 0
@@ -40,6 +43,7 @@ def validate_petty_cash(self,method):
         )
 
 def calculate_expense_tax(self,method):
+    # customization for taxes are charges added in expense row 
     self.taxes=[]
     for row in self.expenses:
         row.custom_tax_amount = row.amount*row.custom_rate/100
@@ -61,4 +65,5 @@ def calculate_expense_tax(self,method):
     self.total_claimed_amount = self.total_taxes_and_charges + self.total_sanctioned_amount
 
 def on_cancel(self,method):
+    # on cancel remove petty cash ref
     self.db_set("petty_cash_request",None)

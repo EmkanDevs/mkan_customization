@@ -8,6 +8,7 @@ from mkan_customization.mkan_customization.override import assign_to
 
 class BidTabulationDiscussion(Document):
 	def after_insert(self):
+		# assign to selected user group
 		doc = frappe.get_doc("User Group",self.user_list)
 		for row in doc.user_group_members:
 			assign_to.add(
@@ -36,7 +37,7 @@ class BidTabulationDiscussion(Document):
 				ignore_permissions=True,
 			)
 	def before_insert(self):
-		
+		# throw an error on duplicate entry of Big Tabulation
 		existing_doc = frappe.get_all(
 			"Bid Tabulation Discussion",
 			filters={
@@ -61,6 +62,7 @@ class BidTabulationDiscussion(Document):
 		value = data.items[0].material_request if data.items else ""
 		self.material_request = value
 	def before_save(self):
+		# append supplier, reason and user in discussion
 		if self.supplier and not self.reason:
 			frappe.throw("Please add reason for supplier")
 		elif self.reason and not self.supplier:
@@ -80,7 +82,7 @@ class BidTabulationDiscussion(Document):
 
 	def before_submit(self):
 		supplier_count = {}
-		
+		# find total suppliers and set supplier quotation
 		for row in self.discussion:
 			supplier = row.supplier
 			if supplier and row.selected_supplier:
@@ -111,6 +113,7 @@ class BidTabulationDiscussion(Document):
 
 @frappe.whitelist()
 def set_supplier_quotation(request_for_quotation):
+    # return parent name to set supplier quotation 
 	doc = frappe.db.sql("""
 	SELECT
 		sqi.name AS item_name,
@@ -130,6 +133,7 @@ def set_supplier_quotation(request_for_quotation):
 
 @frappe.whitelist()
 def fetch_attachments_and_display(request_for_quotation):
+    # fetch attachments from supplier quotation and display
 	doc = frappe.db.sql("""
 		SELECT
 			sqi.name AS item_name,
@@ -203,11 +207,13 @@ def fetch_attachments_and_display(request_for_quotation):
 
 @frappe.whitelist()
 def get_supplier_options(docname):
+    # return supplier 
 	doc = frappe.get_doc("Request for Quotation", docname)
 	return [row.supplier for row in doc.suppliers]
 
 @frappe.whitelist()
 def get_supplier_details(docname):
+    # get all details of supplier
 	rfq_doc = frappe.get_doc("Request for Quotation", docname)
 
 	processed_suppliers = set()
@@ -266,14 +272,17 @@ def get_supplier_details(docname):
 
 @frappe.whitelist()
 def make_purchase_order(source_name, target_doc=None):
+    # make purchase order 
 	bid_tabulation = frappe.flags.args.bid_tabulation
 	def set_missing_values(source, target):
+		# set missing values 
 		target.run_method("set_missing_values")
 		target.run_method("get_schedule_dates")
 		target.run_method("calculate_taxes_and_totals")
 		target.bid_tabulation = bid_tabulation
 
 	def update_item(obj, target, source_parent):
+		# update item
 		target.stock_qty = flt(obj.qty) * flt(obj.conversion_factor)
 
 
@@ -309,8 +318,10 @@ def make_purchase_order(source_name, target_doc=None):
 
 @frappe.whitelist()
 def make_quotation(source_name, target_doc=None):
+    # make quotation
 	bid_tabulation = frappe.flags.args.bid_tabulation
 	def set_missing_values(source, target):
+		# set missing value
 		target.bid_tabulation = bid_tabulation
 	doclist = get_mapped_doc(
 		"Supplier Quotation",
@@ -339,6 +350,7 @@ def make_quotation(source_name, target_doc=None):
 
 @frappe.whitelist()
 def set_supplier_quotation_value(request_for_quotation,supplier):
+    # return parent name to set supplier quotation value
 	doc = frappe.db.sql("""
 		SELECT
 			sq.name AS parent_name,
