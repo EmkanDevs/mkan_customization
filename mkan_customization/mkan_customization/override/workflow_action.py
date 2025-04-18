@@ -5,7 +5,7 @@ from frappe.workflow.doctype.workflow_action.workflow_action import get_workflow
 
 def get_users_next_action_data_for_workflow(transitions, doc):
 	user_data_map = {}
-
+	filtered_users = []
 	@frappe.request_cache
 	def user_has_permission(user: str) -> bool:
 		from frappe.permissions import has_permission
@@ -14,9 +14,12 @@ def get_users_next_action_data_for_workflow(transitions, doc):
 
 	for transition in transitions:
 		users = get_users_with_role(transition.allowed)
-		filtered_users = [
-			user for user in users if has_approval_access(user, doc, transition) and user_has_permission(user) and check_project_permissions(user, doc)
-		]
+		for user in users:
+			if has_approval_access(user, doc, transition) and user_has_permission(user) and check_project_permissions(user, doc) and frappe.db.get_value("Workflow",{"document_type":doc.doctype,"is_active":1},"send_email_as_project_condition") == 1:
+				filtered_users.append(user)
+			elif has_approval_access(user, doc, transition) and user_has_permission(user):
+				filtered_users.append(user)
+
 		if doc.get("owner") in filtered_users and not transition.get("send_email_to_creator"):
 			filtered_users.remove(doc.get("owner"))
 		for user in filtered_users:
