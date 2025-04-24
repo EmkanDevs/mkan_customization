@@ -1,6 +1,8 @@
     
 import frappe
-
+from frappe.model.mapper import get_mapped_doc
+from frappe.utils import flt
+import json
 def validate(self, method):
     if not self.petty_cash_request:
         return
@@ -40,3 +42,46 @@ def after_insert(self,method):
         self.petty_cash_employee = frappe.db.get_value("Petty Cash Request",self.petty_cash_request,"employee")
 def on_cancel(self,method):
     self.db_set("petty_cash_request",None)
+
+@frappe.whitelist()
+def make_purchase_receipt_from_multiple_mr(material_requests, supplier):
+    """
+    Create Purchase Receipt items from multiple Material Requests
+    Args:
+        material_requests: List of Material Request names
+        supplier: Supplier name
+    """
+    if isinstance(material_requests, str):
+        material_requests = json.loads(material_requests)
+        
+    items = []
+    for mr in material_requests:
+        mr_items = get_material_request_items(mr, supplier)
+        items.extend(mr_items)
+        
+    return items
+    
+def get_material_request_items(material_request, supplier):
+    """Fetch items from a single Material Request"""
+    mr_doc = frappe.get_doc("Material Request", material_request)
+    items = []
+    
+    for d in mr_doc.items:
+        # if d.ordered_qty < d.qty and not d.purchase_receipt:
+        item_data = {
+            "item_code": d.item_code,
+            "item_name": d.item_name,
+            "description": d.description,
+            "warehouse": d.warehouse,
+            "material_request": material_request,
+            "material_request_item": d.name,
+            "qty": d.qty,
+            "stock_uom": d.stock_uom,
+            "uom": d.uom,
+            "conversion_factor": d.conversion_factor,
+            "rate": d.rate,
+            "schedule_date": d.schedule_date
+        }
+        items.append(item_data)
+            
+    return items

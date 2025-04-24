@@ -175,7 +175,8 @@ doc_events = {
 
 scheduler_events = {
 	"all": [
-		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities"
+		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities",
+        "mkan_customization.mkan_customization.doc_events.payment_request.update_payment_entry_count_in_request"
 	],
 }
 
