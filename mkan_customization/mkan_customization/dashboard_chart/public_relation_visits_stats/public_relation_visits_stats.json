@@ -1,0 +1,37 @@
+{
+ "based_on": "",
+ "chart_name": "Public Relation Visits Stats",
+ "chart_type": "Group By",
+ "creation": "2025-04-27 08:57:51.237967",
+ "currency": "SAR",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "document_type": "Public Relation Visit",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[]",
+ "group_by_based_on": "pr_request_type",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2025-04-27 09:04:05.604037",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Public Relation Visits Stats",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "parent_document_type": "",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "source": "",
+ "time_interval": "Yearly",
+ "timeseries": 0,
+ "timespan": "Last Year",
+ "type": "Pie",
+ "use_report_chart": 0,
+ "value_based_on": "",
+ "y_axis": []
+}

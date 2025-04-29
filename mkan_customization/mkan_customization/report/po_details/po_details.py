@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe.utils import formatdate
 
 def execute(filters=None):
     """Main function to generate the tree report"""
@@ -15,10 +16,13 @@ def execute(filters=None):
 
 def get_columns():
     """Define the report columns"""
+
     return [
         {"label": "Purchase Order", "fieldname": "purchase_order", "fieldtype": "Link", "options": "Purchase Order", "width": 250},
 		{"label": "Created By", "fieldname": "owner", "fieldtype": "Data", "width": 150},
+		{"label": "Created On", "fieldname": "creation_date", "fieldtype": "Data", "width": 150},
         {"label": "Workflow State", "fieldname": "workflow_state", "fieldtype": "Data", "width": 150},
+        {"label": "Approval Date", "fieldname": "approval_date", "fieldtype": "Data", "width": 150},
         {"label": "Status", "fieldname": "status", "fieldtype": "Data", "width": 120},
         {"label": "Transaction Date", "fieldname": "transaction_date", "fieldtype": "Date", "width": 150},
         {"label": "Item Code", "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 150},
@@ -69,7 +73,12 @@ def get_data(filters):
     parent_query = f"""
         SELECT 
             mr.name AS purchase_order,
+            (select DATE_FORMAT(modification_time ,'%%d-%%m-%%Y %%H:%%i:%%s') from `tabState Change Items` sc
+            where sc.parent = mr.name 
+            and sc.docstatus = 1 and workflow_state = 'Approved') AS approval_date,
             mr.owner,
+            # DATE_FORMAT(creation, '%%d-%%m-%%Y %%r') AS creation_date,
+            DATE_FORMAT(creation, '%%d-%%m-%%Y %%H:%%i:%%s') AS creation_date,
             mr.workflow_state,
             mr.status,
             mr.transaction_date,
@@ -120,6 +129,7 @@ def get_data(filters):
             SELECT 
                 NULL AS purchase_order,  
 				NULL AS owner,
+                NULL AS creation,
                 NULL AS workflow_state,
                 NULL AS status,
                 Null AS transaction_date,

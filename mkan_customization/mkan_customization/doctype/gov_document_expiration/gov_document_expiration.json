@@ -1,0 +1,148 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "DOC-EXP-.YYYY.-.#####",
+ "creation": "2025-04-27 14:04:19.740315",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "gov_document_type",
+  "gov_document_type_ar",
+  "column_break_7jpx",
+  "reminder_in_days",
+  "targeted_visit_office",
+  "column_break_o15a",
+  "issue_on",
+  "expire_on",
+  "section_break_fajp",
+  "prev_copy",
+  "latest_copy",
+  "renewal_status",
+  "column_break_duvn",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "gov_document_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Gov Document Type",
+   "options": "Gov Document Type"
+  },
+  {
+   "fetch_from": "gov_document_type.reminder_in_days",
+   "fieldname": "reminder_in_days",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Reminder in Days"
+  },
+  {
+   "fetch_from": "gov_document_type.targeted_office",
+   "fieldname": "targeted_visit_office",
+   "fieldtype": "Link",
+   "label": "Targeted Visit Office",
+   "options": "Targeted Visit Office"
+  },
+  {
+   "default": "Today",
+   "fieldname": "issue_on",
+   "fieldtype": "Date",
+   "label": "Issue On"
+  },
+  {
+   "bold": 1,
+   "fieldname": "expire_on",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expire On",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "gov_document_type.gov_document_type_ar",
+   "fieldname": "gov_document_type_ar",
+   "fieldtype": "Data",
+   "label": "Gov Document Type AR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_7jpx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_o15a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_fajp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "prev_copy",
+   "fieldtype": "Attach",
+   "label": "Prev. Copy"
+  },
+  {
+   "fieldname": "column_break_duvn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "latest_copy",
+   "fieldtype": "Attach",
+   "label": "Latest Copy"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
+  },
+  {
+   "default": "Renewed - \u062a\u0645 \u0627\u0644\u062a\u062c\u062f\u064a\u062f",
+   "fieldname": "renewal_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Renewal Status",
+   "options": "\nRenewed - \u062a\u0645 \u0627\u0644\u062a\u062c\u062f\u064a\u062f\nUnder Renewal - \u062a\u062d\u062a \u0627\u0644\u062a\u062c\u062f\u064a\u062f\nCancelled - \u062a\u0645 \u0627\u0644\u0625\u0644\u063a\u0627\u0621"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-04-27 15:38:52.845355",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Gov Document Expiration",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Green",
+   "title": "Renewed - \u062a\u0645 \u0627\u0644\u062a\u062c\u062f\u064a\u062f"
+  },
+  {
+   "color": "Red",
+   "title": "Cancelled - \u062a\u0645 \u0627\u0644\u0625\u0644\u063a\u0627\u0621"
+  },
+  {
+   "color": "Yellow",
+   "title": "Under Renewal - \u062a\u062d\u062a \u0627\u0644\u062a\u062c\u062f\u064a\u062f"
+  }
+ ]
+}
