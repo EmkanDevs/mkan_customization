@@ -178,6 +178,10 @@ scheduler_events = {
 		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities",
         "mkan_customization.mkan_customization.doc_events.payment_request.update_payment_entry_count_in_request"
 	],
+    "daily": [
+        "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.renewal_status",
+        "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.send_expiration_reminders"
+    ]
 }
 
 # Testing

@@ -54,7 +54,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "\nIn Storage\nIn Use\nOn Hold\nCancelled"
+   "options": "\nIn Storage\nIn Use\nOn Hold\nCancelled\nTo Be Canceled"
   },
   {
    "fieldname": "location",
@@ -147,7 +147,7 @@
    "link_fieldname": "sim_management"
   }
  ],
- "modified": "2025-03-20 12:35:18.134430",
+ "modified": "2025-05-04 10:17:39.638790",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "SIM Management",
@@ -167,6 +167,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [

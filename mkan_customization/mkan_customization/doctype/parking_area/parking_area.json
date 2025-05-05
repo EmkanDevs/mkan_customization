@@ -39,13 +39,13 @@
    "fetch_from": "parent_location.latitude",
    "fieldname": "latitude",
    "fieldtype": "Float",
-   "label": "Latitude"
+   "label": "\u062e\u0637 \u0627\u0644\u0639\u0631\u0636"
   },
   {
    "fetch_from": "parent_location.longitude",
    "fieldname": "longitude",
    "fieldtype": "Float",
-   "label": "Longitude"
+   "label": "\u062e\u0637 \u0627\u0644\u0637\u0648\u0644"
   },
   {
    "fieldname": "sb_geolocation",
@@ -54,13 +54,13 @@
   {
    "fieldname": "location",
    "fieldtype": "Geolocation",
-   "label": "Location"
+   "label": "\u0627\u0644\u062e\u0631\u064a\u0637\u0629"
   },
   {
    "fieldname": "lft",
    "fieldtype": "Int",
    "hidden": 1,
-   "label": "Left",
+   "label": "\u064a\u0633\u0627\u0631",
    "no_copy": 1,
    "read_only": 1
   },
@@ -68,25 +68,25 @@
    "fieldname": "rgt",
    "fieldtype": "Int",
    "hidden": 1,
-   "label": "Right",
+   "label": "\u064a\u0645\u064a\u0646",
    "no_copy": 1,
    "read_only": 1
   },
   {
    "fieldname": "parking_area_no",
    "fieldtype": "Data",
-   "label": "Parking Area No",
+   "label": "\u0631\u0642\u0645 \u0627\u0644\u0645\u0648\u0627\u0642\u0641",
    "unique": 1
   },
   {
    "fieldname": "parking_area_name",
    "fieldtype": "Data",
-   "label": "Parking Area Name"
+   "label": "\u0625\u0633\u0645 \u0627\u0644\u0645\u0648\u0627\u0642\u0641"
   },
   {
    "fieldname": "parking_area_description",
    "fieldtype": "Data",
-   "label": "Parking Area Description"
+   "label": "\u062a\u0641\u0635\u064a\u0644 \u0644\u0644\u0645\u0648\u0627\u0642\u0641"
   },
   {
    "fieldname": "parent_parking_area",
@@ -99,7 +99,7 @@
   {
    "fieldname": "area_location",
    "fieldtype": "Link",
-   "label": "Area Location",
+   "label": "\u0627\u0644\u0645\u0648\u0642\u0639",
    "options": "Location"
   },
   {
@@ -110,13 +110,13 @@
    "default": "Active",
    "fieldname": "parking_area_status",
    "fieldtype": "Select",
-   "label": "Parking Area Status",
+   "label": "\u062d\u0627\u0644\u0629 \u0627\u0644\u0645\u0648\u0627\u0642\u0641",
    "options": "Active\nOn Hold\nUnder Maintenance\nClosed"
   },
   {
    "fieldname": "capacity",
    "fieldtype": "Data",
-   "label": "Capacity"
+   "label": "\u0639\u062f\u062f \u0627\u0644\u0645\u0648\u0627\u0642\u0641"
   }
  ],
  "grid_page_length": 50,
@@ -127,7 +127,7 @@
    "link_fieldname": "parking_area_no"
   }
  ],
- "modified": "2025-04-20 16:53:13.572250",
+ "modified": "2025-05-05 11:13:01.718502",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Parking Area",
