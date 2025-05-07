@@ -89,6 +89,7 @@
    "fetch_from": "employee.employee_name",
    "fieldname": "full_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Full Name",
    "read_only": 1
   },
@@ -159,7 +160,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-16 10:40:00.633107",
+ "modified": "2025-04-22 15:16:41.844942",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Request New SIM",
@@ -180,6 +181,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

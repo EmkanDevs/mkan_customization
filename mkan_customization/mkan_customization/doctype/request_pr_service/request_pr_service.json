@@ -33,7 +33,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Location",
+   "label": "\u0627\u0644\u0645\u0648\u0642\u0639",
    "options": "Location"
   },
   {
@@ -45,14 +45,14 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Project",
+   "label": "\u0627\u0644\u0645\u0634\u0631\u0648\u0639",
    "options": "Project"
   },
   {
    "fetch_from": "project.project_name",
    "fieldname": "project_name",
    "fieldtype": "Data",
-   "label": "Project Name",
+   "label": "\u0625\u0633\u0645 \u0627\u0644\u0645\u0634\u0631\u0648\u0639",
    "read_only": 1
   },
   {
@@ -64,7 +64,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "PR Request Type",
+   "label": "\u0646\u0648\u0639 \u0627\u0644\u0637\u0644\u0628",
    "options": "Public Relations Request Type"
   },
   {
@@ -74,7 +74,7 @@
   {
    "fieldname": "remark",
    "fieldtype": "Small Text",
-   "label": "Remark"
+   "label": "\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
   },
   {
    "fieldname": "section_break_blt8",
@@ -102,17 +102,17 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Request Date"
+   "label": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0632\u064a\u0627\u0631\u0629"
   },
   {
    "fieldname": "required_by",
    "fieldtype": "Date",
-   "label": "Required By"
+   "label": "\u0627\u0644\u0645\u0637\u0644\u0648\u0628 \u0628\u062a\u0627\u0631\u064a\u062e"
   },
   {
    "fieldname": "priority",
    "fieldtype": "Select",
-   "label": "Priority",
+   "label": "\u0627\u0644\u0623\u0648\u0644\u0648\u064a\u0629",
    "options": "\nHigh\nMedium\nLow"
   },
   {
@@ -121,7 +121,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Status",
+   "label": "\u0627\u0644\u062d\u0627\u0644\u0629",
    "options": "Active\nIn-Active\nResolved"
   }
  ],
@@ -134,7 +134,7 @@
    "link_fieldname": "request_pr_service"
   }
  ],
- "modified": "2025-04-27 11:16:51.733960",
+ "modified": "2025-05-06 09:34:22.610362",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Request PR Service",

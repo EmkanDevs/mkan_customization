@@ -19,7 +19,7 @@
    "fieldname": "email",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Email",
+   "label": "\u0627\u0644\u0625\u064a\u0645\u064a\u0644",
    "options": "User",
    "reqd": 1,
    "unique": 1
@@ -28,7 +28,7 @@
    "fieldname": "employee_number",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Employee Number",
+   "label": "\u0631\u0642\u0645 \u0627\u0644\u0645\u0648\u0638\u0641",
    "reqd": 1
   },
   {
@@ -39,25 +39,25 @@
    "fetch_from": "email.full_name",
    "fieldname": "full_name",
    "fieldtype": "Data",
-   "label": "Full Name",
+   "label": "\u0625\u0633\u0645 \u0627\u0644\u0645\u0648\u0638\u0641 / \u0625\u0646\u062c\u0644\u064a\u0632\u064a",
    "read_only": 1
   },
   {
    "fieldname": "full_name_arabic",
    "fieldtype": "Data",
-   "label": "Full Name Arabic"
+   "label": "\u0625\u0633\u0645 \u0627\u0644\u0645\u0648\u0638\u0641 / \u0639\u0631\u0628\u064a"
   },
   {
    "default": "1",
    "fieldname": "active",
    "fieldtype": "Check",
-   "label": "Active"
+   "label": "\u0646\u0634\u064a\u0637"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-21 10:23:21.330575",
+ "modified": "2025-05-06 09:15:56.348751",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Public Relations Resource",

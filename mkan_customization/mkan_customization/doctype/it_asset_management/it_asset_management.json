@@ -73,6 +73,7 @@
   {
    "fieldname": "current_status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Current Status",
    "options": "\nIn Storage\nIn Use\nRetired\nAwaiting Disposal"
   },
@@ -249,7 +250,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-15 15:07:48.580967",
+ "modified": "2025-04-17 15:17:04.657757",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "IT Asset Management",

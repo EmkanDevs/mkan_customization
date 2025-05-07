@@ -20,7 +20,7 @@
    "fieldname": "pr_request_type",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "PR Request Type",
+   "label": "\u0646\u0648\u0639 \u0627\u0644\u0637\u0644\u0628 / \u0625\u0646\u062c\u0644\u064a\u0632\u064a",
    "reqd": 1,
    "unique": 1
   },
@@ -28,14 +28,14 @@
    "fieldname": "pr_request_type_arabic",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "PR Request Type Arabic",
+   "label": "\u0646\u0648\u0639 \u0627\u0644\u0637\u0644\u0628 / \u0639\u0631\u0628\u064a",
    "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-21 10:57:24.260480",
+ "modified": "2025-05-06 09:28:46.947761",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Public Relations Request Type",

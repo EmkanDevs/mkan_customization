@@ -37,5 +37,5 @@ def update_payment_entry_count_in_request():
     # Update each Payment Request with the count of linked Payment Entries
     for payment_request, payment_entries in payment_request_map.items():
         count = len(payment_entries)
-        frappe.db.set_value("Payment Request", payment_request, "total_payment_entry", count)
+        frappe.db.set_value("Payment Request", payment_request, "total_payment_entry", count,update_modified=False)
         frappe.db.commit()

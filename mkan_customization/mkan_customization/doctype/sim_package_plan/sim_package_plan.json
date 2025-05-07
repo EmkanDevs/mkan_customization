@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "autoincrement",
  "creation": "2025-03-06 14:37:06.231407",
  "doctype": "DocType",
@@ -45,7 +46,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-07 10:07:34.761954",
+ "modified": "2025-03-20 14:18:48.995845",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "SIM Package Plan",

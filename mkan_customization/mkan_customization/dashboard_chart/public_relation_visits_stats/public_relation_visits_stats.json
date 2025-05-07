@@ -11,10 +11,11 @@
  "filters_json": "[]",
  "group_by_based_on": "pr_request_type",
  "group_by_type": "Count",
- "idx": 0,
+ "idx": 2,
  "is_public": 1,
  "is_standard": 1,
- "modified": "2025-04-27 09:04:05.604037",
+ "last_synced_on": "2025-05-06 14:17:10.441533",
+ "modified": "2025-05-06 14:17:26.194544",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Public Relation Visits Stats",
@@ -24,6 +25,21 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role": "Public Relation Manager"
+  },
+  {
+   "role": "Public Relation User"
+  },
+  {
+   "role": "Business Development Manager"
+  },
+  {
+   "role": "Read All Pages"
+  },
+  {
+   "role": "General Manager"
   }
  ],
  "source": "",
