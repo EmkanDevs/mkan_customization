@@ -8,8 +8,33 @@ from datetime import datetime, timedelta
 class GovDocumentExpiration(Document):
 	pass
 
-from datetime import datetime, timedelta
-import frappe
+def renewal_status():
+	today = datetime.today().date()
+
+	# Fetch all documents with the required filters
+	docs = frappe.get_all(
+		"Gov Document Expiration",
+		filters={
+			"renewal_status": "Renewed - تم التجديد",
+			"expire_on": ["is", "set"],
+			"reminder_in_days": ["is", "set"]
+		},
+		fields=["name", "expire_on", "reminder_in_days"]
+	)
+
+	# Filter documents based on the reminder logic
+	filtered_docs = []
+	for doc in docs:
+		if doc.expire_on and doc.reminder_in_days is not None:
+			reminder_days = int(doc.reminder_in_days)
+			reminder_date = doc.expire_on - timedelta(days=reminder_days)
+			if today >= reminder_date:
+				filtered_docs.append(doc.name)
+	
+	for row in filtered_docs:
+		doc = frappe.get_doc("Gov Document Expiration",row)
+		doc.db_set("renewal_status","Under Renewal - تحت التجديد")
+
 
 def send_expiration_reminders():
 	docs = frappe.get_all("Gov Document Expiration",
