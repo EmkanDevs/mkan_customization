@@ -24,6 +24,7 @@
   "for_employee",
   "employee_name",
   "designation",
+  "attachment",
   "section_break_wrd1",
   "description",
   "amended_from"
@@ -158,6 +159,11 @@
    "in_standard_filter": 1,
    "label": "Status",
    "options": "Open\nWorking\nPending Review\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
   }
  ],
  "grid_page_length": 50,
@@ -175,7 +181,7 @@
    "link_fieldname": "custom_new_requisition"
   }
  ],
- "modified": "2025-05-08 11:35:04.190694",
+ "modified": "2025-05-09 07:26:24.278521",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "New Requisition",
