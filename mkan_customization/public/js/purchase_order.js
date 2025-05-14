@@ -1,7 +1,24 @@
 frappe.ui.form.on("Purchase Order", {
     refresh: function (frm) {
+        frm.add_custom_button(
+            __("Service Status"),
+            () => {
+                frappe.call({
+                    method: "mkan_customization.mkan_customization.doc_events.purchase_order.service_status_map",
+                    args: {
+                        source_name: frm.doc.name
+                    },
+                    callback: function (response) {
+                        if (response.message) {
+                            frappe.model.sync(response.message);
+                            frappe.set_route("Form", response.message.doctype, response.message.name);
+                        }
+                    }
+                });
+            },
+            __("Create")
+        );
         if (frm.doc.custom_bid_tabulation_check == 0) {
-            console.log("hello")
             frappe.call({
                 method: "frappe.client.get_list",
                 args: {
