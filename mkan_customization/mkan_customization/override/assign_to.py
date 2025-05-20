@@ -82,8 +82,12 @@ def add(args=None, *, ignore_permissions=False):
 					)
 					frappe.throw(msg, title=_("Missing Permission"))
 				else:
-					frappe.share.add(doc.doctype, doc.name, assign_to,write=1)
-					shared_with_users.append(assign_to)
+					if doc.doctype == "Service Status":
+						frappe.share.add(doc.doctype, doc.name, assign_to,write=1,submit=1)
+						shared_with_users.append(assign_to)
+					else:
+						frappe.share.add(doc.doctype, doc.name, assign_to,write=1)
+						shared_with_users.append(assign_to)
 
 			# make this document followed by assigned user
 			if frappe.get_cached_value("User", assign_to, "follow_assigned_documents"):
