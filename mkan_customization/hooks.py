@@ -167,9 +167,9 @@ doc_events = {
     "Payment Request":{
         "on_submit":"mkan_customization.mkan_customization.doc_events.payment_request.on_submit"
     },
-    # "Payment Entry":{
-    #     "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
-    # }
+    "Payment Entry":{
+        "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
+    }
 
 
 }
