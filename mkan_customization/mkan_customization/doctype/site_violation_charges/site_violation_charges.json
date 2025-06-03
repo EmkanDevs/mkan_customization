@@ -1,0 +1,168 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SITE-VIOL-CHRG.-.####",
+ "creation": "2025-05-28 14:50:38.450157",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "site_violation_charge_no",
+  "project_site_violation",
+  "violation_penalty_reason",
+  "penalty_date",
+  "account_paid_to",
+  "company",
+  "column_break_gp99",
+  "area_permit_no",
+  "area_po_no",
+  "penalty_amount",
+  "project",
+  "project_name",
+  "section_break_aiuw",
+  "site_violation_description",
+  "payment_distribution_section",
+  "charges_on_subcontractor",
+  "violation_charges"
+ ],
+ "fields": [
+  {
+   "fieldname": "site_violation_charge_no",
+   "fieldtype": "Data",
+   "label": "Site Violation Charge No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_site_violation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project Site Violation",
+   "options": "Project Site Violation",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "project_site_violation.violation_penalty_reason",
+   "fieldname": "violation_penalty_reason",
+   "fieldtype": "Data",
+   "label": "Violation Penalty Reason",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_site_violation.penalty_date",
+   "fieldname": "penalty_date",
+   "fieldtype": "Date",
+   "label": "Penalty Date",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_site_violation.area_permit_no",
+   "fieldname": "area_permit_no",
+   "fieldtype": "Data",
+   "label": "Area Permit No",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_site_violation.area_po_no",
+   "fieldname": "area_po_no",
+   "fieldtype": "Data",
+   "label": "Area PO No",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_site_violation.penalty_amount",
+   "fieldname": "penalty_amount",
+   "fieldtype": "Currency",
+   "label": "Penalty Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_gp99",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_aiuw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "site_violation_description",
+   "fieldtype": "Small Text",
+   "label": "Site Violation Description"
+  },
+  {
+   "fieldname": "payment_distribution_section",
+   "fieldtype": "Section Break",
+   "label": "Charges Distribution"
+  },
+  {
+   "default": "0",
+   "fieldname": "charges_on_subcontractor",
+   "fieldtype": "Check",
+   "label": "Charges on Subcontractor"
+  },
+  {
+   "depends_on": "charges_on_subcontractor",
+   "fieldname": "violation_charges",
+   "fieldtype": "Table",
+   "label": "Violation Charges",
+   "options": "Site Violation Charges Details"
+  },
+  {
+   "fetch_from": "project_site_violation.project",
+   "fieldname": "project",
+   "fieldtype": "Data",
+   "label": "Project",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project_site_violation.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "account_paid_to",
+   "fieldtype": "Link",
+   "label": "Account Paid To",
+   "options": "Account"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Payment Entry",
+   "link_fieldname": "site_violation_charges"
+  }
+ ],
+ "modified": "2025-06-03 12:18:40.135418",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Site Violation Charges",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

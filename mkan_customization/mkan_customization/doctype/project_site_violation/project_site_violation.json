@@ -1,0 +1,292 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:violation_no",
+ "creation": "2025-05-27 14:27:10.293869",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "violation_no",
+  "area_permit_no",
+  "violation_penalty_reason",
+  "column_break_sigg",
+  "company",
+  "penalty_date",
+  "objection_bcd",
+  "column_break_vyfw",
+  "area_po_no",
+  "penalty_amount",
+  "section_break_edk3",
+  "project",
+  "project_name",
+  "project_manager",
+  "pm_contact_no",
+  "column_break_fwyw",
+  "area_manager",
+  "penalty_status",
+  "objection_no",
+  "objection_status",
+  "column_break_ct6p",
+  "violation_penalty_reason_arabic",
+  "location",
+  "area",
+  "objection_reason",
+  "payment_information_section",
+  "sadad_no",
+  "payment_due_date",
+  "column_break_ejit",
+  "close_violation",
+  "inform_accounting",
+  "payment_status",
+  "section_break_jwun",
+  "from_account",
+  "column_break_jtal",
+  "to_account"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_edk3",
+   "fieldtype": "Section Break",
+   "label": "Project Information:"
+  },
+  {
+   "fieldname": "violation_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Violation No",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "area_permit_no",
+   "fieldtype": "Data",
+   "label": "Area Permit No"
+  },
+  {
+   "fieldname": "area_po_no",
+   "fieldtype": "Data",
+   "label": "Area PO No"
+  },
+  {
+   "fieldname": "column_break_vyfw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "penalty_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Penalty Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "objection_bcd",
+   "fieldtype": "Date",
+   "label": "Objection BCD"
+  },
+  {
+   "default": "0",
+   "fieldname": "penalty_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Penalty Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Location",
+   "options": "Location"
+  },
+  {
+   "fieldname": "column_break_fwyw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "penalty_status",
+   "fieldtype": "Select",
+   "label": "Penalty Status",
+   "options": "\nObjection\nExpired"
+  },
+  {
+   "fieldname": "objection_no",
+   "fieldtype": "Data",
+   "label": "Objection No"
+  },
+  {
+   "fieldname": "objection_status",
+   "fieldtype": "Select",
+   "label": "Objection Status",
+   "options": "\nOver\nRejected\nUnder Study\nAccepted"
+  },
+  {
+   "fieldname": "violation_penalty_reason",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Violation Penalty Reason",
+   "options": "Violation Penalty Reason"
+  },
+  {
+   "fieldname": "project_manager",
+   "fieldtype": "Link",
+   "label": "Project Manager",
+   "options": "User"
+  },
+  {
+   "fieldname": "area_manager",
+   "fieldtype": "Link",
+   "label": "Area Manager",
+   "options": "User"
+  },
+  {
+   "fieldname": "pm_contact_no",
+   "fieldtype": "Data",
+   "label": "PM Contact No"
+  },
+  {
+   "fieldname": "payment_information_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Information:"
+  },
+  {
+   "fieldname": "payment_due_date",
+   "fieldtype": "Date",
+   "label": "Payment Due Date"
+  },
+  {
+   "fieldname": "column_break_ejit",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payment Status",
+   "options": "\nUnpaid\nPaid\nCanceled"
+  },
+  {
+   "fieldname": "column_break_sigg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sadad_no",
+   "fieldtype": "Data",
+   "label": "Sadad No"
+  },
+  {
+   "default": "0",
+   "fieldname": "inform_accounting",
+   "fieldtype": "Check",
+   "label": "Inform Accounting"
+  },
+  {
+   "default": "0",
+   "fieldname": "close_violation",
+   "fieldtype": "Check",
+   "label": "Close Violation"
+  },
+  {
+   "fetch_from": "location.parent_location",
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "label": "Area",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ct6p",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "violation_penalty_reason.penalty_reason_arabic",
+   "fieldname": "violation_penalty_reason_arabic",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Violation Penalty Reason Arabic",
+   "read_only": 1
+  },
+  {
+   "fieldname": "objection_reason",
+   "fieldtype": "Small Text",
+   "label": "Objection Reason"
+  },
+  {
+   "fieldname": "section_break_jwun",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "from_account",
+   "fieldtype": "Link",
+   "label": "From Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_jtal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_account",
+   "fieldtype": "Link",
+   "label": "To Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Journal Entry",
+   "link_fieldname": "project_site_violation"
+  }
+ ],
+ "modified": "2025-06-03 10:46:42.660845",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Project Site Violation",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
