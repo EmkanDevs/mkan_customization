@@ -42,6 +42,15 @@ def create_payment_entries_for_violation(docname):
     # Validate if penalty amount exists
     if not doc.penalty_amount:
         frappe.throw("Penalty amount is missing.")
+    
+    if not doc.project_site_violation:
+        frappe.throw("Project Site Violation is not linked in this document.")
+
+    project_violation_doc = frappe.get_doc("Project Site Violation", doc.project_site_violation)
+
+    sadad_no = project_violation_doc.sadad_no
+    payment_due_date = project_violation_doc.payment_due_date
+    # frappe.throw(str(payment_due_date))
 
     # Loop through the violation charges child table
     for row in doc.violation_charges:
@@ -71,10 +80,60 @@ def create_payment_entries_for_violation(docname):
             pe.paid_from_account_currency = "SAR"
             pe.paid_to_account_currency = "SAR"
             pe.received_amount = amount_per_distribution
+            pe.reference_no = sadad_no
+            pe.reference_date = payment_due_date
             
             pe.flags.ignore_mandatory = True
             pe.flags.ignore_validate = True
 
             pe.insert(ignore_permissions=True)
+            
+            
+    # Step 1: Count total payment entries created
+    total_entries = sum(row.no_of_distribution or 1 for row in doc.violation_charges)
+
+    # Step 2: Construct document URL
+    site_url = frappe.utils.get_url()
+    document_url = f"{site_url}/app/site-violation-charges/{doc.name}"
+
+    # Step 3: Compose email
+    subject = f"Payment Entries Created for Site Violation Charges: {doc.name}"
+    message = f"""
+    Dear Team,<br><br>
+
+    A total of <b>{total_entries}</b> Payment Entries have been created for the Site Violation Charges document: 
+    <a href="{document_url}">{doc.name}</a>.<br><br>
+
+    You can view the document here: <a href="{document_url}">{document_url}</a><br><br>
+
+    Regards,<br>
+    System Notification
+    """
+
+    # Step 4: Fetch emails of users with specific roles
+    roles_to_notify = ["Accounts Manager", "Finance Manager", "Accounts User"]
+    recipients = []
+
+    for role in roles_to_notify:
+        users = frappe.get_all(
+            "Has Role",
+            filters={"role": role},
+            fields=["parent"]
+        )
+        for user in users:
+            user_email = frappe.db.get_value("User", user.parent, "email")
+            if user_email and user_email not in recipients:
+                recipients.append(user_email)
+                
+    # frappe.throw(str(recipients))
+
+    # Step 5: Send the email
+    if recipients:
+        frappe.sendmail(
+            recipients=recipients,
+            subject=subject,
+            message=message
+        )
+
             
     return True

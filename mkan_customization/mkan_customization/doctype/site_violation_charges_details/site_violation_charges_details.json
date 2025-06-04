@@ -45,13 +45,16 @@
   {
    "fieldname": "supplier_account",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Supplier Account",
    "options": "Account"
   },
   {
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
-   "label": "Paid Amount"
+   "in_list_view": 1,
+   "label": "Paid Amount",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_tlxj",
@@ -62,7 +65,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-06-03 12:34:40.263399",
+ "modified": "2025-06-04 09:55:58.731385",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Site Violation Charges Details",
