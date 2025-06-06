@@ -19,3 +19,7 @@ def bid_tabulation(source_name, target_doc=None):
 	)
 
 	return doclist
+
+def on_submit(self,method):
+	if len(self.suppliers) < 3:
+		frappe.throw("At least 3 suppliers are required to submit the Request for Quotation.")

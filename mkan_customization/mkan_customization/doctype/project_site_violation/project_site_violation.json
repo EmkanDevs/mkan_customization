@@ -9,13 +9,17 @@
   "violation_no",
   "area_permit_no",
   "violation_penalty_reason",
+  "violation_penalty_reason_arabic",
+  "issuing_authority",
   "column_break_sigg",
   "company",
   "penalty_date",
   "objection_bcd",
+  "issuing_authority_arabic",
   "column_break_vyfw",
   "area_po_no",
   "penalty_amount",
+  "violation_description",
   "section_break_edk3",
   "project",
   "project_name",
@@ -27,7 +31,6 @@
   "objection_no",
   "objection_status",
   "column_break_ct6p",
-  "violation_penalty_reason_arabic",
   "location",
   "area",
   "objection_reason",
@@ -37,6 +40,7 @@
   "column_break_ejit",
   "close_violation",
   "inform_accounting",
+  "notification_sent",
   "payment_status",
   "section_break_jwun",
   "from_account",
@@ -219,7 +223,6 @@
    "fetch_from": "violation_penalty_reason.penalty_reason_arabic",
    "fieldname": "violation_penalty_reason_arabic",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "Violation Penalty Reason Arabic",
    "read_only": 1
   },
@@ -254,6 +257,31 @@
    "label": "Company",
    "options": "Company",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Notification Sent"
+  },
+  {
+   "fieldname": "issuing_authority",
+   "fieldtype": "Link",
+   "label": "Issuing Authority",
+   "options": "Violation Issuing Authority"
+  },
+  {
+   "fieldname": "violation_description",
+   "fieldtype": "Small Text",
+   "label": "Violation Description"
+  },
+  {
+   "fetch_from": "issuing_authority.issuing_authority_arabic",
+   "fieldname": "issuing_authority_arabic",
+   "fieldtype": "Data",
+   "label": "Issuing Authority Arabic",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -264,7 +292,7 @@
    "link_fieldname": "project_site_violation"
   }
  ],
- "modified": "2025-06-03 10:46:42.660845",
+ "modified": "2025-06-05 12:38:39.848612",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Project Site Violation",

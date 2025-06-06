@@ -1,0 +1,124 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-15 10:01:27.028898",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "item_name",
+  "description",
+  "unit",
+  "original_contract_section",
+  "contract__quantity",
+  "unit_rate",
+  "contract_price",
+  "site_progress_section",
+  "previous_quantity",
+  "current_quantity",
+  "accumulate_quantity",
+  "section_break_wlje",
+  "progress_percentage"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "item.description",
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fetch_from": "item.stock_uom",
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "label": "Unit",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "original_contract_section",
+   "fieldtype": "Section Break",
+   "label": "Original Contract "
+  },
+  {
+   "fieldname": "contract__quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Contract  Quantity"
+  },
+  {
+   "fieldname": "unit_rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Unit Rate"
+  },
+  {
+   "fieldname": "contract_price",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Contract Price"
+  },
+  {
+   "fieldname": "site_progress_section",
+   "fieldtype": "Section Break",
+   "label": "Site Progress"
+  },
+  {
+   "fieldname": "previous_quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Previous Quantity"
+  },
+  {
+   "fieldname": "current_quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Current Quantity"
+  },
+  {
+   "fieldname": "accumulate_quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Accumulate Quantity"
+  },
+  {
+   "fieldname": "section_break_wlje",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "progress_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Progress Percentage"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-25 08:00:46.434194",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Invoice released memo detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

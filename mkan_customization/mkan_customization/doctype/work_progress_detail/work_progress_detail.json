@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-15 09:31:04.413427",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "item_code",
+  "description",
+  "section_break_hakg",
+  "uom",
+  "completion_rate",
+  "version",
+  "column_break_ibea",
+  "previous_executed_quantity",
+  "current_executed_quantity",
+  "total_quantities_implemented",
+  "section_break_qktm",
+  "site_engineer_or_supervisor_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  },
+  {
+   "fetch_from": "item.description",
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fetch_from": "item.stock_uom",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "previous_executed_quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Previous Executed Quantity"
+  },
+  {
+   "fieldname": "current_executed_quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Current Executed Quantity"
+  },
+  {
+   "fieldname": "total_quantities_implemented",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Quantities Implemented"
+  },
+  {
+   "fieldname": "completion_rate",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Completion Rate"
+  },
+  {
+   "fieldname": "section_break_hakg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ibea",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_qktm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "site_engineer_or_supervisor_notes",
+   "fieldtype": "Small Text",
+   "label": "Site Engineer or Supervisor Notes"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Version"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-25 07:57:09.020881",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Work Progress Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

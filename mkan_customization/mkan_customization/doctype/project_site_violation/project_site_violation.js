@@ -32,6 +32,8 @@ frappe.ui.form.on('Project Site Violation', {
                         posting_date: frappe.datetime.now_date(),
                         project_site_violation:frm.doc.name,
                         company: frm.doc.company,
+                        cheque_no: frm.doc.sadad_no,
+                        cheque_date: frm.doc.payment_due_date,
                         accounts: [
                             {
                                 account: frm.doc.from_account,

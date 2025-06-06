@@ -1,0 +1,175 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-05-15 09:48:23.558492",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_np4w",
+  "naming_series",
+  "date",
+  "vendor",
+  "start_date",
+  "invoice_no",
+  "invoice_date",
+  "discpline",
+  "column_break_vewf",
+  "client",
+  "project_no",
+  "project_code",
+  "project_name",
+  "cost_code",
+  "end_date",
+  "project_sub_contracts",
+  "work_progress_report",
+  "amended_from",
+  "section_break_tiqc",
+  "invoice_released_memo_detail"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_np4w",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Invoice released Memo",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "vendor",
+   "fieldtype": "Link",
+   "label": "Vendor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "label": "Invoice Date"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "IRM-"
+  },
+  {
+   "fieldname": "project_no",
+   "fieldtype": "Link",
+   "label": "Project No",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_vewf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project_code",
+   "fieldtype": "Data",
+   "label": "Project Code"
+  },
+  {
+   "fieldname": "cost_code",
+   "fieldtype": "Link",
+   "label": "Cost Code",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "label": "Client",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End date"
+  },
+  {
+   "fieldname": "section_break_tiqc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "invoice_released_memo_detail",
+   "fieldtype": "Table",
+   "label": "Invoice released memo detail",
+   "options": "Invoice released memo detail"
+  },
+  {
+   "fieldname": "project_sub_contracts",
+   "fieldtype": "Link",
+   "label": "Project Sub Contracts",
+   "options": "Project Sub-Contracts",
+   "read_only": 1
+  },
+  {
+   "fieldname": "discpline",
+   "fieldtype": "Small Text",
+   "label": "Discpline"
+  },
+  {
+   "fieldname": "work_progress_report",
+   "fieldtype": "Link",
+   "label": "Work Progress Report",
+   "options": "Work Progress Report",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "label": "Invoice No."
+  },
+  {
+   "fetch_from": "project_no.custom_parent_project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-22 14:58:03.026256",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Invoice released Memo",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

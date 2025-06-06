@@ -61,6 +61,10 @@ class BidTabulationDiscussion(Document):
 		data = frappe.get_doc("Request for Quotation", self.request_for_quotation)
 		value = data.items[0].material_request if data.items else ""
 		self.material_request = value
+		if self.request_for_quotation:
+			doc = frappe.get_doc("Request for Quotation",self.request_for_quotation)
+			if len(doc.suppliers) < 3:
+				frappe.throw("At least 3 suppliers are required to create Bid tabulation")
 	def before_save(self):
 		# append supplier, reason and user in discussion
 		if self.supplier and not self.reason:

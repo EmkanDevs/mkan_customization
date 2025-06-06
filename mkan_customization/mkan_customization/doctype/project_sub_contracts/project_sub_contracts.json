@@ -13,6 +13,7 @@
   "retention_percent",
   "status",
   "is_signed",
+  "post_date",
   "cb_party",
   "zone__area",
   "party_name",
@@ -25,7 +26,7 @@
   "cb_date",
   "end_date",
   "project_number",
-  "cost_code_name",
+  "project_name",
   "sb_signee",
   "signee",
   "signed_on",
@@ -33,6 +34,8 @@
   "ip_address",
   "global_rating",
   "payment_schedule_type",
+  "total_duration_days",
+  "total_contract_amount",
   "sb_contract",
   "contract_template",
   "contract_terms",
@@ -48,7 +51,9 @@
   "authorised_by_section",
   "signee_company",
   "signed_by_company",
-  "amended_from"
+  "amended_from",
+  "request_details_tab",
+  "custom_html_tab"
  ],
  "fields": [
   {
@@ -163,13 +168,6 @@
    "fieldname": "project_number",
    "fieldtype": "Data",
    "label": "Project Number",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "business_code__cost_center.cost_center_name",
-   "fieldname": "cost_code_name",
-   "fieldtype": "Data",
-   "label": "Cost Code Name",
    "read_only": 1
   },
   {
@@ -319,11 +317,45 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "post_date",
+   "fieldtype": "Date",
+   "label": "Post Date"
+  },
+  {
+   "fieldname": "total_duration_days",
+   "fieldtype": "Int",
+   "label": "Total Duration Days",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "total_contract_amount",
+   "fieldtype": "Float",
+   "label": "Total Contract Amount"
+  },
+  {
+   "fieldname": "request_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Request Details"
+  },
+  {
+   "fieldname": "custom_html_tab",
+   "fieldtype": "HTML",
+   "label": "Custom Html tab"
+  },
+  {
+   "fetch_from": "project.custom_parent_project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
   }
  ],
+ "grid_page_length": 50,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-01-09 12:00:44.885671",
+ "modified": "2025-05-23 13:39:39.154401",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Project Sub-Contracts",
@@ -374,6 +406,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

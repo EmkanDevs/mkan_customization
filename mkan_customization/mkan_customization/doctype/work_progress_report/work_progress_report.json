@@ -1,0 +1,161 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-05-15 08:59:59.066416",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_plbw",
+  "date",
+  "project",
+  "project_code",
+  "project_name",
+  "sub_contractor",
+  "naming_series",
+  "project_sub_contracts",
+  "column_break_unin",
+  "start_date",
+  "end_date",
+  "cost_code",
+  "business_type",
+  "version",
+  "amended_from",
+  "section_break_fcgy",
+  "work_progress_detail"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_plbw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Work Progress Report",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fetch_from": "project.custom_project_code",
+   "fieldname": "project_code",
+   "fieldtype": "Data",
+   "label": "Project Code"
+  },
+  {
+   "fieldname": "column_break_unin",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "cost_code",
+   "fieldtype": "Link",
+   "label": "Cost Code",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "business_type",
+   "fieldtype": "Select",
+   "label": "Business Type",
+   "options": "Concrete works"
+  },
+  {
+   "fieldname": "sub_contractor",
+   "fieldtype": "Link",
+   "label": "Sub-Contractor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "section_break_fcgy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "work_progress_detail",
+   "fieldtype": "Table",
+   "label": "Work Progress Detail",
+   "options": "Work Progress Detail"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "WPR-"
+  },
+  {
+   "fieldname": "project_sub_contracts",
+   "fieldtype": "Link",
+   "label": "Project Sub Contracts",
+   "options": "Project Sub-Contracts",
+   "read_only": 1
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "label": "Version"
+  },
+  {
+   "fetch_from": "project.custom_parent_project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Invoice released Memo",
+   "link_fieldname": "work_progress_report"
+  }
+ ],
+ "modified": "2025-05-23 09:24:56.908522",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Work Progress Report",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
