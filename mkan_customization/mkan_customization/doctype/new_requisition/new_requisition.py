@@ -33,4 +33,4 @@ class NewRequisition(Document):
 	def on_update(self):
 		if self.workflow_state == "Completed" and not self.attachment:
 		# if self.doc_status == "Completed" and not self.attachment:
-			frappe.throw("Please add Attachment")
+			frappe.msgprint("Please add Attachment")
