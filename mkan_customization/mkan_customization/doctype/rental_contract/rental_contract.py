@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from datetime import datetime
 from frappe.utils import getdate, today
-
+from frappe.desk.form.load import get_attachments
 
 class RentalContract(Document):
     pass
@@ -46,21 +46,27 @@ def send_email_reminder_electric_and_water(contract, reminder_type):
     <p>This is a monthly reminder for your <strong>{reminder_type.lower()} utility</strong> as per your contract at <strong>{contract.location}</strong>.</p>
     <ul>
         <li><b>Contract:</b> {contract.name}</li>
+        <li><b>Contract Type:</b> {contract.contract_type}</li>
+        <li><b>Contract No:</b> {contract.contract_no}</li>
+        <li><b>Start Date:</b> {contract.start_of_contract}</li>
+        <li><b>End Date:</b> {contract.end_of_contract}</li>
         <li><b>Project:</b> {contract.project_name}</li>
-        <li><b>Reminder Type:</b> {reminder_type}</li>
-        <li><b>Note:</b> {contract.note or "N/A"}</li>
-        <li><b>Contact:</b> {contract.onwer_contact_no}</li>
+        <li><b>Location:</b> {contract.location}</li>
+        <li><b>Accommodation Type:</b> {contract.accommodation_type or "N/A"}</li>
+        <li><b>Payment Frequency:</b> {contract.payment_frequency}</li>
+        <li><b>Yearly Rent:</b> {contract.yearly_rent}</li>
     </ul>
     <p>Kindly take necessary actions.</p>
     <p>Regards,<br>Your Team</p>
     """
-
+    attachment_file_names = get_attachments("Rental Contract",contract.name)
     frappe.sendmail(
         recipients=get_users_with_role("Public Relation Manager"),
         subject=subject,
         message=message,
         reference_doctype="Rental Contract",
-        reference_name=contract.name
+        reference_name=contract.name,
+        attachments=attachment_file_names # Pass the list of File DocType names here
     )
 
 # Call the function if you're testing
@@ -134,20 +140,27 @@ def send_rent_email(contract, rent_amount):
     <p>This is a reminder that your rent payment is due as per your rental contract:</p>
     <ul>
         <li><b>Contract:</b> {contract.name}</li>
+        <li><b>Contract Type:</b> {contract.contract_type}</li>
+        <li><b>Contract No:</b> {contract.contract_no}</li>
+        <li><b>Start Date:</b> {contract.start_of_contract}</li>
+        <li><b>End Date:</b> {contract.end_of_contract}</li>
+        <li><b>Project:</b> {contract.project_name}</li>
         <li><b>Location:</b> {contract.location}</li>
+        <li><b>Accommodation Type:</b> {contract.accommodation_type or "N/A"}</li>
         <li><b>Payment Frequency:</b> {contract.payment_frequency}</li>
-        <li><b>Amount Due:</b> {frappe.utils.fmt_money(rent_amount, currency='SAR')}</li>
-        <li><b>Contact:</b> {contract.onwer_contact_no}</li>
+        <li><b>Yearly Rent:</b> {contract.yearly_rent}</li>
     </ul>
     <p>Please ensure timely payment. Thank you.</p>
     <p>Regards,<br>Your Team</p>
     """
 
+    attachment_file_names = get_attachments("Rental Contract",contract.name)
 
     frappe.sendmail(
         recipients=get_users_with_role("Accounts Manager"),
         subject=subject,
         message=message,
         reference_doctype="Rental Contract",
-        reference_name=contract.name
+        reference_name=contract.name,
+        attachments=attachment_file_names
     )
