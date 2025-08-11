@@ -52,6 +52,8 @@ doctype_js = {
             "Project":"public/js/project.js",
             "Purchase Receipt":"public/js/purchase_receipt.js",
             "Material Request":"public/js/material_request.js",
+            "Sales Invoice":"public/js/sales_invoice.js",
+            "Sales Order":"public/js/sales_order.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -170,6 +172,9 @@ doc_events = {
     },
     "Payment Entry":{
         "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
+    },
+    "Sales Invoice":{
+        "before_validate":"mkan_customization.mkan_customization.doc_events.sales_invoice.validate"
     }
 
 
@@ -181,7 +186,8 @@ doc_events = {
 scheduler_events = {
 	"all": [
 		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities",
-        "mkan_customization.mkan_customization.doc_events.payment_request.update_payment_entry_count_in_request"
+        "mkan_customization.mkan_customization.doc_events.payment_request.update_payment_entry_count_in_request",
+        "mkan_customization.mkan_customization.doctype.helpdesk_request.helpdesk_request.check_and_close_timeout_tickets"
 	],
     "daily": [
         "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.renewal_status",
@@ -276,12 +282,8 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"module": ["in", ["Mkan Customization"]]},
+        "filters": {"dt": ["in", ["Helpdesk Request"]]},
     },
-    {
-        "dt": "Property Setter",
-        "filters": {"module": ["in", ["Mkan Customization"]]},
-    }
 ]
 
 from mkan_customization.mkan_customization.override.workflow_action import get_users_next_action_data_for_workflow
