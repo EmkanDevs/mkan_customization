@@ -1,7 +1,7 @@
 frappe.ui.form.on("Request for Quotation", {
     refresh: function (frm, cdt, cdn) {
-		if (this.frm.fields_dict["items"].grid.get_field("uom")) {
-			this.frm.set_query("uom", "items", function(doc, cdt, cdn) {
+		if (frm.fields_dict["items"].grid.get_field("uom")) {
+			frm.set_query("uom", "items", function(doc, cdt, cdn) {
 				let row = locals[cdt][cdn];
 
 				return {
