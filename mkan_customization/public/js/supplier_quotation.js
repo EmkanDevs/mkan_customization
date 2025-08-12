@@ -1,5 +1,17 @@
 frappe.ui.form.on("Supplier Quotation", {
     refresh: function (frm) {
+        if (this.frm.fields_dict["items"].grid.get_field("uom")) {
+			this.frm.set_query("uom", "items", function(doc, cdt, cdn) {
+				let row = locals[cdt][cdn];
+
+				return {
+					query: "erpnext.controllers.queries.get_item_uom_query",
+					filters: {
+						"item_code": row.item_code
+					}
+				};
+			});
+		}
         // Reopen button when Expired and not submitted
         if (frm.doc.status === "Expired" && frm.doc.docstatus !== 1) {
             frm.add_custom_button("Reopen", function () {
