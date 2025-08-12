@@ -14,6 +14,7 @@ frappe.ui.form.on("Request PR Service", {
                 new_doc.project_name = frm.doc.project_name;
                 new_doc.remark = frm.doc.remark;
                 new_doc.pr_request_type = frm.doc.pr_request_type;
+                new_doc.request_pr_service_no = frm.doc.name;
 
                 // Copy child table: serviced_employees
                 if (frm.doc.serviced_employees && frm.doc.serviced_employees.length > 0) {
