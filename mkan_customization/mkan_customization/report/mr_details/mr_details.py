@@ -59,6 +59,19 @@ def get_data(filters):
             values["project"] = filters["project"]
         
         conditions.extend(project_conditions)
+        
+    if filters.get("from_date") and filters.get("to_date"):
+        conditions.append("""
+            EXISTS (
+                SELECT 1 
+                FROM `tabMaterial Request Item` mri 
+                WHERE mri.parent = mr.name
+                AND mri.schedule_date BETWEEN %(from_date)s AND %(to_date)s
+            )
+        """)
+        values["from_date"] = filters["from_date"]
+        values["to_date"] = filters["to_date"]
+
 
     condition_str = " AND ".join(conditions) if conditions else "1=1"
 
@@ -103,6 +116,7 @@ def get_data(filters):
     parent_rows = frappe.db.sql(parent_query, values, as_dict=True)
     
     data = []
+    print(parent_rows)
     for parent in parent_rows:
         # Fetch Material Request Items (Child Rows)
         child_conditions = "mri.parent = %s"
