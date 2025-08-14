@@ -32,5 +32,10 @@ frappe.ui.form.on("Project", {
 				project: frm.doc.name
 			});
 		}, "Reports");
+		frm.add_custom_button("Non-Settled Petty Cash", function () {
+			frappe.set_route("query-report", "Non-Settled Petty Cash", {
+				project: frm.doc.name
+			});
+		}, "Reports");
 	}
 });
