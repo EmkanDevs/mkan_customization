@@ -33,12 +33,9 @@ def get_columns():
         {"label": "Supplier Quotation", "fieldname": "supplier_quotation", "fieldtype": "Link", "options": "Supplier Quotation", "width": 250},
     ]
 
-def get_data(filters):
-    """Fetches and organizes the report data in a tree format"""
+def get_data(filters): 
     conditions = []
     values = {}
-
-    # Handle multiple Material Request IDs
     if filters.get("id"):
         if isinstance(filters["id"], list):
             conditions.append("name IN %(ids)s")
@@ -47,79 +44,89 @@ def get_data(filters):
             conditions.append("name = %(id)s")
             values["id"] = filters["id"]
 
-    # Handle project filtering
     if filters.get("project"):
-        # Modify the query to ensure proper project filtering
-        project_conditions = []
         if isinstance(filters["project"], list):
-            project_conditions.append("EXISTS (SELECT 1 FROM `tabMaterial Request Item` mri WHERE mri.parent = mr.name AND mri.project IN %(projects)s)")
             values["projects"] = tuple(filters["project"])
         else:
-            project_conditions.append("EXISTS (SELECT 1 FROM `tabMaterial Request Item` mri WHERE mri.parent = mr.name AND mri.project = %(project)s)")
             values["project"] = filters["project"]
-        
-        conditions.extend(project_conditions)
-        
+                
     if filters.get("from_date") and filters.get("to_date"):
-        conditions.append("""
-            EXISTS (
-                SELECT 1 
-                FROM `tabMaterial Request Item` mri 
-                WHERE mri.parent = mr.name
-                AND mri.schedule_date BETWEEN %(from_date)s AND %(to_date)s
-            )
-        """)
-        values["from_date"] = filters["from_date"]
-        values["to_date"] = filters["to_date"]
+        values["schedule_date"] = ["between", [filters["from_date"], filters["to_date"]]]
 
-
-    condition_str = " AND ".join(conditions) if conditions else "1=1"
-
-    parent_query = f"""
-        SELECT 
-            mr.name AS material_request,
-            mr.owner,
-            mr.workflow_state,
-            mr.status,
-            mr.transaction_date,
-            mr.material_request_type,
-            NULL AS item_code,
-            NULL AS item_name,
-            NULL AS qty,
-            NULL AS project,
-            NULL AS schedule_date,
-            NULL AS parent_material_request,
-            0 AS indent,
-            (SELECT GROUP_CONCAT(DISTINCT po.name SEPARATOR ', ')
-            FROM `tabPurchase Order` po
-            JOIN `tabPurchase Order Item` poi ON poi.parent = po.name
-            WHERE poi.material_request = mr.name) AS purchase_order,
-            (SELECT GROUP_CONCAT(DISTINCT rfq.name SEPARATOR ', ')
-            FROM `tabRequest for Quotation` rfq
-            JOIN `tabRequest for Quotation Item` rfqi ON rfqi.parent = rfq.name
-            WHERE rfqi.material_request = mr.name) AS request_for_quotation,
-            (SELECT GROUP_CONCAT(DISTINCT sq.name SEPARATOR ', ')
-            FROM `tabSupplier Quotation` sq
-            JOIN `tabSupplier Quotation Item` sqi ON sqi.parent = sq.name
-            WHERE sqi.request_for_quotation IN (
-                SELECT rfq.name 
-                FROM `tabRequest for Quotation` rfq
-                JOIN `tabRequest for Quotation Item` rfqi ON rfqi.parent = rfq.name
-                WHERE rfqi.material_request = mr.name
-            )) AS supplier_quotation
-        FROM `tabMaterial Request` mr
-        WHERE {condition_str}
-        ORDER BY mr.creation DESC
-    """
-
-    
-    parent_rows = frappe.db.sql(parent_query, values, as_dict=True)
-    
-    data = []
+    parent_rows = frappe.db.get_values(
+        "Material Request",
+        filters=values,
+        fieldname=[
+            "name",
+            "owner",
+            "workflow_state",
+            "status",
+            "transaction_date",
+            "material_request_type",
+            "docstatus"
+        ],
+        as_dict=True
+    )
+    null_values = {
+        "item_code": None,
+        "item_name": None,
+        "qty": None,
+        "project": None,
+        "schedule_date": None,
+        "parent_material_request": None,
+        "indent": 0
+    }
+    new_list = []
     for parent in parent_rows:
+        parent.update(null_values)
+        purchase_rows = frappe.db.get_values(
+            "Purchase Order Item",
+            filters={"material_request": parent["name"]},   
+            fieldname=[
+                "parent",
+                "cost_center",
+                "amount"
+            ],
+        )
+        if not purchase_rows:
+            parent["purchase_order"] = None
+            parent["date"] = parent["schedule_date"]
+            parent["cost_center"] = None
+            parent["grant_total"] = 0
+        else:
+            for i in purchase_rows:
+                parent["purchase_order"] = i[0]
+                parent["date"] = parent["schedule_date"]
+                parent["cost_center"] = i[1]
+                parent["grant_total"] = i[2]
+                print(parent)
+        supplier_quotation = frappe.db.get_values(
+            "Supplier Quotation Item",
+            filters={"material_request": parent["name"]},   
+            fieldname=["parent"],
+        )
+        if not supplier_quotation:
+            parent["supplier_quotation"] = None
+        else:
+            for i in supplier_quotation:
+                parent["supplier_quotation"] = i[0]
+        rfq = frappe.db.get_values(
+            "Request for Quotation Item",
+            filters={"material_request": parent["name"]},   
+            fieldname=["parent"],
+        )
+        if not rfq:
+            parent["request_for_quotation"] = None
+        else:
+            for i in rfq:
+                parent["request_for_quotation"] = i[0]
+        new_list.append(parent)
+  
+    data = []
+    for parent in new_list:
         # Fetch Material Request Items (Child Rows)
         child_conditions = "mri.parent = %s"
-        child_values = [parent["material_request"]]
+        child_values = [parent["name"]]
 
         # Additional project filtering for child rows
         if filters.get("project"):
@@ -148,8 +155,9 @@ def get_data(filters):
             FROM `tabMaterial Request Item` AS mri
             WHERE {child_conditions}
         """
-        
-        child_values.insert(0, parent["material_request"])
+        print(child_conditions)
+        child_values.insert(0, parent["name"])
+        print(child_values)
         child_rows = frappe.db.sql(child_query, child_values, as_dict=True)
         
         # Only add parent and children if there are child rows
