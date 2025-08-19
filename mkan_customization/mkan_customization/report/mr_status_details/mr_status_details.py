@@ -77,6 +77,7 @@ def get_data(filters):
     }
     new_list = []
     for parent in parent_rows:
+        parent["material_request"] = parent["name"]
         parent.update(null_values)
         if project_filter:
             purchase_rows = frappe.db.get_values(
@@ -131,11 +132,9 @@ def get_data(filters):
   
     data = []
     for parent in new_list:
-        # Fetch Material Request Items (Child Rows)
         child_conditions = "mri.parent = %s"
-        child_values = [parent["name"]]
+        child_values = [parent["material_request"]]
 
-        # Additional project filtering for child rows
         if filters.get("project"):
             if isinstance(filters["project"], list):
                 child_conditions += " AND (mri.project IN %s OR mri.project IS NULL)"
@@ -162,12 +161,10 @@ def get_data(filters):
             FROM `tabMaterial Request Item` AS mri
             WHERE {child_conditions}
         """
-        print(child_conditions)
-        child_values.insert(0, parent["name"])
-        print(child_values)
+        
+        child_values.insert(0, parent["material_request"])
         child_rows = frappe.db.sql(child_query, child_values, as_dict=True)
         
-        # Only add parent and children if there are child rows
         if child_rows:
             data.append(parent)
             data.extend(child_rows)
