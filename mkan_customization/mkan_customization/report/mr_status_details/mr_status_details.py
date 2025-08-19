@@ -34,22 +34,21 @@ def get_columns():
     ]
 
 def get_data(filters): 
-    conditions = []
     values = {}
+    values_items = {}
     if filters.get("id"):
-        if isinstance(filters["id"], list):
-            conditions.append("name IN %(ids)s")
-            values["ids"] = tuple(filters["id"])
+        if isinstance(filters["id"], list) and len(filters["id"]) > 1:
+            values["name"] = ["in",filters["id"]]
         else:
-            conditions.append("name = %(id)s")
-            values["id"] = filters["id"]
+            values["name"] = ["=",filters["id"][0]]
 
     if filters.get("project"):
-        if isinstance(filters["project"], list):
-            values["projects"] = tuple(filters["project"])
+        if isinstance(filters["project"], list) and len(filters["project"]) > 1:
+            project_filter = ["in",filters["project"]]
         else:
-            values["project"] = filters["project"]
-                
+            project_filter = ["=",filters["project"][0]]
+    else:
+        project_filter = None       
     if filters.get("from_date") and filters.get("to_date"):
         values["schedule_date"] = ["between", [filters["from_date"], filters["to_date"]]]
 
@@ -79,27 +78,35 @@ def get_data(filters):
     new_list = []
     for parent in parent_rows:
         parent.update(null_values)
-        purchase_rows = frappe.db.get_values(
-            "Purchase Order Item",
-            filters={"material_request": parent["name"]},   
-            fieldname=[
-                "parent",
-                "cost_center",
-                "amount"
-            ],
-        )
+        if project_filter:
+            purchase_rows = frappe.db.get_values(
+                "Purchase Order Item",
+                filters={
+                    "material_request": parent["name"],
+                    "project": project_filter},   
+                fieldname=[
+                    "parent",
+                    "cost_center",
+                    "amount"
+                ],
+            )
+        else:
+            purchase_rows = frappe.db.get_values(
+                "Purchase Order Item",
+                filters={
+                    "material_request": parent["name"],
+                    "project": project_filter},   
+                fieldname=[
+                    "parent",
+                    "cost_center",
+                    "amount"
+                ],
+            )
         if not purchase_rows:
             parent["purchase_order"] = None
-            parent["date"] = parent["schedule_date"]
-            parent["cost_center"] = None
-            parent["grant_total"] = 0
         else:
             for i in purchase_rows:
                 parent["purchase_order"] = i[0]
-                parent["date"] = parent["schedule_date"]
-                parent["cost_center"] = i[1]
-                parent["grant_total"] = i[2]
-                print(parent)
         supplier_quotation = frappe.db.get_values(
             "Supplier Quotation Item",
             filters={"material_request": parent["name"]},   
