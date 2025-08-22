@@ -15,4 +15,21 @@ frappe.ui.form.on("Expense Claim", {
 		});
 
 	},
+	refresh:function(frm){
+		frm.set_query("project", "expenses", function () {
+			return {
+				filters: [
+					["name", "=", frm.doc.project],
+					
+				],
+			};
+		});
+	},
+	project: function (frm) {
+        if (frm.doc.project) {
+            (frm.doc.expenses || []).forEach(row => {
+                frappe.model.set_value(row.doctype, row.name, "project", frm.doc.project);
+            });
+        }
+    }
 });
