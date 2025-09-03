@@ -5,7 +5,16 @@ frappe.query_reports["Submitted Settled Petty Cash per Employee"] = {
             "label": __("Employee"),
             "fieldtype": "Link",
             "options": "Employee",
-            "default": frappe.session.user ? frappe.session.user : null
+            "default": "",
+            "reqd": 0,
+            "get_query": function() {
+                return {
+                    query: "frappe.desk.search.search_link",
+                    filters: {
+                        doctype: "Employee"
+                    }
+                };
+            }
         },
         {
             "fieldname": "project",
@@ -18,5 +27,21 @@ frappe.query_reports["Submitted Settled Petty Cash per Employee"] = {
             "label": __("Date Range"),
             "fieldtype": "DateRange"
         }
-    ]
+    ],
+
+    onload: function(report) {
+        frappe.call({
+            method: "frappe.client.get_value",
+            args: {
+                doctype: "Employee",
+                filters: { user_id: frappe.session.user },
+                fieldname: "name"
+            },
+            callback: function(r) {
+                if (r.message) {
+                    report.set_filter_value("employee", r.message.name);
+                }
+            }
+        });
+    }
 };
