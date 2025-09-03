@@ -22,8 +22,8 @@ def execute(filters=None):
     ]
 
     # Build where clauses
-    parent_where = "docstatus = 1"
-    child_where = "ec.docstatus = 1"
+    parent_where = "docstatus != 2"
+    child_where = "ec.docstatus != 2"
     values = {}
 
     if filters.get("employee"):
