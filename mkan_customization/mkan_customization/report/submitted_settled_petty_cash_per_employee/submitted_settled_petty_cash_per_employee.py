@@ -19,6 +19,8 @@ def execute(filters=None):
         {"label": "No. of Claims", "fieldname": "no_of_claims", "fieldtype": "Int", "width": 120},
         {"label": "Project Name", "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 150},
         {"label": "Sum of Total Amount", "fieldname": "total_amount", "fieldtype": "Currency", "width": 150},
+        {"label": "Petty Cash Balance", "fieldname": "petty_cash_balance", "fieldtype": "Currency", "width": 150},
+        {"label": "Net Amount", "fieldname": "net_amount", "fieldtype": "Currency", "width": 150},
     ]
 
     # Build where clauses
@@ -50,7 +52,9 @@ def execute(filters=None):
             p.employee_name,
             COALESCE(c.no_of_claims, 0) AS no_of_claims,
             p.project,
-            p.total_amount
+            p.total_amount,
+            COALESCE(pc.balances, 0) AS petty_cash_balance,
+            (COALESCE(pc.balances, 0) - p.total_amount) AS net_amount
         FROM (
             SELECT
                 employee,
@@ -73,6 +77,18 @@ def execute(filters=None):
             GROUP BY ec.employee, ec.project
         ) c
         ON p.employee = c.employee AND COALESCE(p.project, '') = COALESCE(c.project, '')
+
+        -- 🔑 Join Petty Cash Settled on employee
+        LEFT JOIN (
+            SELECT
+                employee,
+                COALESCE(SUM(balances), 0) AS balances
+            FROM `tabPetty Cash Settled`
+            WHERE docstatus != 2
+            GROUP BY employee
+        ) pc
+        ON p.employee = pc.employee
+
         ORDER BY p.employee
     """, values, as_dict=True)
 
