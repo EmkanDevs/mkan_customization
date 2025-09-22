@@ -30,12 +30,12 @@ class HelpdeskRequest(Document):
     def before_save(self):
         user_ids = [d.user or d.value for d in self.custom_user_details if (d.user or d.value)]
         if not user_ids:
-            self.custom_user_names = ""
+            self.custom_assigned_user = ""
             return
 
         users = frappe.get_all("User", filters={"name": ["in", user_ids]}, fields=["name", "full_name"])
         user_map = {u.name: u.full_name or u.name for u in users}
-        self.custom_user_names = ", ".join(user_map.get(uid, uid) for uid in user_ids)
+        self.custom_assigned_user = ", ".join(user_map.get(uid, uid) for uid in user_ids)
 
 
 @frappe.whitelist()
