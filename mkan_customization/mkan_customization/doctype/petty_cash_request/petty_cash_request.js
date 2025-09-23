@@ -1,4 +1,14 @@
 frappe.ui.form.on("Petty Cash Request", {
+    setup(frm) {
+        frm.make_methods = {
+            "Expense Claim": () => {
+                frappe.model.open_mapped_doc({
+                    method: "mkan_customization.mkan_customization.doctype.petty_cash_request.petty_cash_request.make_expense_claim",
+                    frm: frm,
+                });
+            },
+        };
+    },
     refresh(frm) {
         frm.set_query("employee", function () {
             return {

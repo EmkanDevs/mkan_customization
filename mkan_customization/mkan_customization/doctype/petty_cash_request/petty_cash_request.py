@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.model.mapper import get_mapped_doc
 
 
 class PettyCashRequest(Document):
@@ -17,7 +18,35 @@ class PettyCashRequest(Document):
 			self.db_set("received_amount",self.required_amount)
 		if self.received_amount > self.required_amount:
 			frappe.throw("Received Amount can not be Greater than Required Amount")
-   
+
+@frappe.whitelist()
+def make_expense_claim(source_name, target_doc=None):
+    def set_missing_values(source, target):
+        # Map fields from PCR to Expense Claim
+        target.employee = source.employee_id
+
+        account = frappe.db.get_value(
+            "Petty Cash Authorized Employees",
+            {"employee": source.employee_id},
+            "custom_payable_account"
+        )
+        if account:
+            target.payable_account = account
+
+    doc = get_mapped_doc(
+        "Petty Cash Request",       # source doctype
+        source_name,                # source name (PCR docname)
+        {
+            "Petty Cash Request": { # mapping
+                "doctype": "Expense Claim",
+            }
+        },
+        target_doc,
+        set_missing_values
+    )
+    return doc
+
+
 @frappe.whitelist()
 def fetch_purchaseorder_and_expenseclaim_details(petty_cash_request):
     purchase_receipt = frappe.get_all(
