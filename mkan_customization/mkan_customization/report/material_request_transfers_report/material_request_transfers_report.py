@@ -49,10 +49,19 @@ def get_columns():
 def get_data(filters):
     data = []
 
-    # ✅ Material Requests
+    mr_filters = {"material_request_type": "Material Transfer"}
+    if filters.get("material_request"):
+        mr_filters["name"] = filters["material_request"]
+    if filters.get("from_date") and filters.get("to_date"):
+        mr_filters["transaction_date"] = ["between", [filters["from_date"], filters["to_date"]]]
+    elif filters.get("from_date"):
+        mr_filters["transaction_date"] = [">=", filters["from_date"]]
+    elif filters.get("to_date"):
+        mr_filters["transaction_date"] = ["<=", filters["to_date"]]
+
     mrs = frappe.db.get_values(
         "Material Request",
-        {"material_request_type": "Material Transfer"},
+        mr_filters,
         ["name", "transaction_date as posting_date"],
         as_dict=True
     )
@@ -65,7 +74,6 @@ def get_data(filters):
             as_dict=True
         )
 
-        # ✅ Stock Entries linked to MR
         se_names = frappe.db.get_values(
             "Stock Entry Detail",
             filters={"material_request": mr.name},
@@ -89,7 +97,6 @@ def get_data(filters):
 
             if se_names:
                 for se_name in se_names:
-                    # ✅ Fetch SE header
                     se_header = frappe.db.get_value(
                         "Stock Entry",
                         se_name,
@@ -98,7 +105,6 @@ def get_data(filters):
                     )
                     se_header.name = se_name
 
-                    # ✅ Fetch SE items directly
                     se_items = frappe.db.get_values(
                         "Stock Entry Detail",
                         {"parent": se_name},
@@ -134,7 +140,6 @@ def get_data(filters):
                             "se_project_code": project_code,
                         })
 
-                        # ✅ Outgoing Stock Entries
                         se_to_names = frappe.db.get_values(
                             "Stock Entry",
                             {"outgoing_stock_entry": se_header.name},
