@@ -223,9 +223,13 @@ class StockBalanceReport:
 					else:
 						qty_dict.transfer_out_qty += abs(qty_diff)
 				elif entry.stock_entry_type == "Material Issue":
-					qty_dict.issued_qty += abs(qty_diff) if qty_diff < 0 else 0
+					if qty_diff < 0:
+						qty_dict.issued_qty += abs(qty_diff)
+						qty_dict.issued_val += abs(value_diff)   # 👈 Add this line here
 				elif entry.stock_entry_type == "Material Receipt":
-					qty_dict.return_qty += qty_diff if qty_diff > 0 else 0
+					if qty_diff > 0:
+						qty_dict.return_qty += qty_diff
+
 			
 			# Handle Purchase Receipt with petty cash check
 			elif entry.voucher_type == "Purchase Receipt":
@@ -272,6 +276,7 @@ class StockBalanceReport:
 				"transfer_in_qty": 0.0,
 				"return_qty": 0.0,
 				"issued_qty": 0.0,
+				"issued_val": 0.0,
 				"transfer_out_qty": 0.0,
 
 				"opening_fifo_queue": opening_data.get("fifo_queue") or [],
@@ -425,180 +430,218 @@ class StockBalanceReport:
 	def get_columns(self):
 		columns = [
 			{
-				"label": _("Item"),
+				"label": _("Item Code"),
 				"fieldname": "item_code",
 				"fieldtype": "Link",
 				"options": "Item",
-				"width": 100,
+				"width": 120,
 			},
-			{"label": _("Item Name"), "fieldname": "item_name", "width": 150},
 			{
-				"label": _("Item Group"),
+				"label": _("Item Name / Description"),
+				"fieldname": "item_name",
+				"width": 180,
+			},
+			{
+				"label": _("Item Group (Category)"),
 				"fieldname": "item_group",
 				"fieldtype": "Link",
 				"options": "Item Group",
-				"width": 100,
+				"width": 130,
 			},
 			{
-				"label": _("Warehouse"),
+				"label": _("Warehouse (Stock Location)"),
 				"fieldname": "warehouse",
 				"fieldtype": "Link",
 				"options": "Warehouse",
-				"width": 100,
+				"width": 140,
 			},
 		]
 
 		for dimension in get_inventory_dimensions():
 			columns.append(
 				{
-					"label": _(dimension.doctype),
+					"label": _(f"{dimension.doctype} (Inventory Dimension)"),
 					"fieldname": dimension.fieldname,
 					"fieldtype": "Link",
 					"options": dimension.doctype,
-					"width": 110,
+					"width": 120,
 				}
 			)
 
 		columns.extend(
 			[
 				{
-					"label": _("Stock UOM"),
+					"label": _("Stock UOM (Unit of Measure)"),
 					"fieldname": "stock_uom",
 					"fieldtype": "Link",
 					"options": "UOM",
-					"width": 90,
+					"width": 120,
 				},
 				{
-					"label": _("Balance Qty"),
+					"label": _("Balance Quantity (Current Stock)"),
 					"fieldname": "bal_qty",
 					"fieldtype": "Float",
-					"width": 100,
+					"width": 160,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Balance Value"),
+					"label": _("Balance Value (Current Stock Worth)"),
 					"fieldname": "bal_val",
 					"fieldtype": "Currency",
-					"width": 100,
+					"width": 160,
 					"options": "Company:company:default_currency",
 				},
 				{
-					"label": _("Opening Qty"),
+					"label": _("Opening Quantity (Start of Period)"),
 					"fieldname": "opening_qty",
 					"fieldtype": "Float",
-					"width": 100,
+					"width": 160,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Opening Value"),
+					"label": _("Opening Value (Start Stock Worth)"),
 					"fieldname": "opening_val",
 					"fieldtype": "Currency",
-					"width": 110,
+					"width": 160,
 					"options": "Company:company:default_currency",
 				},
 
-				# Corrected columns for transaction types
+				# --- Transactional Columns ---
 				{
-					"label": _("Purchased PO (Qty)"),
+					"label": _("Purchased Qty (From Purchase Orders)"),
 					"fieldname": "purchased_qty",
 					"fieldtype": "Float",
-					"width": 110,
+					"width": 180,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Petty Cash (Qty)"),
+					"label": _("Petty Cash Qty (Manual Purchases)"),
 					"fieldname": "petty_cash_qty",
 					"fieldtype": "Float",
-					"width": 110,
+					"width": 180,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Transfer IN"),
+					"label": _("Transfer In Qty (Received from Another Warehouse)"),
 					"fieldname": "transfer_in_qty",
 					"fieldtype": "Float",
-					"width": 100,
+					"width": 220,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Return"),
+					"label": _("Return Qty (Customer or Production Returns)"),
 					"fieldname": "return_qty",
 					"fieldtype": "Float",
-					"width": 80,
+					"width": 200,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Issued"),
+					"label": _("Issued Qty (Used or Sold)"),
 					"fieldname": "issued_qty",
 					"fieldtype": "Float",
-					"width": 80,
+					"width": 150,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Transfer OUT"),
+					"label": _("Issued Amount (Used or Sold)"),
+					"fieldname": "issued_val",
+					"fieldtype": "Currency",
+					"width": 180,
+					"options": "Company:company:default_currency",
+				},
+				{
+					"label": _("Transfer Out Qty (Sent to Another Warehouse)"),
 					"fieldname": "transfer_out_qty",
 					"fieldtype": "Float",
-					"width": 100,
+					"width": 220,
 					"convertible": "qty",
 				},
-				
-				# Standard columns
+
+				# --- Standard Movement Columns ---
 				{
-					"label": _("In Qty"),
+					"label": _("Total In Qty (All Incoming Stock)"),
 					"fieldname": "in_qty",
 					"fieldtype": "Float",
-					"width": 80,
+					"width": 160,
 					"convertible": "qty",
 				},
-				{"label": _("In Value"), "fieldname": "in_val", "fieldtype": "Float", "width": 80},
 				{
-					"label": _("Out Qty"),
+					"label": _("Total In Value (Value of Stock Received)"),
+					"fieldname": "in_val",
+					"fieldtype": "Float",
+					"width": 180,
+				},
+				{
+					"label": _("Total Out Qty (All Outgoing Stock)"),
 					"fieldname": "out_qty",
 					"fieldtype": "Float",
-					"width": 80,
+					"width": 160,
 					"convertible": "qty",
 				},
-				{"label": _("Out Value"), "fieldname": "out_val", "fieldtype": "Float", "width": 80},
 				{
-					"label": _("Valuation Rate"),
+					"label": _("Total Out Value (Value of Stock Issued)"),
+					"fieldname": "out_val",
+					"fieldtype": "Float",
+					"width": 180,
+				},
+				{
+					"label": _("Valuation Rate (Per Unit Value)"),
 					"fieldname": "val_rate",
 					"fieldtype": self.filters.valuation_field_type or "Currency",
-					"width": 90,
+					"width": 150,
 					"convertible": "rate",
 					"options": "Company:company:default_currency"
 					if self.filters.valuation_field_type == "Currency"
 					else None,
 				},
 				{
-					"label": _("Reserved Stock"),
+					"label": _("Reserved Stock (Allocated for Orders)"),
 					"fieldname": "reserved_stock",
 					"fieldtype": "Float",
-					"width": 80,
+					"width": 180,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Company"),
+					"label": _("Company Name"),
 					"fieldname": "company",
 					"fieldtype": "Link",
 					"options": "Company",
-					"width": 100,
+					"width": 150,
 				},
 			]
 		)
 
 		if self.filters.get("show_stock_ageing_data"):
 			columns += [
-				{"label": _("Average Age"), "fieldname": "average_age", "width": 100},
-				{"label": _("Earliest Age"), "fieldname": "earliest_age", "width": 100},
-				{"label": _("Latest Age"), "fieldname": "latest_age", "width": 100},
+				{
+					"label": _("Average Age (Days in Stock)"),
+					"fieldname": "average_age",
+					"width": 160,
+				},
+				{
+					"label": _("Oldest Stock Age (Earliest Received)"),
+					"fieldname": "earliest_age",
+					"width": 180,
+				},
+				{
+					"label": _("Newest Stock Age (Most Recent Entry)"),
+					"fieldname": "latest_age",
+					"width": 180,
+				},
 			]
 
 		if self.filters.get("show_variant_attributes"):
 			columns += [
-				{"label": att_name, "fieldname": att_name, "width": 100}
+				{
+					"label": _(f"{att_name} (Variant Attribute)"),
+					"fieldname": att_name,
+					"width": 140,
+				}
 				for att_name in get_variants_attributes()
 			]
 
 		return columns
+
 
 	def add_additional_uom_columns(self):
 		if not self.filters.get("include_uom"):
