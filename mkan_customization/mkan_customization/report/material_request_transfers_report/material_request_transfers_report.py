@@ -107,7 +107,7 @@ def get_data(filters):
 
                     se_items = frappe.db.get_values(
                         "Stock Entry Detail",
-                        {"parent": se_name},
+                        {"parent": se_name, "item_code": item.item_code},
                         ["item_code", "item_name", "qty", "basic_rate", "amount", "project"],
                         as_dict=True
                     )
@@ -160,7 +160,7 @@ def get_data(filters):
 
                                 se_to_items = frappe.db.get_values(
                                     "Stock Entry Detail",
-                                    {"parent": se_to_name},
+                                    {"parent": se_to_name, "item_code": se_item.item_code},
                                     ["item_code", "item_name", "qty", "basic_rate", "amount", "project"],
                                     as_dict=True
                                 )
