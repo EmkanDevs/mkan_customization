@@ -2,6 +2,19 @@ frappe.ui.form.on("Material Request", {
     refresh: function (frm) {
 		frm.events.make_custom_buttons(frm);
 		frm.toggle_reqd("customer", frm.doc.material_request_type == "Customer Provided");
+		frm.add_custom_button(
+			"Material Request Transfers Report",
+			() => {
+				let transaction_date = frm.doc.transaction_date;
+				
+				frappe.set_route("query-report", "Material Request Transfers Report", {
+					material_request: frm.doc.name,
+					from_date: transaction_date,  // Pass as-is
+					to_date: transaction_date
+				});
+			},
+			__("Report")
+		);
 	},
     make_custom_buttons: function (frm) {
 		if (frm.doc.docstatus == 0) {
