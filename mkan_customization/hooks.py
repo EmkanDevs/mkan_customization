@@ -175,7 +175,12 @@ doc_events = {
     },
     "Sales Invoice":{
         "before_validate":"mkan_customization.mkan_customization.doc_events.sales_invoice.validate"
-    }
+    },
+    "Accounting Dimension":{
+        "before_save":"mkan_customization.mkan_customization.doc_events.accounting_dimensions.create_client_scripts_for_all_doctypes",
+        "before_trash":"mkan_customization.mkan_customization.doc_events.accounting_dimensions.delete_client_scripts_on_dimension_delete",
+        "on_update": "mkan_customization.mkan_customization.doc_events.accounting_dimensions.reorder_accounting_dimension_fields"
+    },
 
 
 }
