@@ -61,7 +61,13 @@ frappe.query_reports["Item-wise PO and PR History"] = {
 			options: "\nPurchase Order\nPurchase Receipt",
 			default: "",
 			reqd: 0,
-		},		
+		},	
+		{
+			fieldname: "is_petty_cash",
+			label: __("Is Petty Cash"),
+			fieldtype: "Check",
+			default: 0,
+		},			
 	],
 
 	formatter: function (value, row, column, data, default_formatter) {

@@ -36,7 +36,9 @@ def get_columns():
         {"label": "Supplier Name", "fieldname": "supplier_name", "fieldtype": "Data", "width": 140},
         {"label": "Supplier Group", "fieldname": "supplier_group", "fieldtype": "Link", "options": "Supplier Group", "width": 120},
         {"label": "Project", "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
-		{"label": "Project Name", "fieldname": "project_name", "fieldtype": "Data", "width": 140},
+        {"label": "Project Name", "fieldname": "project_name", "fieldtype": "Data", "width": 140},
+        {"label": "Is Petty Cash", "fieldname": "is_petty_cash", "fieldtype": "Check", "width": 120},
+        {"label": "Employee", "fieldname": "employee", "fieldtype": "Data", "width": 140},
         {"label": "Received Quantity", "fieldname": "received_qty", "fieldtype": "Float", "width": 150},
         {"label": "Billed Amount", "fieldname": "billed_amt", "fieldtype": "Currency", "width": 120},
         {"label": "Company", "fieldname": "company", "fieldtype": "Link", "options": "Company", "width": 100},
@@ -46,6 +48,7 @@ def get_columns():
 def get_project_details():
     projects = frappe.get_all("Project", fields=["name", "project_name"])
     return {p.name: p.project_name for p in projects}
+
 
 # -------------------------------------------------------------------
 # Data fetcher
@@ -58,54 +61,80 @@ def get_data(filters):
     supplier_details = get_supplier_details()
     item_details = get_item_details()
     latest_rate_map = get_latest_item_rates(company_list)
-    project_details = get_project_details()  # <-- Get project names
+    project_details = get_project_details()
 
     records = []
 
-    transaction_type = filters.get("transaction_type")  # Get the filter value
+    transaction_type = filters.get("transaction_type")
 
-    # Fetch Purchase Orders if type is PO or blank
+    # ----------------------------------------------------------------
+    # Purchase Orders
+    # ----------------------------------------------------------------
     if transaction_type in (None, "", "Purchase Order"):
         po_records = get_purchase_order_details(company_list, filters)
+
         for r in po_records:
-            # Skip if project filter is applied and doesn't match
             if filters.get("project") and r.get("project") != filters.get("project"):
                 continue
 
             supplier_record = supplier_details.get(r.supplier)
             item_record = item_details.get(r.item_code)
+
             row = map_record_to_row(
                 r, supplier_record, item_record, latest_rate_map,
                 transaction_type="Purchase Order",
-                project_details=project_details  # Pass project details
+                project_details=project_details
             )
             records.append(row)
 
-    # Fetch Purchase Receipts if type is PR or blank
+    # ----------------------------------------------------------------
+    # Purchase Receipts
+    # ----------------------------------------------------------------
     if transaction_type in (None, "", "Purchase Receipt"):
         pr_records = get_purchase_receipt_details(company_list, filters)
+
         for r in pr_records:
-            # Skip if project filter is applied and doesn't match
             if filters.get("project") and r.get("project") != filters.get("project"):
                 continue
 
             supplier_record = supplier_details.get(r.supplier)
             item_record = item_details.get(r.item_code)
+
             row = map_record_to_row(
                 r, supplier_record, item_record, latest_rate_map,
                 transaction_type="Purchase Receipt",
-                project_details=project_details  # Pass project details
+                project_details=project_details
             )
             records.append(row)
 
-    # Sort combined PO + PR by creation (latest first)
+    # Sort combined records by latest creation
     records.sort(key=lambda r: r.get("creation", r.get("transaction_date")), reverse=True)
 
     return records
 
 
-
+# -------------------------------------------------------------------
+# Map PO / PR rows into report rows + petty cash logic
+# -------------------------------------------------------------------
 def map_record_to_row(record, supplier_record, item_record, latest_rate_map, transaction_type, project_details):
+
+    # EMPLOYEE LOGIC
+    employee = None
+    if transaction_type == "Purchase Order":
+        if record.get("custom_petty_cash"):
+            employee = record.get("custom_employee")
+
+    elif transaction_type == "Purchase Receipt":
+        if record.get("is_petty_cash"):
+            employee = record.get("custom_petty_cash_holder")
+
+    # IS PETTY CASH LOGIC
+    is_petty_cash = 0
+    if transaction_type == "Purchase Order":
+        is_petty_cash = 1 if record.get("custom_petty_cash") else 0
+    elif transaction_type == "Purchase Receipt":
+        is_petty_cash = 1 if record.get("is_petty_cash") else 0
+
     return {
         "item_code": record.get("item_code"),
         "item_name": item_record.get("item_name") if item_record else None,
@@ -124,12 +153,16 @@ def map_record_to_row(record, supplier_record, item_record, latest_rate_map, tra
         "supplier_group": supplier_record.get("supplier_group") if supplier_record else None,
         "project": record.get("project"),
         "project_name": project_details.get(record.get("project")),
+        "employee": employee,
+
+        # NEW FIELD
+        "is_petty_cash": is_petty_cash,
+
         "received_qty": flt(record.get("received_qty")),
         "billed_amt": flt(record.get("billed_amt")),
         "company": record.get("company"),
         "currency": frappe.get_cached_value("Company", record.get("company"), "default_currency")
     }
-
 
 # -------------------------------------------------------------------
 # Supplier / Item Helpers
@@ -138,14 +171,13 @@ def get_supplier_details():
     details = frappe.get_all("Supplier", fields=["name", "supplier_name", "supplier_group"])
     return {d.name: frappe._dict({"supplier_name": d.supplier_name, "supplier_group": d.supplier_group}) for d in details}
 
-
 def get_item_details():
     details = frappe.db.get_all("Item", fields=["name", "item_name", "item_group"])
     return {d.name: frappe._dict({"item_name": d.item_name, "item_group": d.item_group}) for d in details}
 
 
 # -------------------------------------------------------------------
-# Purchase Order / Receipt Queries
+# Purchase Order Query
 # -------------------------------------------------------------------
 def get_purchase_order_details(company_list, filters):
     PO = DocType("Purchase Order")
@@ -161,6 +193,8 @@ def get_purchase_order_details(company_list, filters):
             PO.transaction_date,
             PO.project,
             PO.company,
+            PO.custom_petty_cash,
+            PO.custom_employee,
             PO_Item.item_code,
             PO_Item.description,
             PO_Item.qty,
@@ -183,12 +217,18 @@ def get_purchase_order_details(company_list, filters):
     if filters.get("item_code"):
         query = query.where(PO_Item.item_code == filters.get("item_code"))
 
-    # 🔹 Order by latest transaction_date descending
+    # PETTY CASH FILTER
+    if filters.get("is_petty_cash"):
+        query = query.where(PO.custom_petty_cash == 1)
+
     query = query.orderby(PO.creation, descending=True)
 
     return query.run(as_dict=1)
 
 
+# -------------------------------------------------------------------
+# Purchase Receipt Query
+# -------------------------------------------------------------------
 def get_purchase_receipt_details(company_list, filters):
     PR = DocType("Purchase Receipt")
     PR_Item = DocType("Purchase Receipt Item")
@@ -203,6 +243,8 @@ def get_purchase_receipt_details(company_list, filters):
             PR.posting_date.as_("transaction_date"),
             PR.project,
             PR.company,
+            PR.is_petty_cash,
+            PR.custom_petty_cash_holder,
             PR_Item.item_code,
             PR_Item.description,
             PR_Item.qty,
@@ -210,7 +252,7 @@ def get_purchase_receipt_details(company_list, filters):
             PR_Item.base_rate,
             PR_Item.base_amount,
             PR_Item.qty.as_("received_qty"),
-            PR_Item.base_amount.as_("billed_amt")
+            PR_Item.base_amount.as_("billed_amt"),
         )
         .where(PR.docstatus == 1)
         .where(PR.company.isin(tuple(company_list)))
@@ -225,7 +267,10 @@ def get_purchase_receipt_details(company_list, filters):
     if filters.get("item_code"):
         query = query.where(PR_Item.item_code == filters.get("item_code"))
 
-    # 🔹 Order by latest transaction_date descending
+    # PETTY CASH FILTER
+    if filters.get("is_petty_cash"):
+        query = query.where(PR.is_petty_cash == 1)
+
     query = query.orderby(PR.creation, descending=True)
 
     records = query.run(as_dict=1)
