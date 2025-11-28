@@ -4,6 +4,7 @@ from frappe import _
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt
 from mkan_customization.mkan_customization.override import assign_to
+from frappe.utils import cint
 
 
 class BidTabulationDiscussion(Document):
@@ -371,3 +372,38 @@ def set_supplier_quotation_value(request_for_quotation,supplier):
 	""", (request_for_quotation,supplier,), as_dict=True)
 
 	return [row.parent_name for row in doc]
+
+
+
+@frappe.whitelist()
+def get_last_po_for_item(item_code):
+    settings_list = frappe.get_all(
+        "Price Settings",           
+        fields=["limit_for_last_fetched_po"],
+        limit=1                
+    )
+    
+    limit_val = cint(settings_list[0].limit_for_last_fetched_po) if settings_list else 5
+
+    po_list = frappe.db.sql("""
+        SELECT 
+            po.name AS purchase_order,
+			po.supplier AS party,
+            po.transaction_date,
+			po.supplier_name AS party_name,
+            poi.discount_amount,
+            poi.rate,
+            poi.price_list_rate,
+			poi.item_code,
+            po.supplier AS supplier_name
+        FROM `tabPurchase Order Item` poi
+        LEFT JOIN `tabPurchase Order` po ON poi.parent = po.name
+        WHERE poi.item_code = %s
+        ORDER BY po.transaction_date DESC
+        LIMIT %s
+    """, (item_code, limit_val), as_dict=True)
+
+    return po_list
+
+
+
