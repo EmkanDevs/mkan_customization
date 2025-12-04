@@ -216,19 +216,21 @@ class StockBalanceReport:
 
 		elif entry.posting_date >= self.from_date and entry.posting_date <= self.to_date:
 			# Update the transaction type specific quantities
-			if entry.voucher_type == "Stock Entry":
-				if entry.stock_entry_type == "Material Transfer":
-					if qty_diff > 0:
-						qty_dict.transfer_in_qty += qty_diff
-					else:
-						qty_dict.transfer_out_qty += abs(qty_diff)
-				elif entry.stock_entry_type == "Material Issue":
-					if qty_diff < 0:
-						qty_dict.issued_qty += abs(qty_diff)
-						qty_dict.issued_val += abs(value_diff)   # 👈 Add this line here
-				elif entry.stock_entry_type == "Material Receipt":
-					if qty_diff > 0:
-						qty_dict.return_qty += qty_diff
+			if entry.stock_entry_type == "Material Transfer":
+				if qty_diff > 0:
+					qty_dict.transfer_in_qty += qty_diff
+				else:
+					qty_dict.transfer_out_qty += abs(qty_diff)
+					if abs(qty_diff) > 0:
+						current_val_rate = entry.valuation_rate if entry.valuation_rate else qty_dict.val_rate
+						qty_dict.transfer_out_val += abs(qty_diff) * flt(current_val_rate)
+			elif entry.stock_entry_type == "Material Issue":
+				if qty_diff < 0:
+					qty_dict.issued_qty += abs(qty_diff)
+					qty_dict.issued_val += abs(value_diff)
+			elif entry.stock_entry_type == "Material Receipt":
+				if qty_diff > 0:
+					qty_dict.return_qty += qty_diff
 
 			
 			# Handle Purchase Receipt with petty cash check
@@ -278,6 +280,7 @@ class StockBalanceReport:
 				"issued_qty": 0.0,
 				"issued_val": 0.0,
 				"transfer_out_qty": 0.0,
+				"transfer_out_val": 0.0,
 
 				"opening_fifo_queue": opening_data.get("fifo_queue") or [],
 				"in_qty": 0.0,
@@ -593,6 +596,12 @@ class StockBalanceReport:
 					"options": "Company:company:default_currency"
 					if self.filters.valuation_field_type == "Currency"
 					else None,
+				},
+				{
+					"label": _("Transfer Out Value"),
+					"fieldname": "transfer_out_val",
+					"fieldtype": "Float",
+					"width": 180,
 				},
 				{
 					"label": _("Reserved Stock (Allocated for Orders)"),
