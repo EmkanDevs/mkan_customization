@@ -18,6 +18,24 @@ frappe.ui.form.on('Project Site Violation', {
 
     refresh: function(frm) {
         // Add custom button
+        frm.add_custom_button(__('Create Payment Request'), function() {
+            frappe.call({
+                method: "mkan_customization.mkan_customization.doctype.project_site_violation.project_site_violation.make_payment_request",
+                args: {
+                    docname: frm.doc.name
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frappe.model.sync(r.message);
+                        frappe.show_alert({
+                            message: __("Payment Request {0} created as Draft", [r.message.name]),
+                            indicator: "green"
+                        });
+                        frappe.set_route("Form", "Payment Requester", r.message.name);
+                    }
+                }
+            });
+        }, __("Create"));
         frm.add_custom_button('Create Journal Entry', () => {
             if (!frm.doc.from_account || !frm.doc.to_account) {
                 frappe.msgprint(__('Please set both From Account and To Account'));
