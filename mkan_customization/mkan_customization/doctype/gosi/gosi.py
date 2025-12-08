@@ -48,7 +48,7 @@ class Gosi(Document):
 				employee_doc.db_set("custom_designation_name_arabic",self.designation_name_arabic)
 				employee_doc.db_set("date_of_birth",self.date_of_birth)
 				employee_doc.db_set("date_of_joining",self.date_of_enrollment)
-				employee_doc.db_set("ctc",self.total_salary)
+				# employee_doc.db_set("ctc",self.total_salary)
 				self.db_set("employee_number", employee.name)
 		   
 
