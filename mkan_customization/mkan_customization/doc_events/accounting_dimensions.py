@@ -17,7 +17,8 @@ def create_client_scripts_for_all_doctypes(doc, method):
         "Stock Entry Detail", "Purchase Receipt Item", "Delivery Note Item", "Material Request Item",
         "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
         "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
-        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry"
+        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
+        "Payment Request","Temp Room Booking","Project Site Violation"
     ]
 
     # JavaScript code for Sector -> Scope linkage
@@ -135,7 +136,8 @@ def reorder_accounting_dimension_fields(doc, method):
         "Stock Entry Detail", "Purchase Receipt Item", "Delivery Note Item", "Material Request Item",
         "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
         "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
-        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry"
+        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
+        "Payment Request","Temp Room Booking","Project Site Violation"
     ]
 
     # desired order (fieldname, insert_after)
@@ -215,7 +217,8 @@ def delete_client_scripts_on_dimension_delete(doc, method):
         "Stock Entry Detail", "Purchase Receipt Item", "Delivery Note Item", "Material Request Item",
         "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
         "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
-        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry"
+        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
+        "Payment Request","Temp Room Booking","Project Site Violation"
     ]
 
     deleted_count = 0
