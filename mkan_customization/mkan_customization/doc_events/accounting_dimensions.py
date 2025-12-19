@@ -1,25 +1,29 @@
 import frappe
+from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
+    create_accounting_dimensions_for_doctype,
+)
 
-def create_client_scripts_for_all_doctypes(doc, method):
+def create_client_scripts_for_all_doctypes(doc=None, method=None, doctypes=None):
     # List of doctypes to apply the client script
-    doctypes = [
-        "Leave Encashment", "Payroll Entry", "Expense Taxes and Charges",
-        "Expense Claim Detail", "Expense Claim", "Asset Depreciation Schedule",
-        "Asset Movement Item", "Payment Request", "Payment Reconciliation Allocation",
-        "Payment Reconciliation", "Supplier Quotation Item", "Supplier Quotation",
-        "Account Closing Balance", "Subcontracting Receipt Item", "Subcontracting Receipt",
-        "Subcontracting Order Item", "Subcontracting Order", "Sales Order", "Purchase Receipt",
-        "Purchase Order", "POS Invoice Item", "POS Invoice", "Subscription Plan",
-        "Subscription", "Opening Invoice Creation Tool Item", "Opening Invoice Creation Tool",
-        "POS Profile", "Stock Reconciliation", "Loyalty Program", "Asset Capitalization",
-        "Asset Repair", "Asset Value Adjustment", "Landed Cost Item", "Shipping Rule",
-        "Purchase Taxes and Charges", "Sales Taxes and Charges", "Payment Entry Deduction",
-        "Stock Entry Detail", "Purchase Receipt Item", "Delivery Note Item", "Material Request Item",
-        "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
-        "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
-        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
-        "Payment Request","Temp Room Booking","Project Site Violation"
-    ]
+    if not doctypes:
+        doctypes = [
+            "Leave Encashment", "Payroll Entry", "Expense Taxes and Charges",
+            "Expense Claim Detail", "Expense Claim", "Asset Depreciation Schedule",
+            "Asset Movement Item", "Payment Request", "Payment Reconciliation Allocation",
+            "Payment Reconciliation", "Supplier Quotation Item", "Supplier Quotation",
+            "Account Closing Balance", "Subcontracting Receipt Item", "Subcontracting Receipt",
+            "Subcontracting Order Item", "Subcontracting Order", "Sales Order", "Purchase Receipt",
+            "Purchase Order", "POS Invoice Item", "POS Invoice", "Subscription Plan",
+            "Subscription", "Opening Invoice Creation Tool Item", "Opening Invoice Creation Tool",
+            "POS Profile", "Stock Reconciliation", "Loyalty Program", "Asset Capitalization",
+            "Asset Repair", "Asset Value Adjustment", "Landed Cost Item", "Shipping Rule",
+            "Purchase Taxes and Charges", "Sales Taxes and Charges", "Payment Entry Deduction",
+            "Stock Entry Detail", "Purchase Receipt Item", "Delivery Note Item", "Material Request Item",
+            "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
+            "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
+            "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
+            "Payment Request","Temp Room Booking","Project Site Violation","Payment Requester"
+        ]
 
     # JavaScript code for Sector -> Scope linkage
     js_code = """
@@ -71,9 +75,10 @@ function update_item_dimensions(frm) {{
     if (!frm.doc.items || !frm.doc.items.length) return;
 
     const fields_to_sync = [
-        'scope',
+        
         'cost_center',
         'sector',
+        'scope',
         'section',
         'department',
         'region_location',
@@ -99,11 +104,14 @@ function update_item_dimensions(frm) {{
         code_for_doctype = js_code.format(doctype=dt.replace("'", "\\'"))  # escape quotes
 
         # Check if Client Script already exists
-        existing = frappe.get_all("Client Script", filters={"name": cs_name}, limit=1)
+        existing = frappe.db.exists("Client Script", cs_name)
         if existing:
-            cs_doc = frappe.get_doc("Client Script", existing[0].name)
-            cs_doc.script = code_for_doctype
-            cs_doc.save()
+            cs_doc = frappe.get_doc("Client Script", existing)
+            if cs_doc.script != code_for_doctype or not cs_doc.enabled:
+                cs_doc.script = code_for_doctype
+                cs_doc.enabled = 1
+                cs_doc.save(ignore_permissions=True)
+                frappe.msgprint(f"Updated Client Script for: {dt}")
         else:
             cs_doc = frappe.get_doc({
                 "doctype": "Client Script",
@@ -113,36 +121,38 @@ function update_item_dimensions(frm) {{
                 "enabled": 1
             })
             cs_doc.insert(ignore_permissions=True)
+            frappe.msgprint(f"Created Client Script for: {dt}")
 
 
-def reorder_accounting_dimension_fields(doc, method):
+def reorder_accounting_dimension_fields(doc=None, method=None, doctypes=None):
     """
     Reorder accounting dimension fields across predefined doctypes
     in this order: sector → scope → department → section
     """
 
-    doctypes = [
-        "Leave Encashment", "Payroll Entry", "Expense Taxes and Charges",
-        "Expense Claim Detail", "Expense Claim", "Asset Depreciation Schedule",
-        "Asset Movement Item", "Payment Request", "Payment Reconciliation Allocation",
-        "Payment Reconciliation", "Supplier Quotation Item", "Supplier Quotation",
-        "Account Closing Balance", "Subcontracting Receipt Item", "Subcontracting Receipt",
-        "Subcontracting Order Item", "Subcontracting Order", "Sales Order", "Purchase Receipt",
-        "Purchase Order", "POS Invoice Item", "POS Invoice", "Subscription Plan",
-        "Subscription", "Opening Invoice Creation Tool Item", "Opening Invoice Creation Tool",
-        "POS Profile", "Stock Reconciliation", "Loyalty Program", "Asset Capitalization",
-        "Asset Repair", "Asset Value Adjustment", "Landed Cost Item", "Shipping Rule",
-        "Purchase Taxes and Charges", "Sales Taxes and Charges", "Payment Entry Deduction",
-        "Stock Entry Detail", "Purchase Receipt Item", "Delivery Note Item", "Material Request Item",
-        "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
-        "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
-        "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
-        "Payment Request","Temp Room Booking","Project Site Violation"
-    ]
+    if not doctypes:
+        doctypes = [
+            "Leave Encashment", "Payroll Entry", "Expense Taxes and Charges",
+            "Expense Claim Detail", "Expense Claim", "Asset Depreciation Schedule",
+            "Asset Movement Item", "Payment Request", "Payment Reconciliation Allocation",
+            "Payment Reconciliation", "Supplier Quotation Item", "Supplier Quotation",
+            "Account Closing Balance", "Subcontracting Receipt Item", "Subcontracting Receipt",
+            "Subcontracting Order Item", "Subcontracting Order", "Sales Order", "Purchase Receipt",
+            "Purchase Order", "POS Invoice Item", "POS Invoice", "Subscription Plan",
+            "Subscription", "Opening Invoice Creation Tool Item", "Opening Invoice Creation Tool",
+            "POS Profile", "Stock Reconciliation", "Loyalty Program", "Asset Capitalization",
+            "Asset Repair", "Asset Value Adjustment", "Landed Cost Item", "Shipping Rule",
+            "Purchase Taxes and Charges", "Sales Taxes and Charges", "Payment Entry Deduction",
+            "Stock Entry Detail", "Purchase Receipt Item", "Delivery Note Item", "Material Request Item",
+            "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
+            "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
+            "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
+            "Payment Request","Temp Room Booking","Project Site Violation","Payment Requester"
+        ]
 
     # desired order (fieldname, insert_after)
     order = [
-        ("sector", "dimension_col_break"),
+        ("sector", "accounting_dimensions_section"),
         ("scope", "sector"),
         ("department", "scope"),
         ("section", "department"),
@@ -151,38 +161,48 @@ def reorder_accounting_dimension_fields(doc, method):
     modified = {}
 
     for dt in doctypes:
-        existing_fields = {
-            f.fieldname for f in frappe.get_all("Custom Field", filters={"dt": dt}, fields=["fieldname"])
-        }
+        meta = frappe.get_meta(dt)
+        all_fieldnames = {f.fieldname for f in meta.fields}
+        
+        # Get custom fields as well, to be sure
+        custom_fields_data = frappe.get_all("Custom Field", filters={"dt": dt}, fields=["fieldname"])
+        all_fieldnames.update({f.fieldname for f in custom_fields_data})
+
+        # ✅ Ensure accounting_dimensions_section exists
+        if "accounting_dimensions_section" not in all_fieldnames:
+            insert_after_section = None
+            if "cost_center" in all_fieldnames:
+                insert_after_section = "cost_center"
+            elif "dimension_col_break" in all_fieldnames:
+                insert_after_section = "dimension_col_break"
+            
+            # Create Section Break
+            frappe.get_doc({
+                "doctype": "Custom Field",
+                "dt": dt,
+                "fieldname": "accounting_dimensions_section",
+                "label": "Accounting Dimensions",
+                "fieldtype": "Section Break",
+                "insert_after": insert_after_section
+            }).insert(ignore_permissions=True)
+            all_fieldnames.add("accounting_dimensions_section")
 
         updated_fields = []
         for fieldname, insert_after in order:
             # Skip if this field doesn’t exist
-            if fieldname not in existing_fields:
+            if fieldname not in all_fieldnames:
                 continue
 
-            # ✅ Always treat dimension_col_break as valid even if not in custom fields
-            if insert_after == "dimension_col_break" or insert_after in existing_fields:
-                insert_after_final = insert_after
-            else:
-                insert_after_final = None
+            # ✅ Always treat standard fields and accounting_dimensions_section as valid
+            insert_after_final = insert_after if insert_after in all_fieldnames else None
 
-            custom_fields = frappe.get_all(
-                "Custom Field",
-                filters={"dt": dt, "fieldname": fieldname},
-                fields=["name", "insert_after"],
-            )
-
-            for cf in custom_fields:
-                if cf.insert_after != insert_after_final:
-                    frappe.db.set_value(
-                        "Custom Field",
-                        cf.name,
-                        "insert_after",
-                        insert_after_final,
-                        update_modified=False,
-                    )
-                    updated_fields.append(cf.name)
+            cf_name = frappe.db.exists("Custom Field", {"dt": dt, "fieldname": fieldname})
+            if cf_name:
+                cf_doc = frappe.get_doc("Custom Field", cf_name)
+                if cf_doc.insert_after != insert_after_final:
+                    cf_doc.insert_after = insert_after_final
+                    cf_doc.save(ignore_permissions=True)
+                    updated_fields.append(cf_name)
 
         if updated_fields:
             modified[dt] = updated_fields
@@ -218,7 +238,7 @@ def delete_client_scripts_on_dimension_delete(doc, method):
         "Journal Entry Account", "Sales Order Item", "Purchase Order Item", "Purchase Invoice Item",
         "Sales Invoice Item", "Delivery Note", "Budget", "Stock Entry", "Asset", "Payment Entry",
         "Purchase Invoice", "Sales Invoice", "Payment Ledger Entry", "GL Entry","HR Payment Required",
-        "Payment Request","Temp Room Booking","Project Site Violation"
+        "Payment Request","Temp Room Booking","Project Site Violation","Payment Requester"
     ]
 
     deleted_count = 0
@@ -231,3 +251,103 @@ def delete_client_scripts_on_dimension_delete(doc, method):
             deleted_count += 1
 
     frappe.msgprint(f"✅ Deleted {deleted_count} Client Scripts linked to Accounting Dimension '{doc.accounting_dimension}'.")
+
+
+@frappe.whitelist()
+def add_dimensions_for_custom_doctypes(doctypes=None):
+    """
+    Reads doctypes from the single doctype
+    'Add Accounting Dimension On Custom Doctype' and creates
+    accounting dimension fields on each listed doctype.
+    """
+    if not doctypes:
+        try:
+            config = frappe.get_single("Add Accounting Dimension On Custom Doctype")
+            doctypes = []
+            for row in config.doctype_list or []:
+                if row.custom_doctype:
+                    doctypes.append(row.custom_doctype)
+        except frappe.DoesNotExistError:
+            frappe.throw("Setup document 'Add Accounting Dimension On Custom Doctype' not found.")
+
+    if isinstance(doctypes, str):
+        import json
+        doctypes = json.loads(doctypes)
+
+    # Filter out null or empty strings
+    if doctypes:
+        doctypes = [dt for dt in doctypes if dt]
+
+    doctypes = list(dict.fromkeys(doctypes))  # dedupe while preserving order
+
+    if not doctypes:
+        frappe.msgprint("No valid doctypes provided in the list.")
+        return
+
+    for dt in doctypes:
+        create_accounting_dimensions_for_doctype(dt)
+        frappe.msgprint(f"Dimensions created for: {dt}")
+
+    reorder_accounting_dimension_fields(doctypes=doctypes)
+    create_client_scripts_for_all_doctypes(doctypes=doctypes)
+
+    frappe.db.commit()
+    frappe.msgprint(f"✅ Successfully processed {len(doctypes)} doctypes.")
+
+
+@frappe.whitelist()
+def remove_dimensions_for_custom_doctypes(doctypes=None):
+    """
+    Removes accounting dimension custom fields from doctypes listed in
+    the single doctype 'Add Accounting Dimension On Custom Doctype'.
+    """
+    if not doctypes:
+        try:
+            config = frappe.get_single("Add Accounting Dimension On Custom Doctype")
+            doctypes = []
+            for row in config.doctype_list or []:
+                if row.custom_doctype:
+                    doctypes.append(row.custom_doctype)
+        except frappe.DoesNotExistError:
+            frappe.throw("Setup document 'Add Accounting Dimension On Custom Doctype' not found.")
+
+    if isinstance(doctypes, str):
+        import json
+        doctypes = json.loads(doctypes)
+
+    # Filter out null or empty strings
+    if doctypes:
+        doctypes = [dt for dt in doctypes if dt]
+
+    doctypes = list(dict.fromkeys(doctypes))  # dedupe while preserving order
+
+    if not doctypes:
+        frappe.msgprint("No valid doctypes provided in the list.")
+        return
+
+    dimensions = frappe.get_all(
+        "Accounting Dimension",
+        filters={"disabled": 0},
+        fields=["fieldname"],
+    )
+    fieldnames = [d.fieldname for d in dimensions if d.fieldname]
+
+    removed_total = 0
+    for dt in doctypes:
+        removed_for_dt = 0
+        for fieldname in fieldnames:
+            cf_name = frappe.db.exists("Custom Field", {"dt": dt, "fieldname": fieldname})
+            if cf_name:
+                frappe.delete_doc("Custom Field", cf_name, ignore_permissions=True, force=True)
+                removed_for_dt += 1
+                removed_total += 1
+        
+        # Also remove linked Client Scripts
+        cs_name = f"{dt} - Sector Scope Linkage"
+        if frappe.db.exists("Client Script", {"name": cs_name}):
+            frappe.delete_doc("Client Script", cs_name, ignore_permissions=True, force=True)
+
+        if removed_for_dt:
+            frappe.clear_cache(doctype=dt)
+
+    frappe.msgprint(f"🧹 Removed {removed_total} accounting dimension fields and associated Client Scripts across {len(doctypes)} doctypes.")
