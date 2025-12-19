@@ -3,7 +3,7 @@ app_title = "Mkan Customization"
 app_publisher = "Finbyz"
 app_description = "Mkan"
 app_email = "info@finbyz.tech"
-app_license = "mit"
+app_license = "GPL-3.0"
 
 # Apps
 # ------------------
@@ -27,6 +27,7 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/mkan_customization/css/mkan_customization.css"
 # app_include_js = "/assets/mkan_customization/js/mkan_customization.js"
+# app_include_js = "/assets/mkan_customization/js/doctype_list.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/mkan_customization/css/mkan_customization.css"
@@ -54,6 +55,7 @@ doctype_js = {
             "Material Request":"public/js/material_request.js",
             "Sales Invoice":"public/js/sales_invoice.js",
             "Sales Order":"public/js/sales_order.js",
+            "Supplier":"public/js/supplier.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -153,7 +155,7 @@ doc_events = {
         "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert"
     },
     "Material Request":{
-        "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate"
+        "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate",
     },
     "Purchase Receipt":{
         "validate":"mkan_customization.mkan_customization.doc_events.purchase_receipt.validate",
@@ -174,14 +176,19 @@ doc_events = {
         "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
     },
     "Sales Invoice":{
-        "before_validate":"mkan_customization.mkan_customization.doc_events.sales_invoice.validate"
+        "before_validate":"mkan_customization.mkan_customization.doc_events.sales_invoice.validate",
+        "before_save":"mkan_customization.mkan_customization.doc_events.sales_invoice.add_items"
     },
-    "Accounting Dimension":{
-        "before_save":"mkan_customization.mkan_customization.doc_events.accounting_dimensions.create_client_scripts_for_all_doctypes",
-        "before_trash":"mkan_customization.mkan_customization.doc_events.accounting_dimensions.delete_client_scripts_on_dimension_delete",
-        "on_update": "mkan_customization.mkan_customization.doc_events.accounting_dimensions.reorder_accounting_dimension_fields"
+    "PO Invoice Acknowledgement":{
+        "before_save":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.before_save",
+        "validate":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.validate"
     },
-
+    "Purchase Invoice":{
+        "before_validate":"mkan_customization.mkan_customization.doc_events.purchase_invoice.validate"
+    },
+    "Sales Order":{
+        "before_submit":"mkan_customization.mkan_customization.doc_events.sales_order.before_submit"
+    },
 
 }
 
@@ -189,11 +196,11 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
-	"all": [
-		"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities",
-        "mkan_customization.mkan_customization.doc_events.payment_request.update_payment_entry_count_in_request",
-        "mkan_customization.mkan_customization.doctype.helpdesk_request.helpdesk_request.check_and_close_timeout_tickets"
-	],
+	# "all": [
+	# 	"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities",
+    #     "mkan_customization.mkan_customization.doc_events.payment_request.update_payment_entry_count_in_request",
+    #     "mkan_customization.mkan_customization.doctype.helpdesk_request.helpdesk_request.check_and_close_timeout_tickets"
+	# ],
     "daily": [
         "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.renewal_status",
         "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.send_expiration_reminders",
@@ -235,6 +242,8 @@ override_whitelisted_methods = {
 # -----------------------------------------------------------
 
 # ignore_links_on_delete = ["Communication", "ToDo"]
+
+
 
 # Request Events
 # ----------------
@@ -289,6 +298,17 @@ fixtures = [
         "dt": "Custom Field",
         "filters": {"dt": ["in", ["Helpdesk Request"]]},
     },
+    {
+        "doctype": "Workspace",
+        "filters": {"name": ["in", ["Notification View"]]},
+        "data": [
+            {
+                "name": "Notification View",
+                "title": "Notification View",
+                "content": "[{\"id\":\"2a9Wf9dDr6\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"notification_list\",\"col\":12}}]",
+            }
+        ]
+    }
 ]
 
 from mkan_customization.mkan_customization.override.workflow_action import get_users_next_action_data_for_workflow

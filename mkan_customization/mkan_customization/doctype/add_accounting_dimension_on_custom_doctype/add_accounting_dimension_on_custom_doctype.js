@@ -33,7 +33,7 @@ function apply_dimensions(frm) {
 	}
 
 	frappe.call({
-		method: "mkan_customization.mkan_customization.doc_events.accounting_dimensions.add_dimensions_for_custom_doctypes",
+		method: "mkan_customization.mkan_customization.doctype.add_accounting_dimension_on_custom_doctype.add_accounting_dimension_on_custom_doctype.add_dimensions_for_custom_doctypes",
 		args: {
 			doctypes: doctypes
 		},
@@ -63,7 +63,7 @@ function remove_dimensions(frm) {
 	}
 
 	frappe.call({
-		method: "mkan_customization.mkan_customization.doc_events.accounting_dimensions.remove_dimensions_for_custom_doctypes",
+		method: "mkan_customization.mkan_customization.doctype.add_accounting_dimension_on_custom_doctype.add_accounting_dimension_on_custom_doctype.remove_dimensions_for_custom_doctypes",
 		args: {
 			doctypes: doctypes
 		},
