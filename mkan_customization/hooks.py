@@ -189,6 +189,9 @@ doc_events = {
     "Sales Order":{
         "before_submit":"mkan_customization.mkan_customization.doc_events.sales_order.before_submit"
     },
+    "User": {
+        "before_save": "mkan_customization.mkan_customization.doctype.role_allotment.role_allotment.on_user_before_save"
+    }
 
 }
 

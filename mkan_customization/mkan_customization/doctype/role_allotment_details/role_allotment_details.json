@@ -1,0 +1,42 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-19 15:34:28.488501",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "role",
+  "role_owner"
+ ],
+ "fields": [
+  {
+   "fieldname": "role",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "role_owner",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Role Owner"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-19 15:41:01.632661",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Role Allotment Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
