@@ -133,10 +133,9 @@ doctype_js = {
 # permission_query_conditions = {
 # 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+has_permission = {
+    "Report": "mkan_customization.mkan_customization.doc_events.restrict_reports.has_report_permission",
+}
 
 # DocType Class
 # ---------------
