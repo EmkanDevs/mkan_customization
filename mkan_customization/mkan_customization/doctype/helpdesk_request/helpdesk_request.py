@@ -22,10 +22,14 @@ class HelpdeskRequest(Document):
                     ignore_permissions=True,
                 )
     def on_update(self):
-        if self.workflow_state == "Waiting for User Feedback":
+        # Only set response date if transitioning TO "Waiting for User Feedback"
+        prev_state = self._doc_before_save.workflow_state if self._doc_before_save else None
+        
+        if self.workflow_state == "Waiting for User Feedback" and prev_state != "Waiting for User Feedback":
             self.db_set("custom_it_response_date", frappe.utils.now_datetime())
-        elif self.workflow_state == "Closed":
-            self.db_set("custom_closed_ticket_date",frappe.utils.now_datetime())
+        
+        elif self.workflow_state == "Closed" and prev_state != "Closed":
+            self.db_set("custom_closed_ticket_date", frappe.utils.now_datetime())
 
     def before_save(self):
         user_ids = [d.user or d.value for d in self.custom_user_details if (d.user or d.value)]
@@ -77,8 +81,11 @@ def check_and_close_timeout_tickets():
                 f"Ticket automatically closed due to 48-hour timeout from IT response date: {ticket.custom_it_response_date}"
             )
             
-            # Submit the document
-            doc.submit()
+            # Save or submit depending on current status
+            if doc.docstatus == 1:
+                doc.save()
+            else:
+                doc.submit()
             
             closed_count += 1
             frappe.db.commit()

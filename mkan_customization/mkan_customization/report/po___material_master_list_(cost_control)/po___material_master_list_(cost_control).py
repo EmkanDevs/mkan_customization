@@ -58,8 +58,8 @@ def get_data(filters):
     query = f"""
         SELECT
             po.name AS po_no,
-            po.project AS project_code,
-            proj.project_name AS project_name,
+            poi.project AS project_code,
+            poi.project_name AS project_name,
             po.transaction_date AS po_date,
             po.supplier AS supplier_code,
             sup.supplier_name AS supplier_name,

@@ -190,6 +190,9 @@ doc_events = {
     },
     "User": {
         "before_save": "mkan_customization.mkan_customization.doctype.role_allotment.role_allotment.on_user_before_save"
+    },
+    "User Role Request" : {
+        # "validate" : "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.validate_role_request_child_rows"
     }
 
 }
@@ -198,11 +201,14 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
-	# "all": [
+    # "all": [
 	# 	"mkan_customization.mkan_customization.doctype.lodge_available_rooms.lodge_available_rooms.update_room_capacities",
     #     "mkan_customization.mkan_customization.doc_events.payment_request.update_payment_entry_count_in_request",
     #     "mkan_customization.mkan_customization.doctype.helpdesk_request.helpdesk_request.check_and_close_timeout_tickets"
 	# ],
+    "hourly": [
+        "mkan_customization.mkan_customization.doctype.helpdesk_request.helpdesk_request.check_and_close_timeout_tickets"
+    ],
     "daily": [
         "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.renewal_status",
         "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.send_expiration_reminders",
