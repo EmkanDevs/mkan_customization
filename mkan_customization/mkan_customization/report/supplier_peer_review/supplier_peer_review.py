@@ -84,12 +84,6 @@ def get_columns():
         {"label": "PE Mode of Payment", "fieldname": "pe_mode_of_payment", "fieldtype": "Data", "width": 150},
         {"label": "PE Workflow State", "fieldname": "pe_workflow_state", "fieldtype": "Data", "width": 150},
         
-        # Item Details
-        {"label": "Item Code", "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 150},
-        {"label": "Item Name", "fieldname": "item_name", "fieldtype": "Data", "width": 150},
-        {"label": "Quantity", "fieldname": "qty", "fieldtype": "Float", "width": 100},
-        {"label": "Schedule Date", "fieldname": "schedule_date", "fieldtype": "Date", "width": 120},
-        {"label": "Indent", "fieldname": "indent", "fieldtype": "Int", "width": 50, "hidden": 1},
     ]
 
 def get_data(filters):
