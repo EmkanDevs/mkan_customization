@@ -71,10 +71,21 @@ def execute(filters=None):
         sle["actual_qty"] = sle.actual_qty
 
         # Combined IN/OUT Value (from valuation_rate)
-        sle["in_out_value"] = sle.valuation_rate or 0
+        # sle["in_out_value"] = sle.valuation_rate or 0
 
-        # Issued Amount
-        sle["issued_amount"] = sle.stock_value_difference
+        # # Issued Amount
+        # sle["issued_amount"] = sle.stock_value_difference
+
+
+
+
+        # Received Amount (only IN)
+        sle["received_amount"] = abs(sle.stock_value_difference) if sle.actual_qty > 0 else 0
+
+        # Issued Amount (only OUT)
+        sle["issued_amount"] = abs(sle.stock_value_difference) if sle.actual_qty < 0 else 0
+
+
 
         # Project Name
         sle["project_name"] = (
@@ -223,7 +234,7 @@ def update_available_serial_nos(available_serial_nos, sle):
 
 def get_columns(filters):
     columns = [
-        {"label": _("Date"), "fieldname": "date", "fieldtype": "Datetime", "width": 150},
+        {"label": _("Date"), "fieldname": "date", "fieldtype": "Date", "width": 150},
         {
             "label": _("Item"),
             "fieldname": "item_code",
@@ -353,20 +364,32 @@ def get_columns(filters):
                 "fieldtype": "Data",
                 "width": 120,
             },
+
+
+            # {
+            #     "label": _("IN/OUT Quantity"),
+            #     "fieldname": "actual_qty",
+            #     "fieldtype": "Float",
+            #     "width": 110,
+            #     "convertible": "qty",
+            # },
+            # {
+            #     "label": _("IN/OUT Value"),
+            #     "fieldname": "in_out_value",
+            #     "fieldtype": "Currency",
+            #     "options": "Company:company:default_currency",
+            #     "width": 120,
+            # },
+
             {
-                "label": _("IN/OUT Quantity"),
-                "fieldname": "actual_qty",
-                "fieldtype": "Float",
-                "width": 110,
-                "convertible": "qty",
-            },
-            {
-                "label": _("IN/OUT Value"),
-                "fieldname": "in_out_value",
+                "label": _("Received Amount"),
+                "fieldname": "received_amount",
                 "fieldtype": "Currency",
                 "options": "Company:company:default_currency",
                 "width": 120,
             },
+
+
             {
                 "label": _("Issued Amount"),
                 "fieldname": "issued_amount",
@@ -374,6 +397,7 @@ def get_columns(filters):
                 "options": "Company:company:default_currency",
                 "width": 120,
             },
+
             {
                 "label": _("Batch"),
                 "fieldname": "batch_no",
