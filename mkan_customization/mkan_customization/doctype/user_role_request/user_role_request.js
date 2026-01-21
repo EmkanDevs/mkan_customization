@@ -9,8 +9,10 @@ frappe.ui.form.on('User Role Request', {
                 (r) => {
                     if (r?.name) {
                         frm.set_value("employee_id", r.name);
+                        frm.set_value("internal_employee", 1);
                         frm.set_df_property("employee_id", "read_only", 1);
                     } else {
+                        frm.set_value("external_user", 1);
                         frm.set_df_property("employee_id", "read_only", 0);
                     }
                 }
@@ -19,12 +21,30 @@ frappe.ui.form.on('User Role Request', {
             set_employee_id_permission(frm);
         }
 
-        set_approver_filter(frm);
+        // set_approver_filter(frm);
         apply_workflow_state_permissions(frm);
 
         // Store initial workflow state for comparison
         if (!frm.doc.__initial_workflow_state) {
             frm.doc.__initial_workflow_state = frm.doc.workflow_state;
+        }
+    },
+    internal_employee: function(frm) {
+        // When internal_employee is unchecked, clear related fields
+        if (!frm.doc.internal_employee) {
+            frm.set_value('employee_id', '');
+            frm.set_value('employee_name', '');
+            frm.set_value('designation', '');
+            frm.set_value('department', '');
+        }
+    },
+
+    external_user: function(frm) {
+        // When external_user is unchecked, clear related fields
+        if (!frm.doc.external_user) {
+            frm.set_value('email_id', '');
+            frm.set_value('full_name', '');
+            frm.set_value('presenting_who', '');
         }
     },
 
@@ -97,7 +117,7 @@ frappe.ui.form.on('User Role Request', {
                 }
             });
         }
-        set_approver_filter(frm);
+        // set_approver_filter(frm);
     },
 
     before_save: function (frm) {
@@ -163,7 +183,7 @@ function apply_workflow_state_permissions(frm) {
 
     if (!state || state === "Draft") {
         console.log("Draft state - read-only for everyone");
-        frm.set_df_property('project', 'read_only', 1);
+        frm.set_df_property('projects_for_approval', 'read_only', 1);
         frm.set_df_property('role_request_details', 'read_only', 1);
 
         if (grid) {
@@ -183,7 +203,7 @@ function apply_workflow_state_permissions(frm) {
             console.log("User is approver - enabling edit permissions");
 
             // Approver can edit project field
-            frm.set_df_property('project', 'read_only', 0);
+            frm.set_df_property('projects_for_approval', 'read_only', 1);
 
             // Approver can edit the table
             frm.set_df_property('role_request_details', 'read_only', 0);
@@ -224,7 +244,7 @@ function apply_workflow_state_permissions(frm) {
     else if (state === "Send for Approval (System Manager)") {
         console.log("Send for Approval (System Manager) state");
 
-        frm.set_df_property('project', 'read_only', 1);
+        frm.set_df_property('projects_for_approval', 'read_only', 0);
         frm.set_df_property('role_request_details', 'read_only', 0);
 
         if (is_sm) {
@@ -391,58 +411,6 @@ function send_email_to_system_manager(frm) {
     });
 }
 
-// function send_approval_notification(frm) {
-//     console.log("Final approval detected - processing role owner notifications and document sharing");
-
-//     // First, trigger role owner notifications
-//     frappe.call({
-//         method: "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.fetch_role_owners_for_doc",
-//         args: {
-//             docname: frm.doc.name
-//         },
-//         callback: function (r) {
-//             if (r.message) {
-//                 console.log("Role owners fetched and notified for request:", frm.doc.name);
-//             }
-//         }
-//     });
-
-//     // Then, share document with role owners
-//     // Use frappe.after_ajax to ensure all pending operations are complete
-//     frappe.after_ajax(() => {
-//         frappe.call({
-//             method: "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.share_document_with_role_owners",
-//             args: {
-//                 docname: frm.doc.name
-//             },
-//             callback: function (r) {
-//                 if (r.message) {
-//                     console.log("✅ Document successfully shared with role owners:", frm.doc.name);
-//                     frappe.show_alert({
-//                         message: __("Request approved! Document shared with role owners."),
-//                         indicator: "green"
-//                     }, 5);
-
-//                     // Reload the form to show updated sharing information
-//                     frm.reload_doc();
-//                 } else {
-//                     console.warn("⚠️ No role owners found to share document with");
-//                     frappe.show_alert({
-//                         message: __("Warning: No role owners found for sharing"),
-//                         indicator: "orange"
-//                     }, 5);
-//                 }
-//             },
-//             error: function (err) {
-//                 console.error("❌ Error sharing document:", err);
-//                 frappe.show_alert({
-//                     message: __("Warning: Failed to share document with some role owners"),
-//                     indicator: "orange"
-//                 }, 5);
-//             }
-//         });
-//     });
-// }
 function send_approval_notification(frm) {
     console.log("Final approval detected - sending notifications to role owners");
 
@@ -575,11 +543,11 @@ function set_approver_filter(frm) {
                 // Filter out session user client-side
                 approvers = approvers.filter(u => u !== frappe.session.user);
 
-                frm.set_query("approver", () => ({
-                    filters: {
-                        "name": ["in", approvers]
-                    }
-                }));
+                // frm.set_query("approver", () => ({
+                //     filters: {
+                //         "name": ["in", approvers]
+                //     }
+                // }));
             }
         });
         return;

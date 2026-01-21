@@ -14,18 +14,21 @@
   "column_break_hpjn",
   "priority",
   "amended_from",
+  "internal_employee",
+  "external_user",
   "employee_information_section",
+  "email_id",
   "employee_id",
   "employee_name",
   "user_id",
   "column_break_mxlm",
+  "full_name",
+  "presenting_who",
   "designation",
   "department",
   "approver",
   "role_apporver_section",
-  "project",
-  "section_break_8x5k",
-  "description",
+  "projects_for_approval",
   "requested_role_section",
   "role_request_details",
   "rejection_reason"
@@ -65,6 +68,7 @@
    "default": "Draft",
    "fieldname": "status",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Status",
    "options": "Draft\nPending Approver\nPartial Approved\nApprover Approved\nFully Approved\nRejected\nClosed",
    "read_only": 1
@@ -85,12 +89,12 @@
    "label": "Employee Information"
   },
   {
+   "depends_on": "eval:doc.internal_employee",
    "fieldname": "employee_id",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Employee Id",
-   "options": "Employee",
-   "reqd": 1
+   "options": "Employee"
   },
   {
    "fetch_from": "employee_id.employee_name",
@@ -128,24 +132,12 @@
    "label": "Role Apporver"
   },
   {
-   "fieldname": "project",
-   "fieldtype": "Link",
-   "label": "Project",
-   "options": "Project",
-   "read_only_depends_on": "eval:doc.approver !== frappe.session.user"
-  },
-  {
    "fieldname": "approver",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Approver",
    "options": "User",
    "reqd": 1
-  },
-  {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Description"
   },
   {
    "fieldname": "requested_role_section",
@@ -166,23 +158,58 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_8x5k",
-   "fieldtype": "Section Break"
-  },
-  {
    "fetch_from": "employee_id.user_id",
    "fieldname": "user_id",
    "fieldtype": "Data",
    "label": "User ID",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:!doc.external_user",
+   "fieldname": "internal_employee",
+   "fieldtype": "Check",
+   "label": "Internal Employee"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:!doc.internal_employee",
+   "fieldname": "external_user",
+   "fieldtype": "Check",
+   "label": "External User"
+  },
+  {
+   "fieldname": "projects_for_approval",
+   "fieldtype": "Table",
+   "label": "Projects For Approval",
+   "options": "User Project Request Details"
+  },
+  {
+   "depends_on": "eval: doc.email_id",
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Full Name"
+  },
+  {
+   "depends_on": "eval:doc.external_user",
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email Id",
+   "options": "User"
+  },
+  {
+   "depends_on": "eval:doc.email_id",
+   "fieldname": "presenting_who",
+   "fieldtype": "Data",
+   "label": "Presenting Who"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-01-01 09:37:18.297320",
- "modified_by": "rohit.soni@finbyz.tech",
+ "modified": "2026-01-20 14:21:31.193612",
+ "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "User Role Request",
  "naming_rule": "By \"Naming Series\" field",

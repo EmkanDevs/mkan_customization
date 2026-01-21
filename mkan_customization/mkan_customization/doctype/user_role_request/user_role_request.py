@@ -11,6 +11,9 @@ class UserRoleRequest(Document):
 		self.handle_auto_approvals()
 		self.auto_assign_role_owners()
 
+	def on_cancel(self):
+		send_close_notifications(self)
+
 	def on_submit(self):
 		if self.workflow_state == "Approve by System Manager":
 			self._auto_share_with_role_owners()
@@ -406,20 +409,20 @@ def get_owners_for_role(role):
 				if owner and owner not in owners:
 					owners.append(owner)
 
-	# Filter to ensure owners also have the 'Approver' role
-	if not owners:
-		return []
+	# # Filter to ensure owners also have the 'Approver' role
+	# if not owners:
+	# 	return []
 
-	valid_owners = frappe.get_all(
-		"Has Role",
-		filters={
-			"role": "Approver",
-			"parent": ["in", owners]
-		},
-		pluck="parent"
-	)
+	# valid_owners = frappe.get_all(
+	# 	"Has Role",
+	# 	filters={
+	# 		"role": "Approver",
+	# 		"parent": ["in", owners]
+	# 	},
+	# 	pluck="parent"
+	# )
 
-	return valid_owners
+	return owners
 
 
 
@@ -451,81 +454,163 @@ def fetch_role_owners_for_doc(docname):
 
 @frappe.whitelist()
 def share_document_with_role_owners(docname):
-	"""Share the User Role Request document with all role owners after final approval"""
-	doc = frappe.get_doc("User Role Request", docname)
-	
-	frappe.logger().info(f"Starting document sharing process for {docname}")
-	frappe.logger().info(f"Current workflow state: {doc.workflow_state}")
-	
-	# Collect all unique role owners from approved roles
-	role_owners = set()
-	for row in doc.role_request_details:
-		if (row.system_manager_approved or row.approved) and row.role_owners:
-			for owner in row.role_owners.split(","):
-				owner = owner.strip()
-				if owner:
-					role_owners.add(owner)
-					frappe.logger().info(
-						f"[AUTO-SHARE] {doc.name} | role={row.requested_role} | owner={owner} "
-						f"| approved={row.approved} | sm={row.system_manager_approved}"
-					)
+    """Share the User Role Request document with all role owners after final approval"""
 
-	
-	if not role_owners:
-		frappe.logger().warning(f"No role owners found for document {docname}")
-		frappe.logger().warning(f"Role request details: {[(r.requested_role, r.approved, r.role_owners) for r in doc.role_request_details]}")
-		return False
-	
-	frappe.logger().info(f"Total unique role owners to share with: {len(role_owners)} - {list(role_owners)}")
-	
-	# Share document with each role owner
-	shared_count = 0
-	for owner in role_owners:
-		# Verify the user exists
-		if not frappe.db.exists("User", owner):
-			frappe.logger().error(f"User {owner} does not exist, skipping")
-			continue
-			
-		# Check if already shared
-		existing_share = frappe.db.exists("DocShare", {
-			"share_doctype": doc.doctype,
-			"share_name": doc.name,
-			"user": owner
-		})
-		
-		if not existing_share:
-			try:
-				# Grant full permissions: read, write, and share
-				frappe.share.add(
-					doc.doctype,
-					doc.name,
-					owner,
-					read=1,
-					write=1,
-					submit=1,
-					share=0,
-					notify=1
-				)
+    # 🔐 Switch to Administrator context
+    original_user = frappe.session.user
+    frappe.set_user("Administrator")
 
-				frappe.logger().info(f"✅ Successfully shared {doc.name} with {owner} (read, write, share)")
-				shared_count += 1
-			except Exception as e:
-				frappe.logger().error(f"❌ Failed to share {doc.name} with {owner}: {str(e)}")
-				import traceback
-				frappe.logger().error(traceback.format_exc())
-		else:
-			frappe.logger().info(f"Document {doc.name} already shared with {owner}, skipping")
-	
-	frappe.db.commit()
-	frappe.logger().info(f"Document sharing completed. Shared with {shared_count} new role owners")
-	return shared_count > 0 or len(role_owners) > 0
+    try:
+        doc = frappe.get_doc("User Role Request", docname)
+
+        frappe.logger().info(
+            f"[AUTO-SHARE] Running as Administrator for {docname}"
+        )
+
+        role_owners = set()
+        for row in doc.role_request_details:
+            if (row.system_manager_approved or row.approved) and row.role_owners:
+                for owner in row.role_owners.split(","):
+                    owner = owner.strip()
+                    if owner:
+                        role_owners.add(owner)
+
+        if not role_owners:
+            frappe.logger().warning(f"No role owners found for {docname}")
+            return False
+
+        shared_count = 0
+        for owner in role_owners:
+            if not frappe.db.exists("User", owner):
+                continue
+
+            if not frappe.db.exists("DocShare", {
+                "share_doctype": doc.doctype,
+                "share_name": doc.name,
+                "user": owner
+            }):
+                frappe.share.add(
+                    doc.doctype,
+                    doc.name,
+                    owner,
+                    read=1,
+                    write=1,
+                    submit=1,
+                    share=0,
+                    notify=1
+                )
+                shared_count += 1
+
+        frappe.db.commit()
+        return shared_count > 0
+
+    finally:
+        # 🔁 Always restore user
+        frappe.set_user(original_user)
 
 @frappe.whitelist()
 def close_request(docname):
 	doc = frappe.get_doc("User Role Request", docname)
-	doc.status = "Closed"
-	doc.save(ignore_permissions=True)
+	frappe.db.set_value("User Role Request", docname, "status", "Closed")
+	frappe.db.set_value("User Role Request", docname, "workflow_state", "Closed")
+	send_close_notifications(doc)
 	return True
+
+
+
+
+def send_close_notifications(doc):
+	notify_employee_or_external_user(doc)
+	notify_approver_on_close(doc)
+
+
+def notify_employee_or_external_user(doc):
+	recipients = []
+
+	# 1️⃣ Internal Employee User
+	if doc.internal_employee:
+		recipients.append(doc.user_id)
+
+	# 2️⃣ External User (fallback)
+	elif doc.external_user:
+		recipients.append(doc.email_id)
+
+	if not recipients:
+		frappe.logger().warning(f"No recipient found for User Role Request {doc.name}")
+		return
+
+	subject = _("Notification: User Role Request Closed")
+
+	message = frappe.render_template("""
+		<p>Dear {{ employee_name }},</p>
+
+		<p>Your <b>User Role Request</b> has been <b>closed</b>.</p>
+
+		<p><b>Closed By:</b> {{ modified_by }}</p>
+
+		<p>
+			<a href="{{ link }}">View Request</a>
+		</p>
+
+		<p style="font-size:12px;color:#777">
+			This is an automated message.
+		</p>
+	""", {
+		"employee_name": doc.employee_name,
+		"modified_by": frappe.utils.get_fullname(doc.modified_by),
+		"link": frappe.utils.get_url_to_form(doc.doctype, doc.name)
+	})
+
+	frappe.sendmail(
+		recipients=recipients,
+		subject=subject,
+		message=message
+	)
+
+
+def notify_approver_on_close(doc):
+	if not doc.approver:
+		return
+
+	recipients = []
+
+	if "," in doc.approver:
+		recipients = [a.strip() for a in doc.approver.split(",")]
+	else:
+		recipients.append(doc.approver)
+
+	subject = _("Notification: User Role Request Closed ({0})").format(doc.name)
+
+	message = frappe.render_template("""
+		<p>Dear Approver,</p>
+
+		<p>The following <b>User Role Request</b> has been closed.</p>
+
+		<table border="0">
+			<tr><td><b>Employee:</b></td><td>{{ doc.employee_name }}</td></tr>
+			<tr><td><b>Request ID:</b></td><td>{{ doc.name }}</td></tr>
+			<tr><td><b>Closed By:</b></td><td>{{ closed_by }}</td></tr>
+		</table>
+
+		<p>
+			<a href="{{ link }}">View Request</a>
+		</p>
+
+		<p style="font-size:12px;color:#777">
+			This is an automated message.
+		</p>
+	""", {
+		"doc": doc,
+		"closed_by": frappe.utils.get_fullname(doc.modified_by),
+		"link": frappe.utils.get_url_to_form(doc.doctype, doc.name)
+	})
+
+	frappe.sendmail(
+		recipients=recipients,
+		subject=subject,
+		message=message
+	)
+
 
 @frappe.whitelist()
 def debug_sharing_info(docname):
