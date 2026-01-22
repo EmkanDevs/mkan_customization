@@ -1,12 +1,12 @@
 frappe.ui.form.on("Material Request", {
-    refresh: function (frm) {
+	refresh: function (frm) {
 		frm.events.make_custom_buttons(frm);
 		frm.toggle_reqd("customer", frm.doc.material_request_type == "Customer Provided");
 		frm.add_custom_button(
 			"Material Request Transfers Report",
 			() => {
 				let transaction_date = frm.doc.transaction_date;
-				
+
 				frappe.set_route("query-report", "Material Request Transfers Report", {
 					material_request: frm.doc.name,
 					from_date: transaction_date,  // Pass as-is
@@ -15,8 +15,16 @@ frappe.ui.form.on("Material Request", {
 			},
 			__("Report")
 		);
+
+		frm.add_custom_button(
+			"PO Details Report",
+			() => {
+				frappe.set_route("po-details-report", frm.doc.name);
+			},
+			__("Report")
+		);
 	},
-    make_custom_buttons: function (frm) {
+	make_custom_buttons: function (frm) {
 		if (frm.doc.docstatus == 0) {
 			frm.add_custom_button(
 				__("Bill of Materials"),
@@ -74,27 +82,27 @@ frappe.ui.form.on("Material Request", {
 
 				if (frm.doc.material_request_type === "Purchase") {
 					frm.add_custom_button(
-                __("Purchase Order"),
-                () => {
-                    frappe.call({
-                        method: "mkan_customization.mkan_customization.doc_events.material_request.validate_before_po_creation",
-                        args: {
-                            material_request: frm.doc.name
-                        },
-                        callback: function (r) {
-                            // Defensive check
-                            if (r.message === true) {
-                                frm.events.make_purchase_order(frm);
-                            } else if (typeof r.message === "string") {
-                                frappe.throw(__(r.message));
-                            } else {
-                                frappe.throw(__("Something went wrong. Please contact your administrator."));
-                            }
-                        }
-                    });
-                },
-                __("Create")
-            );
+						__("Purchase Order"),
+						() => {
+							frappe.call({
+								method: "mkan_customization.mkan_customization.doc_events.material_request.validate_before_po_creation",
+								args: {
+									material_request: frm.doc.name
+								},
+								callback: function (r) {
+									// Defensive check
+									if (r.message === true) {
+										frm.events.make_purchase_order(frm);
+									} else if (typeof r.message === "string") {
+										frappe.throw(__(r.message));
+									} else {
+										frappe.throw(__("Something went wrong. Please contact your administrator."));
+									}
+								}
+							});
+						},
+						__("Create")
+					);
 
 					frm.add_custom_button(
 						__("Request for Quotation"),

@@ -27,6 +27,17 @@ frappe.ui.form.on("Project", {
 			});
 		}, "Reports");
 
+		frm.add_custom_button(
+			"PO Details Report",
+			() => {
+				frappe.route_options = {
+					project: frm.doc.name
+				};
+				frappe.set_route("po-details-report");
+			},
+			__("Reports")
+		);
+
 		frm.add_custom_button("It Asset Management Report", function () {
 			frappe.set_route("query-report", "It Asset Management", {
 				project: frm.doc.name
