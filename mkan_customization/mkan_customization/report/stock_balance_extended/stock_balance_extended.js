@@ -1,7 +1,7 @@
-// Copyright (c) 2025, Finbyz and contributors
+// Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors and contributors
 // For license information, please see license.txt
 
-frappe.query_reports["Stock Ledger V2"] = {
+frappe.query_reports["Stock Balance Extended"] = {
 	filters: [
 		{
 			fieldname: "company",
@@ -36,38 +36,57 @@ frappe.query_reports["Stock Ledger V2"] = {
 		},
 		{
 			fieldname: "item_code",
-			label: __("Item"),
-			fieldtype: "Link",
+			label: __("Items"),
+			fieldtype: "MultiSelectList",
 			width: "80",
 			options: "Item",
-			get_query: function () {
+			get_data: async function (txt) {
 				let item_group = frappe.query_report.get_filter_value("item_group");
 
-				return {
-					query: "erpnext.controllers.queries.item_query",
-					filters: {
-						...(item_group && { item_group }),
-						is_stock_item: 1,
-					},
+				let filters = {
+					...(item_group && { item_group }),
+					is_stock_item: 1,
 				};
+
+				let { message: data } = await frappe.call({
+					method: "erpnext.controllers.queries.item_query",
+					args: {
+						doctype: "Item",
+						txt: txt,
+						searchfield: "name",
+						start: 0,
+						page_len: 10,
+						filters: filters,
+						as_dict: 1,
+					},
+				});
+
+				data = data.map(({ name, ...rest }) => {
+					return {
+						value: name,
+						description: Object.values(rest),
+					};
+				});
+
+				return data || [];
 			},
 		},
 		{
 			fieldname: "warehouse",
-			label: __("Warehouse"),
-			fieldtype: "Link",
+			label: __("Warehouses"),
+			fieldtype: "MultiSelectList",
 			width: "80",
 			options: "Warehouse",
-			get_query: () => {
+			get_data: (txt) => {
 				let warehouse_type = frappe.query_report.get_filter_value("warehouse_type");
 				let company = frappe.query_report.get_filter_value("company");
 
-				return {
-					filters: {
-						...(warehouse_type && { warehouse_type }),
-						...(company && { company }),
-					},
+				let filters = {
+					...(warehouse_type && { warehouse_type }),
+					...(company && { company }),
 				};
+
+				return frappe.db.get_link_options("Warehouse", txt, filters);
 			},
 		},
 		{
@@ -137,26 +156,16 @@ frappe.query_reports["Stock Ledger V2"] = {
 		} else if (column.fieldname == "in_qty" && data && data.in_qty > 0) {
 			value = "<span style='color:green'>" + value + "</span>";
 		}
-		// if (column.fieldname == "purchased_po_qty" && data && data.in_qty > 0) {
-		// 	value = "<span style='color:red'>" + value + "</span>";
-		// }
-		if (column.fieldname == "transfer_in_qty" && data && data.transfer_in_qty > 0) {
-			value = "<span style='color:#42eff5'>" + value + "</span>";
-		} else if (column.fieldname == "issued_qty" && data && data.issued_qty > 0) {
-			value = "<span style='color:#FFD700'>" + value + "</span>"; // Yellow color for issued
-		} else if (column.fieldname == "return_qty" && data && data.return_qty > 0) {
-			value = "<span style='color:blue'>" + value + "</span>";
-		} else if (column.fieldname == "transfer_out_qty" && data && data.transfer_out_qty > 0) {
-			value = "<span style='color:#ef42f5'>" + value + "</span>";
-		} else if (column.fieldname == "purchased_qty" && data && data.purchased_qty >0 ){
-			value = "<span style='color:#f5bc42'>" + value + "</span>" 
-		} else if (column.fieldname == "petty_cash_qty" && data && data.petty_cash_qty >0 ){
-			value = "<span style='color:#f5428a'>" + value + "</span>" 
-		}
 
 		return value;
+	},
+
+	onload: function (report) {
+		report.page.add_inner_button(__("View Stock Ledger"), function () {
+			var filters = report.get_values();
+			frappe.set_route("query-report", "Stock Ledger", filters);
+		});
 	},
 };
 
 erpnext.utils.add_inventory_dimensions("Stock Balance", 8);
-

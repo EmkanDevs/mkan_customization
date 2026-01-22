@@ -1,7 +1,7 @@
-// Copyright (c) 2025, Finbyz and contributors
-// For license information, please see license.txt
+// Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+// License: GNU General Public License v3. See license.txt
 
-frappe.query_reports["Stock Ledger Extended"] = {
+frappe.query_reports["Stock Ledger V3"] = {
 	filters: [
 		{
 			fieldname: "company",
@@ -123,12 +123,13 @@ frappe.query_reports["Stock Ledger Extended"] = {
 			fieldtype: "Check",
 			default: 0,
 		},
+
 		{
 			fieldname: "active_items",
 			label: __("Active Items Only"),
 			fieldtype: "Check",
 			default: 1
-		}
+		},
 		
 	],
 	formatter: function (value, row, column, data, default_formatter) {
@@ -140,6 +141,13 @@ frappe.query_reports["Stock Ledger Extended"] = {
 		}
 
 		return value;
+	},
+
+	onload: function (report) {
+		report.page.add_inner_button(__("View Stock Balance"), function () {
+			var filters = report.get_values();
+			frappe.set_route("query-report", "Stock Balance", filters);
+		});
 	},
 };
 

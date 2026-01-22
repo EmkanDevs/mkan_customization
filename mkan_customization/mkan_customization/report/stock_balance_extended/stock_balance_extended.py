@@ -1,6 +1,3 @@
-# # Copyright (c) 2025, Finbyz and contributors
-# # For license information, please see license.txt
-
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
@@ -27,8 +24,8 @@ class StockBalanceFilter(TypedDict):
 	from_date: str
 	to_date: str
 	item_group: str | None
-	item: str | None
-	warehouse: str | None
+	item: list[str] | None
+	warehouse: list[str] | None
 	warehouse_type: str | None
 	include_uom: str | None  # include extra info in converted UOM
 	show_stock_ageing_data: bool
@@ -215,34 +212,6 @@ class StockBalanceReport:
 			qty_dict.opening_val += value_diff
 
 		elif entry.posting_date >= self.from_date and entry.posting_date <= self.to_date:
-			# Update the transaction type specific quantities
-			if entry.stock_entry_type == "Material Transfer":
-				if qty_diff > 0:
-					qty_dict.transfer_in_qty += qty_diff
-				else:
-					qty_dict.transfer_out_qty += abs(qty_diff)
-					if abs(qty_diff) > 0:
-						current_val_rate = entry.valuation_rate if entry.valuation_rate else qty_dict.val_rate
-						qty_dict.transfer_out_val += abs(qty_diff) * flt(current_val_rate)
-			elif entry.stock_entry_type == "Material Issue":
-				if qty_diff < 0:
-					qty_dict.issued_qty += abs(qty_diff)
-					qty_dict.issued_val += abs(value_diff)
-			elif entry.stock_entry_type == "Material Receipt":
-				if qty_diff > 0:
-					qty_dict.return_qty += qty_diff
-
-			
-			# Handle Purchase Receipt with petty cash check
-			elif entry.voucher_type == "Purchase Receipt":
-				qty_dict.purchased_qty += flt(qty_diff) if flt(qty_diff) > 0 else 0
-				if entry.get("is_petty_cash"):  # Now available from the join
-					qty_dict.petty_cash_qty += qty_diff if qty_diff > 0 else 0
-			
-			elif entry.voucher_type == "Purchase Invoice":
-				qty_dict.purchased_qty += flt(qty_diff) if qty_diff > 0 else 0
-
-			# Standard in/out quantity tracking
 			if flt(qty_diff, self.float_precision) >= 0:
 				qty_dict.in_qty += qty_diff
 			else:
@@ -256,7 +225,7 @@ class StockBalanceReport:
 		qty_dict.val_rate = entry.valuation_rate
 		qty_dict.bal_qty += qty_diff
 		qty_dict.bal_val += value_diff
-  		
+
 	def initialize_data(self, item_warehouse_map, group_by_key, entry):
 		opening_data = self.opening_data.get(group_by_key, {})
 
@@ -271,17 +240,6 @@ class StockBalanceReport:
 				"item_name": entry.item_name,
 				"opening_qty": opening_data.get("bal_qty") or 0.0,
 				"opening_val": opening_data.get("bal_val") or 0.0,
-				
-				# Transaction type specific quantities
-				"purchased_qty": 0.0,
-				"petty_cash_qty": 0.0,
-				"transfer_in_qty": 0.0,
-				"return_qty": 0.0,
-				"issued_qty": 0.0,
-				"issued_val": 0.0,
-				"transfer_out_qty": 0.0,
-				"transfer_out_val": 0.0,
-
 				"opening_fifo_queue": opening_data.get("fifo_queue") or [],
 				"in_qty": 0.0,
 				"in_val": 0.0,
@@ -325,31 +283,22 @@ class StockBalanceReport:
 		)
 
 		for fieldname in ["warehouse", "item_code", "item_group", "warehouse_type"]:
-			if self.filters.get(fieldname):
-				query = query.where(table[fieldname] == self.filters.get(fieldname))
+			if value := self.filters.get(fieldname):
+				if isinstance(value, list | tuple):
+					query = query.where(table[fieldname].isin(value))
+				else:
+					query = query.where(table[fieldname] == value)
 
 		return query.run(as_dict=True)
 
 	def prepare_stock_ledger_entries(self):
 		sle = frappe.qb.DocType("Stock Ledger Entry")
 		item_table = frappe.qb.DocType("Item")
-		stock_entry = frappe.qb.DocType("Stock Entry")
-		purchase_receipt = frappe.qb.DocType("Purchase Receipt")
 
 		query = (
 			frappe.qb.from_(sle)
 			.inner_join(item_table)
 			.on(sle.item_code == item_table.name)
-			.left_join(stock_entry)
-			.on(
-				(sle.voucher_type == "Stock Entry")
-				& (sle.voucher_no == stock_entry.name)
-			)
-			.left_join(purchase_receipt)
-			.on(
-				(sle.voucher_type == "Purchase Receipt")
-				& (sle.voucher_no == purchase_receipt.name)
-			)
 			.select(
 				sle.item_code,
 				sle.warehouse,
@@ -370,23 +319,15 @@ class StockBalanceReport:
 				item_table.item_group,
 				item_table.stock_uom,
 				item_table.item_name,
-				stock_entry.stock_entry_type,
-				purchase_receipt.is_petty_cash,
 			)
-			.where(
-				(sle.docstatus < 2)
-				& (sle.is_cancelled == 0)
-			)
+			.where((sle.docstatus < 2) & (sle.is_cancelled == 0))
 			.orderby(sle.posting_datetime)
 			.orderby(sle.creation)
 		)
 
-		# ✅ ACTIVE ITEMS FILTER
-		# Checkbox: active_items (default = 1)
 		if self.filters.get("active_items"):
 			query = query.where(item_table.disabled == 0)
 
-		# Existing filters (UNCHANGED)
 		query = self.apply_inventory_dimensions_filters(query, sle)
 		query = self.apply_warehouse_filters(query, sle)
 		query = self.apply_items_filters(query, item_table)
@@ -396,7 +337,6 @@ class StockBalanceReport:
 			query = query.where(sle.company == self.filters.get("company"))
 
 		self.sle_query = query
-
 
 	def apply_inventory_dimensions_filters(self, query, sle) -> str:
 		inventory_dimension_fields = self.get_inventory_dimension_fields()
@@ -413,6 +353,7 @@ class StockBalanceReport:
 
 		if self.filters.get("warehouse"):
 			query = apply_warehouse_filter(query, sle, self.filters)
+
 		elif warehouse_type := self.filters.get("warehouse_type"):
 			query = (
 				query.join(warehouse_table)
@@ -427,13 +368,11 @@ class StockBalanceReport:
 			children = get_descendants_of("Item Group", item_group, ignore_permissions=True)
 			query = query.where(item_table.item_group.isin([*children, item_group]))
 
-		for field in ["item_code", "brand"]:
-			if not self.filters.get(field):
-				continue
-			elif field == "item_code":
-				query = query.where(item_table.name == self.filters.get(field))
-			else:
-				query = query.where(item_table[field] == self.filters.get(field))
+		if item_codes := self.filters.get("item_code"):
+			query = query.where(item_table.name.isin(item_codes))
+
+		if brand := self.filters.get("brand"):
+			query = query.where(item_table.brand == brand)
 
 		return query
 
@@ -449,224 +388,135 @@ class StockBalanceReport:
 	def get_columns(self):
 		columns = [
 			{
-				"label": _("Item Code"),
+				"label": _("Item"),
 				"fieldname": "item_code",
 				"fieldtype": "Link",
 				"options": "Item",
-				"width": 120,
+				"width": 100,
 			},
+			{"label": _("Item Name"), "fieldname": "item_name", "width": 150},
 			{
-				"label": _("Item Name / Description"),
-				"fieldname": "item_name",
-				"width": 180,
-			},
-			{
-				"label": _("Item Group (Category)"),
+				"label": _("Item Group"),
 				"fieldname": "item_group",
 				"fieldtype": "Link",
 				"options": "Item Group",
-				"width": 130,
+				"width": 100,
 			},
 			{
-				"label": _("Warehouse (Stock Location)"),
+				"label": _("Warehouse"),
 				"fieldname": "warehouse",
 				"fieldtype": "Link",
 				"options": "Warehouse",
-				"width": 140,
+				"width": 100,
 			},
 		]
 
-		for dimension in get_inventory_dimensions():
-			columns.append(
-				{
-					"label": _(f"{dimension.doctype} (Inventory Dimension)"),
-					"fieldname": dimension.fieldname,
-					"fieldtype": "Link",
-					"options": dimension.doctype,
-					"width": 120,
-				}
-			)
+		if self.filters.get("show_dimension_wise_stock"):
+			for dimension in get_inventory_dimensions():
+				columns.append(
+					{
+						"label": _(dimension.doctype),
+						"fieldname": dimension.fieldname,
+						"fieldtype": "Link",
+						"options": dimension.doctype,
+						"width": 110,
+					}
+				)
 
 		columns.extend(
 			[
 				{
-					"label": _("Stock UOM (Unit of Measure)"),
+					"label": _("Stock UOM"),
 					"fieldname": "stock_uom",
 					"fieldtype": "Link",
 					"options": "UOM",
-					"width": 120,
+					"width": 90,
 				},
 				{
-					"label": _("Balance Quantity (Current Stock)"),
+					"label": _("Balance Qty"),
 					"fieldname": "bal_qty",
 					"fieldtype": "Float",
-					"width": 160,
+					"width": 100,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Balance Value (Current Stock Worth)"),
+					"label": _("Balance Value"),
 					"fieldname": "bal_val",
 					"fieldtype": "Currency",
-					"width": 160,
+					"width": 100,
 					"options": "Company:company:default_currency",
 				},
 				{
-					"label": _("Opening Quantity (Start of Period)"),
+					"label": _("Opening Qty"),
 					"fieldname": "opening_qty",
 					"fieldtype": "Float",
-					"width": 160,
+					"width": 100,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Opening Value (Start Stock Worth)"),
+					"label": _("Opening Value"),
 					"fieldname": "opening_val",
 					"fieldtype": "Currency",
-					"width": 160,
-					"options": "Company:company:default_currency",
-				},
-
-				# --- Transactional Columns ---
-				{
-					"label": _("Purchased Qty (From Purchase Orders)"),
-					"fieldname": "purchased_qty",
-					"fieldtype": "Float",
-					"width": 180,
-					"convertible": "qty",
-				},
-				{
-					"label": _("Petty Cash Qty (Manual Purchases)"),
-					"fieldname": "petty_cash_qty",
-					"fieldtype": "Float",
-					"width": 180,
-					"convertible": "qty",
-				},
-				{
-					"label": _("Transfer In Qty (Received from Another Warehouse)"),
-					"fieldname": "transfer_in_qty",
-					"fieldtype": "Float",
-					"width": 220,
-					"convertible": "qty",
-				},
-				{
-					"label": _("Return Qty (Customer or Production Returns)"),
-					"fieldname": "return_qty",
-					"fieldtype": "Float",
-					"width": 200,
-					"convertible": "qty",
-				},
-				{
-					"label": _("Issued Qty (Used or Sold)"),
-					"fieldname": "issued_qty",
-					"fieldtype": "Float",
-					"width": 150,
-					"convertible": "qty",
-				},
-				{
-					"label": _("Issued Amount (Used or Sold)"),
-					"fieldname": "issued_val",
-					"fieldtype": "Currency",
-					"width": 180,
+					"width": 110,
 					"options": "Company:company:default_currency",
 				},
 				{
-					"label": _("Transfer Out Qty (Sent to Another Warehouse)"),
-					"fieldname": "transfer_out_qty",
-					"fieldtype": "Float",
-					"width": 220,
-					"convertible": "qty",
-				},
-
-				# --- Standard Movement Columns ---
-				{
-					"label": _("Total In Qty (All Incoming Stock)"),
+					"label": _("In Qty"),
 					"fieldname": "in_qty",
 					"fieldtype": "Float",
-					"width": 160,
+					"width": 80,
 					"convertible": "qty",
 				},
+				{"label": _("In Value"), "fieldname": "in_val", "fieldtype": "Float", "width": 80},
 				{
-					"label": _("Total In Value (Value of Stock Received)"),
-					"fieldname": "in_val",
-					"fieldtype": "Float",
-					"width": 180,
-				},
-				{
-					"label": _("Total Out Qty (All Outgoing Stock)"),
+					"label": _("Out Qty"),
 					"fieldname": "out_qty",
 					"fieldtype": "Float",
-					"width": 160,
+					"width": 80,
 					"convertible": "qty",
 				},
+				{"label": _("Out Value"), "fieldname": "out_val", "fieldtype": "Float", "width": 80},
 				{
-					"label": _("Total Out Value (Value of Stock Issued)"),
-					"fieldname": "out_val",
-					"fieldtype": "Float",
-					"width": 180,
-				},
-				{
-					"label": _("Valuation Rate (Per Unit Value)"),
+					"label": _("Valuation Rate"),
 					"fieldname": "val_rate",
 					"fieldtype": self.filters.valuation_field_type or "Currency",
-					"width": 150,
+					"width": 90,
 					"convertible": "rate",
 					"options": "Company:company:default_currency"
 					if self.filters.valuation_field_type == "Currency"
 					else None,
 				},
 				{
-					"label": _("Transfer Out Value"),
-					"fieldname": "transfer_out_val",
-					"fieldtype": "Float",
-					"width": 180,
-				},
-				{
-					"label": _("Reserved Stock (Allocated for Orders)"),
+					"label": _("Reserved Stock"),
 					"fieldname": "reserved_stock",
 					"fieldtype": "Float",
-					"width": 180,
+					"width": 80,
 					"convertible": "qty",
 				},
 				{
-					"label": _("Company Name"),
+					"label": _("Company"),
 					"fieldname": "company",
 					"fieldtype": "Link",
 					"options": "Company",
-					"width": 150,
+					"width": 100,
 				},
 			]
 		)
 
 		if self.filters.get("show_stock_ageing_data"):
 			columns += [
-				{
-					"label": _("Average Age (Days in Stock)"),
-					"fieldname": "average_age",
-					"width": 160,
-				},
-				{
-					"label": _("Oldest Stock Age (Earliest Received)"),
-					"fieldname": "earliest_age",
-					"width": 180,
-				},
-				{
-					"label": _("Newest Stock Age (Most Recent Entry)"),
-					"fieldname": "latest_age",
-					"width": 180,
-				},
+				{"label": _("Average Age"), "fieldname": "average_age", "width": 100},
+				{"label": _("Earliest Age"), "fieldname": "earliest_age", "width": 100},
+				{"label": _("Latest Age"), "fieldname": "latest_age", "width": 100},
 			]
 
 		if self.filters.get("show_variant_attributes"):
 			columns += [
-				{
-					"label": _(f"{att_name} (Variant Attribute)"),
-					"fieldname": att_name,
-					"width": 140,
-				}
+				{"label": att_name, "fieldname": att_name, "width": 100}
 				for att_name in get_variants_attributes()
 			]
 
 		return columns
-
 
 	def add_additional_uom_columns(self):
 		if not self.filters.get("include_uom"):

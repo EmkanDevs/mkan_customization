@@ -533,11 +533,15 @@ def get_inventory_dimension_fields():
 def get_items(filters):
     item = frappe.qb.DocType("Item")
     query = frappe.qb.from_(item).select(item.name)
+
     conditions = []
+
+    # ✅ Active Items filter
+    if filters.get("active_items"):
+        conditions.append(item.disabled == 0)
 
     if item_codes := filters.get("item_code"):
         conditions.append(item.name.isin(item_codes))
-
     else:
         if brand := filters.get("brand"):
             conditions.append(item.brand == brand)
@@ -547,14 +551,14 @@ def get_items(filters):
         ):
             conditions.append(condition)
 
-    items = []
     if conditions:
         for condition in conditions:
             query = query.where(condition)
 
-        items = [r[0] for r in query.run()]
+        return [r[0] for r in query.run()]
 
-    return items
+    return []
+
 
 
 def get_item_details(items, sl_entries, include_uom):
