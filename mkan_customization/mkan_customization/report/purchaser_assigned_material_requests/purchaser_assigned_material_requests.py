@@ -21,9 +21,9 @@ def get_columns():
         },
         {
             "label": _("Assigned To"),
-            "fieldname": "assigned_to_name",
-            "fieldtype": "Data",   # ✅ FIXED (NOT Link)
-            "width": 180,
+            "fieldname": "assigned_to_names",
+            "fieldtype": "Data",
+            "width": 240,
         },
         {
             "label": _("Transaction Date"),
@@ -133,7 +133,7 @@ def get_data(filters):
         conditions.append("mr.transaction_date <= %(to_date)s")
         values["to_date"] = filters["to_date"]
 
-    # ✅ FIXED: Assigned To filter (NO status check)
+    # ✅ CORRECT Assigned To filter (allocated_to)
     if filters.get("assigned_to"):
         conditions.append("""
             EXISTS (
@@ -141,7 +141,7 @@ def get_data(filters):
                 FROM `tabToDo` td
                 WHERE td.reference_type = 'Material Request'
                   AND td.reference_name = mr.name
-                  AND td.owner = %(assigned_to)s
+                  AND td.allocated_to = %(assigned_to)s
             )
         """)
         values["assigned_to"] = filters["assigned_to"]
@@ -152,16 +152,19 @@ def get_data(filters):
         SELECT
             mr.name AS mr_name,
 
-            -- Assigned To (latest assignment, FULL NAME)
+            -- ✅ ACTUAL assigned users (not assigner)
             (
-                SELECT u.full_name
+                SELECT GROUP_CONCAT(
+                    DISTINCT u.full_name
+                    ORDER BY u.full_name
+                    SEPARATOR ', '
+                )
                 FROM `tabToDo` td
-                INNER JOIN `tabUser` u ON u.name = td.owner
+                INNER JOIN `tabUser` u
+                    ON u.name = td.allocated_to
                 WHERE td.reference_type = 'Material Request'
                   AND td.reference_name = mr.name
-                ORDER BY td.creation DESC
-                LIMIT 1
-            ) AS assigned_to_name,
+            ) AS assigned_to_names,
 
             mr.transaction_date,
             mr.schedule_date AS required_by,
