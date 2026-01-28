@@ -22,7 +22,7 @@ def get_columns():
         {
             "label": _("Assigned To"),
             "fieldname": "assigned_to_name",
-            "fieldtype": "Data",
+            "fieldtype": "Data",   # ✅ FIXED (NOT Link)
             "width": 180,
         },
         {
@@ -110,7 +110,15 @@ def get_data(filters):
         values["material_request"] = filters["material_request"]
 
     if filters.get("project"):
-        conditions.append("po.project = %(project)s")
+        conditions.append("""
+            EXISTS (
+                SELECT 1
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po ON po.name = poi.parent
+                WHERE poi.material_request = mr.name
+                  AND po.project = %(project)s
+            )
+        """)
         values["project"] = filters["project"]
 
     if filters.get("purpose"):
@@ -125,15 +133,15 @@ def get_data(filters):
         conditions.append("mr.transaction_date <= %(to_date)s")
         values["to_date"] = filters["to_date"]
 
+    # ✅ FIXED: Assigned To filter (NO status check)
     if filters.get("assigned_to"):
         conditions.append("""
             EXISTS (
                 SELECT 1
-                FROM `tabToDo` tdf
-                WHERE tdf.reference_type = 'Material Request'
-                  AND tdf.reference_name = mr.name
-                  AND tdf.owner = %(assigned_to)s
-                  AND tdf.status = 'Open'
+                FROM `tabToDo` td
+                WHERE td.reference_type = 'Material Request'
+                  AND td.reference_name = mr.name
+                  AND td.owner = %(assigned_to)s
             )
         """)
         values["assigned_to"] = filters["assigned_to"]
@@ -143,45 +151,99 @@ def get_data(filters):
     return frappe.db.sql(f"""
         SELECT
             mr.name AS mr_name,
-            u.full_name AS assigned_to_name,
+
+            -- Assigned To (latest assignment, FULL NAME)
+            (
+                SELECT u.full_name
+                FROM `tabToDo` td
+                INNER JOIN `tabUser` u ON u.name = td.owner
+                WHERE td.reference_type = 'Material Request'
+                  AND td.reference_name = mr.name
+                ORDER BY td.creation DESC
+                LIMIT 1
+            ) AS assigned_to_name,
+
             mr.transaction_date,
             mr.schedule_date AS required_by,
             mr.set_warehouse,
             mr.workflow_state AS mr_workflow_state,
 
-            po.name AS po_name,
-            po.transaction_date AS po_date,
-            po.project,
-            pr.project_name AS project_name,
-            po.supplier,
-            po.supplier_name,
-            po.workflow_state AS po_workflow_state
+            -- Latest Purchase Order
+            (
+                SELECT po.name
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po
+                    ON po.name = poi.parent
+                    AND po.docstatus = 1
+                WHERE poi.material_request = mr.name
+                ORDER BY po.transaction_date DESC
+                LIMIT 1
+            ) AS po_name,
+
+            (
+                SELECT po.transaction_date
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po
+                    ON po.name = poi.parent
+                    AND po.docstatus = 1
+                WHERE poi.material_request = mr.name
+                ORDER BY po.transaction_date DESC
+                LIMIT 1
+            ) AS po_date,
+
+            (
+                SELECT po.project
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po
+                    ON po.name = poi.parent
+                    AND po.docstatus = 1
+                WHERE poi.material_request = mr.name
+                ORDER BY po.transaction_date DESC
+                LIMIT 1
+            ) AS project,
+
+            (
+                SELECT pr.project_name
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po ON po.name = poi.parent
+                INNER JOIN `tabProject` pr ON pr.name = po.project
+                WHERE poi.material_request = mr.name
+                ORDER BY po.transaction_date DESC
+                LIMIT 1
+            ) AS project_name,
+
+            (
+                SELECT po.supplier
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po ON po.name = poi.parent
+                WHERE poi.material_request = mr.name
+                ORDER BY po.transaction_date DESC
+                LIMIT 1
+            ) AS supplier,
+
+            (
+                SELECT po.supplier_name
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po ON po.name = poi.parent
+                WHERE poi.material_request = mr.name
+                ORDER BY po.transaction_date DESC
+                LIMIT 1
+            ) AS supplier_name,
+
+            (
+                SELECT po.workflow_state
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po ON po.name = poi.parent
+                WHERE poi.material_request = mr.name
+                ORDER BY po.transaction_date DESC
+                LIMIT 1
+            ) AS po_workflow_state
 
         FROM `tabMaterial Request` mr
-
-        LEFT JOIN `tabToDo` td
-            ON td.reference_type = 'Material Request'
-            AND td.reference_name = mr.name
-            AND td.status = 'Open'
-
-        LEFT JOIN `tabUser` u
-            ON u.name = td.owner
-
-        LEFT JOIN `tabPurchase Order Item` poi
-            ON poi.material_request = mr.name
-
-        LEFT JOIN `tabPurchase Order` po
-            ON po.name = poi.parent
-            AND po.docstatus = 1
-
-        LEFT JOIN `tabProject` pr
-            ON pr.name = po.project
 
         WHERE
             mr.docstatus = 1
             {f"AND {condition_str}" if condition_str else ""}
 
-        ORDER BY
-            mr.transaction_date DESC,
-            po.transaction_date DESC
+        ORDER BY mr.transaction_date DESC
     """, values, as_dict=True)
