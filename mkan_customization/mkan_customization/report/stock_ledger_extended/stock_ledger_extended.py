@@ -9,7 +9,8 @@ import frappe
 from frappe import _
 from frappe.query_builder.functions import CombineDatetime, Sum
 from frappe.utils import cint, flt, get_datetime
-
+from frappe.query_builder.functions import Cast
+from frappe.query_builder.functions import DateFormat
 from erpnext.stock.doctype.inventory_dimension.inventory_dimension import get_inventory_dimensions
 from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos
 from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_stock_balance_for
@@ -446,64 +447,71 @@ def get_columns(filters):
 
 
 def get_stock_ledger_entries(filters, items):
-    from_date = get_datetime(filters.from_date + " 00:00:00")
-    to_date = get_datetime(filters.to_date + " 23:59:59")
+	from_date = get_datetime(filters.from_date + " 00:00:00")
+	to_date = get_datetime(filters.to_date + " 23:59:59")
 
-    sle = frappe.qb.DocType("Stock Ledger Entry")
-    query = (
-        frappe.qb.from_(sle)
-        .select(
-            sle.item_code,
-            sle.posting_datetime.as_("date"),
-            sle.warehouse,
-            sle.posting_date,
-            sle.posting_time,
-            sle.actual_qty,
-            sle.incoming_rate,
-            sle.valuation_rate,
-            sle.company,
-            sle.voucher_type,
-            sle.qty_after_transaction,
-            sle.stock_value_difference,
-            sle.serial_and_batch_bundle,
-            sle.voucher_no,
-            sle.stock_value,
-            sle.batch_no,
-            sle.serial_no,
-            sle.project,
-        )
-        .where((sle.docstatus < 2) & (sle.is_cancelled == 0) & (sle.posting_datetime[from_date:to_date]))
-        .orderby(sle.posting_datetime)
-        .orderby(sle.creation)
-    )
+	sle = frappe.qb.DocType("Stock Ledger Entry")
+	query = (
+		frappe.qb.from_(sle)
+		.select(
+			sle.item_code,
 
-    inventory_dimension_fields = get_inventory_dimension_fields()
-    if inventory_dimension_fields:
-        for fieldname in inventory_dimension_fields:
-            query = query.select(fieldname)
-            if fieldname in filters and filters.get(fieldname):
-                query = query.where(sle[fieldname].isin(filters.get(fieldname)))
+            DateFormat(sle.posting_datetime, "%Y-%m-%d").as_("date"),
+			sle.warehouse,
+			sle.posting_date,
+			sle.posting_time,
+			sle.actual_qty,
+			sle.incoming_rate,
+			sle.valuation_rate,
+			sle.company,
+			sle.voucher_type,
+			sle.qty_after_transaction,
+			sle.stock_value_difference,
+			sle.serial_and_batch_bundle,
+			sle.voucher_no,
+			sle.stock_value,
+			sle.batch_no,
+			sle.serial_no,
+			sle.project,
+		)
+		.where(
+			(sle.docstatus < 2)
+			& (sle.is_cancelled == 0)
+			& (sle.posting_datetime[from_date:to_date])
+		)
+		.orderby(sle.posting_datetime)
+		.orderby(sle.creation)
+	)
 
-    if items:
-        query = query.where(sle.item_code.isin(items))
+	inventory_dimension_fields = get_inventory_dimension_fields()
+	if inventory_dimension_fields:
+		for fieldname in inventory_dimension_fields:
+			query = query.select(fieldname)
+			if fieldname in filters and filters.get(fieldname):
+				query = query.where(sle[fieldname].isin(filters.get(fieldname)))
 
-    for field in ["voucher_no", "project", "company"]:
-        if filters.get(field) and field not in inventory_dimension_fields:
-            query = query.where(sle[field] == filters.get(field))
+	if items:
+		query = query.where(sle.item_code.isin(items))
 
-    if filters.get("batch_no"):
-        bundles = get_serial_and_batch_bundles(filters)
+	for field in ["voucher_no", "project", "company"]:
+		if filters.get(field) and field not in inventory_dimension_fields:
+			query = query.where(sle[field] == filters.get(field))
 
-        if bundles:
-            query = query.where(
-                (sle.serial_and_batch_bundle.isin(bundles)) | (sle.batch_no == filters.batch_no)
-            )
-        else:
-            query = query.where(sle.batch_no == filters.batch_no)
+	if filters.get("batch_no"):
+		bundles = get_serial_and_batch_bundles(filters)
 
-    query = apply_warehouse_filter(query, sle, filters)
+		if bundles:
+			query = query.where(
+				(sle.serial_and_batch_bundle.isin(bundles))
+				| (sle.batch_no == filters.batch_no)
+			)
+		else:
+			query = query.where(sle.batch_no == filters.batch_no)
 
-    return query.run(as_dict=True)
+	query = apply_warehouse_filter(query, sle, filters)
+
+	return query.run(as_dict=True)
+
 
 
 def get_serial_and_batch_bundles(filters):
