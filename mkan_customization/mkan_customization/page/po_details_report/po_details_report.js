@@ -269,6 +269,16 @@ var po_details_report = {
 				filters_applied = true;
 			}
 
+			if (frappe.route_options.from_date) {
+				$('#filter-from-date').val(frappe.route_options.from_date);
+				filters_applied = true;
+			}
+
+			if (frappe.route_options.to_date) {
+				$('#filter-to-date').val(frappe.route_options.to_date);
+				filters_applied = true;
+			}
+
 			frappe.route_options = null;
 		}
 

@@ -19,9 +19,12 @@ frappe.ui.form.on("Material Request", {
 		frm.add_custom_button(
 			"PO Details Report",
 			() => {
+				const transaction_date = frm.doc.transaction_date || null;
 				frappe.route_options = {
 					material_request: frm.doc.name,
-					// project: frm.doc.project || null
+					project: frm.doc.project || null,
+					from_date: transaction_date,
+					to_date: transaction_date
 				};
 				frappe.set_route("po-details-report");
 			},
