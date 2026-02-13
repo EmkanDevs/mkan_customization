@@ -19,7 +19,11 @@ frappe.ui.form.on("Material Request", {
 		frm.add_custom_button(
 			"PO Details Report",
 			() => {
-				frappe.set_route("po-details-report", frm.doc.name);
+				frappe.route_options = {
+					material_request: frm.doc.name,
+					// project: frm.doc.project || null
+				};
+				frappe.set_route("po-details-report");
 			},
 			__("Report")
 		);

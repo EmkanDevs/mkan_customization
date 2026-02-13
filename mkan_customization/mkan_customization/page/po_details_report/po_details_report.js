@@ -168,6 +168,16 @@ frappe.pages['po-details-report'].on_page_load = function (wrapper) {
 	po_details_report.init(page);
 };
 
+frappe.pages['po-details-report'].on_page_show = function () {
+	if (!po_details_report.page) {
+		return;
+	}
+
+	if (po_details_report.apply_route_filters()) {
+		po_details_report.fetch_report_data();
+	}
+};
+
 var po_details_report = {
 	page: null,
 	reportData: [],
@@ -233,19 +243,36 @@ var po_details_report = {
 		this.setup_events();
 		this.setup_project_link();
 		this.set_default_dates();
+		this.apply_route_filters();
 
+		this.fetch_report_data();
+	},
+
+	apply_route_filters: function () {
+		let filters_applied = false;
 		const route = frappe.get_route();
+
 		if (route.length > 1 && route[0] === 'po-details-report') {
 			const mrId = route[1];
 			$('#filter-material-request').val(mrId);
-		} else if (frappe.route_options) {
+			filters_applied = true;
+		}
+
+		if (frappe.route_options) {
 			if (frappe.route_options.project && this.project_control) {
 				this.project_control.set_value(frappe.route_options.project);
+				filters_applied = true;
 			}
+
+			if (frappe.route_options.material_request) {
+				$('#filter-material-request').val(frappe.route_options.material_request);
+				filters_applied = true;
+			}
+
 			frappe.route_options = null;
 		}
 
-		this.fetch_report_data();
+		return filters_applied;
 	},
 
 	setup_events: function () {
