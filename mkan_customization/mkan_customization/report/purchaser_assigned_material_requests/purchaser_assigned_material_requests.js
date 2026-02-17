@@ -8,6 +8,7 @@ frappe.query_reports["Purchaser Assigned Material Requests"] = {
             default: frappe.session.user
         },
 
+
 		{
 			fieldname: "project",
 			label: __("Project"),
@@ -37,6 +38,13 @@ frappe.query_reports["Purchaser Assigned Material Requests"] = {
             fieldtype: "Select",
             options: "Purchase\nMaterial Transfer\nManufacture\nCustomer Provided",
             default: "Purchase"
-        }
+        },
+
+        {
+            fieldname: "due_po",
+            label: __("Due PO"),
+            fieldtype: "Check",
+            default: 1
+        },
     ]
 };

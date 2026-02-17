@@ -104,7 +104,18 @@ def get_data(filters):
     conditions = []
     values = {}
 
-    # ---- Filters ----
+    if filters.get("due_po"):
+        conditions.append("""
+            NOT EXISTS (
+                SELECT 1
+                FROM `tabPurchase Order Item` poi
+                INNER JOIN `tabPurchase Order` po
+                    ON po.name = poi.parent
+                    AND po.docstatus = 1
+                WHERE poi.material_request = mr.name
+            )
+        """)
+
     if filters.get("material_request"):
         conditions.append("mr.name = %(material_request)s")
         values["material_request"] = filters["material_request"]
