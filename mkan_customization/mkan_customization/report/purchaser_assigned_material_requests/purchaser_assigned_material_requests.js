@@ -1,4 +1,27 @@
 frappe.query_reports["Purchaser Assigned Material Requests"] = {
+
+    onload: function(report) {
+
+		report.page.add_inner_button("Open PO Detail Page", function() {
+
+			let filters = report.get_values();
+
+			let route_options = {
+				// project: filters.project || "",
+				// material_request: filters.material_request || "",
+				// from_date: filters.from_date || "",
+				// to_date: filters.to_date || "",
+				assigned_to: filters.assigned_to || ""
+			};
+
+			let url = "/app/po-details-report?" + $.param(route_options);
+
+			window.open(url, "_blank");
+
+		}).addClass("btn-primary");
+
+	},
+    
     filters: [
         {
             fieldname: "assigned_to",

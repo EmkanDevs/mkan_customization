@@ -22,6 +22,7 @@ def get_columns():
         
         # Material Request Information
         {"label": "Material Request", "fieldname": "material_request", "fieldtype": "Link", "options": "Material Request", "width": 180},
+        {"label": "Assigned To","fieldname": "assigned_to","fieldtype": "Data","width": 180,},
         {"label": "MR Status", "fieldname": "mr_status", "fieldtype": "Data", "width": 100},
         {"label": "MR Workflow State", "fieldname": "mr_workflow_state", "fieldtype": "Data", "width": 130},
         
@@ -128,6 +129,10 @@ def get_data(filters):
             )
         """
 
+        # Assigned To Filter
+    assigned_to = filters.get("assigned_to") or ""
+    values["assigned_to"] = assigned_to
+
     parent_query = f"""
         SELECT
             'Material Request' AS document_type,
@@ -135,13 +140,32 @@ def get_data(filters):
             mr.name AS material_request,
             mr.status AS mr_status,
             mr.workflow_state AS mr_workflow_state,
+            (
+                SELECT GROUP_CONCAT(td.allocated_to SEPARATOR ', ')
+                FROM `tabToDo` td
+                WHERE td.reference_type = 'Material Request'
+                AND td.reference_name = mr.name
+                AND td.status != 'Cancelled'
+            ) AS assigned_to,
             0 AS indent,
             NULL AS parent_document
         FROM `tabMaterial Request` mr
         WHERE (%(mr_purpose)s = '' OR mr.material_request_type = %(mr_purpose)s)
+        AND (
+            %(assigned_to)s = ''
+            OR EXISTS (
+                SELECT 1
+                FROM `tabToDo` td2
+                WHERE td2.reference_type = 'Material Request'
+                AND td2.reference_name = mr.name
+                AND td2.status != 'Cancelled'
+                AND td2.allocated_to = %(assigned_to)s
+            )
+        )
         {parent_filter_exists_sql}
         ORDER BY mr.creation DESC
     """
+
     parent_rows = frappe.db.sql(parent_query, values, as_dict=True)
     if not parent_rows:
         return []

@@ -2,7 +2,9 @@ frappe.pages['po-details-report'].on_page_load = function (wrapper) {
 	var page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: 'PO Details Report',
-		single_column: true
+		single_column: true,
+
+		
 	});
 
 	// Add enhanced custom CSS
@@ -118,6 +120,9 @@ frappe.pages['po-details-report'].on_page_load = function (wrapper) {
 		'<div class="col-md-4 mb-3">' +
 		'<div id="project-filter"></div>' +
 		'</div> ' +
+		'<div class="col-md-3 mb-3">' +
+		'<div id="assigned-to-filter"></div>' +
+		'</div>' +
 		'<div class="col-md-8 mb-3">' +
 		'<label class="form-label">&nbsp;</label>' +
 		'<div style="padding-top: 8px;">' +
@@ -242,19 +247,40 @@ var po_details_report = {
 		this.page = page;
 		this.setup_events();
 		this.setup_project_link();
+		this.setup_assigned_to_link();
 		this.set_default_dates();
 		this.apply_route_filters();
 
 		this.fetch_report_data();
 	},
 
+	setup_assigned_to_link: function () {
+		this.assigned_to_control = frappe.ui.form.make_control({
+			parent: $('#assigned-to-filter'),
+			df: {
+				fieldtype: 'Link',
+				label: 'Assigned To',
+				fieldname: 'assigned_to',
+				options: 'User',
+				placeholder: 'Select User'
+			},
+			render_input: true
+		});
+	},
+
 	apply_route_filters: function () {
 		let filters_applied = false;
 		const route = frappe.get_route();
+		const params = new URLSearchParams(window.location.search);
 
 		if (route.length > 1 && route[0] === 'po-details-report') {
 			const mrId = route[1];
 			$('#filter-material-request').val(mrId);
+			filters_applied = true;
+		}
+
+		if (params.get("assigned_to") && this.assigned_to_control) {
+			this.assigned_to_control.set_value(params.get("assigned_to"));
 			filters_applied = true;
 		}
 
@@ -339,11 +365,13 @@ var po_details_report = {
 	get_filters: function () {
 		return {
 			project: this.project_control ? (this.project_control.get_value() || null) : null,
+			assigned_to: this.assigned_to_control ? (this.assigned_to_control.get_value() || "") : "",
 			from_date: $('#filter-from-date').val() || null,
 			to_date: $('#filter-to-date').val() || null,
 			material_request_purpose: $('#filter-purpose').val() || 'Purchase'
 		};
 	},
+	
 
 	fetch_report_data: function () {
 		const self = this;
@@ -992,3 +1020,7 @@ var po_details_report = {
 		}
 	}
 };
+
+
+
+
