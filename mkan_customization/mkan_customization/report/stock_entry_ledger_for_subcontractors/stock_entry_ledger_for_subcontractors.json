@@ -1,0 +1,147 @@
+{
+ "add_total_row": 1,
+ "add_translate_data": 0,
+ "columns": [
+  {
+   "fieldname": "se.name",
+   "fieldtype": "Data",
+   "label": "Stock Entry No",
+   "width": 0
+  },
+  {
+   "fieldname": "se.stock_entry_type",
+   "fieldtype": "Data",
+   "label": "Stock Entry Type",
+   "width": 0
+  },
+  {
+   "fieldname": "se.posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.s_warehouse",
+   "fieldtype": "Data",
+   "label": "Source Warehouse",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.t_warehouse",
+   "fieldtype": "Data",
+   "label": "Target Warehouse",
+   "width": 0
+  },
+  {
+   "fieldname": "se.custom_supplier_code",
+   "fieldtype": "Data",
+   "label": "Subcontractor Code",
+   "width": 0
+  },
+  {
+   "fieldname": "se.custom_suppliers_name",
+   "fieldtype": "Data",
+   "label": "Subcontractor Name",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.item_code",
+   "fieldtype": "Data",
+   "label": "Item Code",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "width": 0
+  },
+  {
+   "fieldname": "i.item_group",
+   "fieldtype": "Data",
+   "label": "Item Group",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.qty",
+   "fieldtype": "Float",
+   "label": "Qty",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.stock_uom",
+   "fieldtype": "Data",
+   "label": "UOM",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.basic_rate",
+   "fieldtype": "Currency",
+   "label": "Basic Rate (as per Stock UOM)",
+   "width": 0
+  },
+  {
+   "fieldname": "sed.amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "width": 0
+  },
+  {
+   "fieldname": "se.project",
+   "fieldtype": "Data",
+   "label": "Project",
+   "width": 0
+  },
+  {
+   "fieldname": "p.project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "width": 0
+  }
+ ],
+ "creation": "2026-03-09 11:21:10.801882",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": null,
+ "modified": "2026-03-09 11:21:40.694863",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Stock Entry Ledger for Subcontractors",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "SELECT\r\n    se.name AS \"Stock Entry No\",\r\n    se.stock_entry_type AS \"Stock Entry Type\",\r\n    se.posting_date AS \"Posting Date\",\r\n    sed.s_warehouse AS \"Source Warehouse\",\r\n    sed.t_warehouse AS \"Target Warehouse\",\r\n    se.custom_supplier_code AS \"Supplier Code\",\r\n    se.custom_suppliers_name AS \"Supplier Name\",\r\n    sed.item_code AS \"Item Code\",\r\n    sed.item_name AS \"Item Name\",\r\n    i.item_group AS \"Item Group\",\r\n    sed.qty AS \"Qty\",\r\n    sed.stock_uom AS \"UOM\",\r\n    sed.basic_rate AS \"Basic Rate (as per Stock UOM)\",\r\n    sed.amount AS \"Amount\",\r\n    se.project AS \"Project\",\r\n    p.project_name AS \"Project Name\"\r\n\r\nFROM\r\n    `tabStock Entry` se\r\nLEFT JOIN\r\n    `tabStock Entry Detail` sed ON sed.parent = se.name\r\nLEFT JOIN\r\n    `tabItem` i ON i.name = sed.item_code\r\nLEFT JOIN\r\n    `tabProject` p ON p.name = se.project\r\n    \r\nWHERE\r\n    se.docstatus = 1\r\n    AND se.stock_entry_type = 'Send to Subcontractor'\r\n\r\n    AND (%(project)s IS NULL OR se.project = %(project)s)\r\n    AND (%(supplier)s IS NULL OR se.custom_supplier_code = %(supplier)s)\r\n    AND (%(from_date)s IS NULL OR se.posting_date >= %(from_date)s)\r\n    AND (%(to_date)s IS NULL OR se.posting_date <= %(to_date)s)\r\n\r\nORDER BY\r\n    se.posting_date DESC",
+ "ref_doctype": "Stock Entry",
+ "report_name": "Stock Entry Ledger for Subcontractors",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Manufacturing User"
+  },
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Manufacturing Manager"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Cost Control Manager"
+  },
+  {
+   "role": "IT Support Manager"
+  },
+  {
+   "role": "IT Support User"
+  },
+  {
+   "role": "Read All Pages"
+  }
+ ],
+ "timeout": 0
+}
