@@ -1,8 +1,16 @@
 import frappe
+from frappe.utils import nowdate
 
 @frappe.whitelist()
-def get_it_assets(employee):
-    data = frappe.db.sql("""
+def get_it_assets(employee, active_only=0):
+    condition = ""
+    values = {"employee": employee}
+
+    if int(active_only):
+        condition += " AND (child.to_date IS NULL OR child.to_date >= %(today)s)"
+        values["today"] = nowdate()
+
+    data = frappe.db.sql(f"""
         SELECT
             iam.asset_local_code AS asset_id,
             iam.item,
@@ -14,16 +22,24 @@ def get_it_assets(employee):
         FROM `tabIT Asset Management` iam
         INNER JOIN `tabIT Asset Assigned User2` child
             ON child.parent = iam.name
-        WHERE child.assigned_user = %s
+        WHERE child.assigned_user = %(employee)s
+        {condition}
         ORDER BY child.from_date DESC
-    """, (employee,), as_dict=True)
+    """, values, as_dict=True)
 
     return data
 
 
 @frappe.whitelist()
-def get_sim_cards(employee):
-    data = frappe.db.sql("""
+def get_sim_cards(employee, active_only=0):
+    condition = ""
+    values = {"employee": employee}
+
+    # ✅ Apply Active filter on status
+    if int(active_only):
+        condition += " AND sim.status = 'In Use'"
+
+    data = frappe.db.sql(f"""
         SELECT
             sim.name AS sim_id,
             sim.service_no,
@@ -36,9 +52,10 @@ def get_sim_cards(employee):
         FROM `tabSIM Management` sim
         INNER JOIN `tabSIM Assigned User` child
             ON child.parent = sim.name
-        WHERE child.assigned_user = %s
+        WHERE child.assigned_user = %(employee)s
+        {condition}
         ORDER BY child.from_date DESC
-    """, (employee,), as_dict=True)
+    """, values, as_dict=True)
 
     return data
 
