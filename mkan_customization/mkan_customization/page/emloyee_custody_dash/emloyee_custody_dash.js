@@ -11,12 +11,40 @@ frappe.pages['emloyee-custody-dash'].on_page_load = function(wrapper) {
         fieldtype: 'Link',
         fieldname: 'employee',
         options: 'Employee',
+
+        get_query() {
+            // 👇 Apply filter based on checkbox
+            if (active_only && active_only.get_value()) {
+                return {
+                    filters: {
+                        status: 'Active'
+                    }
+                };
+            } else {
+                return {};
+            }
+        },
+        
         change() {
             const emp = employee.get_value();
         
             if (emp) {
                 load_employee_details(emp);   
                 load_all(emp);         
+            }
+        }
+    });
+
+    let active_only = page.add_field({
+        label: 'Active Only',
+        fieldtype: 'Check',
+        fieldname: 'active_only',
+        default: 1,
+        change() {
+            const emp = employee.get_value();
+            if (emp) {
+                load_it_assets(emp);
+                load_sim_cards(emp);
             }
         }
     });
@@ -230,7 +258,9 @@ $(page.body).append(employee_info_html);
 
         frappe.call({
             method: 'mkan_customization.mkan_customization.page.emloyee_custody_dash.employee_custody_dash.get_it_assets',
-            args: { employee: emp },
+            args: { employee: emp ,
+                    active_only: active_only.get_value()
+                 },
             callback: r => {
                 $('#total_assets').text(r.message.length);
                 render_it_assets(r.message || []);
@@ -289,7 +319,9 @@ $(page.body).append(employee_info_html);
 
         frappe.call({
             method: 'mkan_customization.mkan_customization.page.emloyee_custody_dash.employee_custody_dash.get_sim_cards',
-            args: { employee: emp },
+            args: { employee: emp ,
+                    active_only: active_only.get_value()
+                },
             callback: r => {
                 $('#total_sims').text(r.message.length);
                 render_sim_cards(r.message || []);
