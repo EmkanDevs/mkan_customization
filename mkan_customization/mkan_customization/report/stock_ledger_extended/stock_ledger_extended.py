@@ -61,6 +61,149 @@ def execute(filters=None):
         item_detail = item_details[sle.item_code]
         sle.update(item_detail)
 
+        # ======================================================
+        # EXTENDED STOCK LEDGER FIELDS
+        # ======================================================
+
+        sle["creator"] = None
+        sle["material_request"] = None
+        sle["cost_center"] = None
+        sle["is_petty_cash"] = 0
+        sle["supplier_code"] = None
+        sle["supplier_name"] = None
+        sle["supplier_delivery_note"] = None
+        sle["return_material_ref_doc"] = None
+        sle["purchase_order"] = None
+
+
+        # ======================================================
+        # STOCK ENTRY DETAILS
+        # ======================================================
+
+        if sle.voucher_type == "Stock Entry":
+
+            stock_entry = frappe.db.get_value(
+                "Stock Entry",
+                sle.voucher_no,
+                [
+                    "owner",
+                    "stock_entry_type",
+                    "outgoing_stock_entry",
+                ],
+                as_dict=True,
+            )
+
+            if stock_entry:
+
+                sle["creator"] = stock_entry.owner
+                sle["return_material_ref_doc"] = (
+                    stock_entry.outgoing_stock_entry
+                )
+
+            # ------------------------------------------
+            # STOCK ENTRY DETAIL
+            # ------------------------------------------
+
+            se_detail = frappe.db.get_value(
+                "Stock Entry Detail",
+                {
+                    "parent": sle.voucher_no,
+                    "item_code": sle.item_code,
+                },
+                [
+                    "material_request",
+                    "cost_center",
+                ],
+                as_dict=True,
+            )
+
+            if se_detail:
+
+                sle["material_request"] = se_detail.material_request
+                sle["cost_center"] = se_detail.cost_center
+
+            # ------------------------------------------
+            # MATERIAL REQUEST
+            # ------------------------------------------
+
+            material_request = frappe.db.get_value(
+                "Stock Entry Detail",
+                {
+                    "parent": sle.voucher_no,
+                    "item_code": sle.item_code,
+                },
+                "material_request",
+            )
+
+            if material_request:
+                sle["material_request"] = material_request
+
+
+        # ======================================================
+        # PURCHASE RECEIPT DETAILS
+        # ======================================================
+
+        elif sle.voucher_type == "Purchase Receipt":
+
+            purchase_receipt = frappe.db.get_value(
+                "Purchase Receipt",
+                sle.voucher_no,
+                [
+                    "owner",
+                    "supplier",
+                    "supplier_name",
+                    "supplier_delivery_note",
+                ],
+                as_dict=True,
+            )
+
+            if purchase_receipt:
+
+                sle["creator"] = purchase_receipt.owner
+                sle["supplier_code"] = purchase_receipt.supplier
+                sle["supplier_name"] = purchase_receipt.supplier_name
+                sle["supplier_delivery_note"] = (
+                    purchase_receipt.supplier_delivery_note
+                )
+
+            # ------------------------------------------
+            # PURCHASE RECEIPT ITEM DETAILS
+            # ------------------------------------------
+
+            pr_item = frappe.db.get_value(
+                "Purchase Receipt Item",
+                {
+                    "parent": sle.voucher_no,
+                    "item_code": sle.item_code,
+                },
+                [
+                    "purchase_order",
+                    "cost_center",
+                ],
+                as_dict=True,
+            )
+
+            if pr_item:
+
+                sle["purchase_order"] = pr_item.purchase_order
+                sle["cost_center"] = pr_item.cost_center
+
+            # ------------------------------------------
+            # PURCHASE ORDER
+            # ------------------------------------------
+
+            purchase_order = frappe.db.get_value(
+                "Purchase Receipt Item",
+                {
+                    "parent": sle.voucher_no,
+                    "item_code": sle.item_code,
+                },
+                "purchase_order",
+            )
+
+            if purchase_order:
+                sle["purchase_order"] = purchase_order
+
         # --- Add new computed fields ---
         sle["stock_entry_type"] = (
             frappe.db.get_value("Stock Entry", sle.voucher_no, "stock_entry_type")
@@ -440,6 +583,73 @@ def get_columns(filters):
                 "options": "Company",
                 "width": 110,
             },
+
+            {
+                "label": _("Creator"),
+                "fieldname": "creator",
+                "fieldtype": "Data",
+                "width": 200,
+            },
+
+            {
+                "label": _("Material Request"),
+                "fieldname": "material_request",
+                "fieldtype": "Link",
+                "options": "Material Request",
+                "width": 200,
+            },
+
+            {
+                "label": _("Cost Center"),
+                "fieldname": "cost_center",
+                "fieldtype": "Link",
+                "options": "Cost Center",
+                "width": 150,
+            },
+
+            {
+                "label": _("Is Petty Cash"),
+                "fieldname": "is_petty_cash",
+                "fieldtype": "Check",
+                "width": 100,
+            },
+
+            {
+                "label": _("Supplier Code"),
+                "fieldname": "supplier_code",
+                "fieldtype": "Link",
+                "options": "Supplier",
+                "width": 140,
+            },
+
+            {
+                "label": _("Supplier Name"),
+                "fieldname": "supplier_name",
+                "fieldtype": "Data",
+                "width": 200,
+            },
+
+            {
+                "label": _("Supplier Delivery Note"),
+                "fieldname": "supplier_delivery_note",
+                "fieldtype": "Data",
+                "width": 180,
+            },
+
+            {
+                "label": _("Return Material Ref Doc"),
+                "fieldname": "return_material_ref_doc",
+                "fieldtype": "Data",
+                "width": 180,
+            },
+
+            {
+                "label": _("Purchase Order"),
+                "fieldname": "purchase_order",
+                "fieldtype": "Link",
+                "options": "Purchase Order",
+                "width": 200,
+            },
         ]
     )
 
@@ -454,26 +664,27 @@ def get_stock_ledger_entries(filters, items):
 	query = (
 		frappe.qb.from_(sle)
 		.select(
-			sle.item_code,
+            sle.item_code,
 
             DateFormat(sle.posting_datetime, "%Y-%m-%d").as_("date"),
-			sle.warehouse,
-			sle.posting_date,
-			sle.posting_time,
-			sle.actual_qty,
-			sle.incoming_rate,
-			sle.valuation_rate,
-			sle.company,
-			sle.voucher_type,
-			sle.qty_after_transaction,
-			sle.stock_value_difference,
-			sle.serial_and_batch_bundle,
-			sle.voucher_no,
-			sle.stock_value,
-			sle.batch_no,
-			sle.serial_no,
-			sle.project,
-		)
+            sle.warehouse,
+            sle.posting_date,
+            sle.posting_time,
+            sle.actual_qty,
+            sle.incoming_rate,
+            sle.valuation_rate,
+            sle.company,
+            sle.voucher_type,
+            sle.qty_after_transaction,
+            sle.stock_value_difference,
+            sle.serial_and_batch_bundle,
+            sle.voucher_no,
+            sle.stock_value,
+            sle.batch_no,
+            sle.serial_no,
+            sle.creation,
+            sle.project,
+        )
 		.where(
 			(sle.docstatus < 2)
 			& (sle.is_cancelled == 0)
