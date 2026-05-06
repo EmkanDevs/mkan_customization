@@ -1,4 +1,4 @@
-<table class="table table-bordered small">
+<!-- <table class="table table-bordered small">
     <thead>
         <tr style="background-color: #fafafa;">
             <th>{{ __("Supplier") }}</th>
@@ -48,4 +48,262 @@
             {% endif %}
         {% endfor %}
     </tbody>
+</table> 
+
+
+
+############################################################################# -->
+
+
+
+<style>
+
+    .bid-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border: 1px solid #d1d8dd;
+    }
+
+    .bid-table {
+        border-collapse: collapse;
+        table-layout: fixed;
+        min-width: 1200px;
+        width: max-content;
+    }
+
+    .bid-table th,
+    .bid-table td {
+        border: 1px solid #d1d8dd;
+        padding: 5px 8px;
+        vertical-align: middle;
+        font-size: inherit;
+        font-family: inherit;
+        white-space: nowrap;
+    }
+
+    .bid-table th {
+        background-color: #fafafa;
+        color: #36414c;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .supplier-head {
+        background-color: #fafafa !important;
+        color: #28a745 !important;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .item-col {
+        min-width: 260px;
+        max-width: 260px;
+        white-space: normal !important;
+    }
+
+    .item-link {
+        font-weight: bold;
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: underline;
+    }
+
+    .num {
+        text-align: right;
+    }
+
+    .summary-row {
+        background-color: #fafafa;
+        font-weight: bold;
+    }
+
+    .summary-label {
+        text-align: right;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .empty-cell {
+        color: #999;
+        text-align: center;
+    }
+
+
+</style>
+
+<div class="bid-table-wrapper">
+    <table class="bid-table">
+
+    <thead>
+
+        <tr>
+
+            <th rowspan="2">Item Code / Description</th>
+            <th rowspan="2">Quantity</th>
+            <th rowspan="2">UOM</th>
+
+            {% for(var i = 0; i < suppliers.length; i++) { %}
+
+                <th colspan="2" class="supplier-head">
+                    {{ suppliers[i].supplier_name }}
+                </th>
+
+            {% } %}
+
+        </tr>
+
+        <tr>
+
+            {% for(var i = 0; i < suppliers.length; i++) { %}
+
+                <th>Unit Price</th>
+                <th>Total</th>
+
+            {% } %}
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for(var x = 0; x < items.length; x++) { %}
+
+            {% var item = items[x]; %}
+
+            <tr>
+
+                <td class="item-col">
+
+                    <a
+                        class="bt-item item-link"
+                        data-item-code="{{ item.item_code }}"
+                    >
+                        {{ item.item_code }}
+                    </a>
+
+                    <br>
+
+                    <span style="color:#555;">
+                        {{ item.item_name }}
+                    </span>
+
+                </td>
+
+                <td class="num">
+                    {{ item.qty }}
+                </td>
+
+                <td>
+                    {{ item.uom }}
+                </td>
+
+                {% for(var s = 0; s < suppliers.length; s++) { %}
+
+                    {% var supplier = suppliers[s]; %}
+
+                    {% var supplier_item = null; %}
+
+                    {% if(supplier.item_map && supplier.item_map[item.item_code]) { %}
+                        {% supplier_item = supplier.item_map[item.item_code]; %}
+                    {% } %}
+
+                    <td class="num">
+
+                        {% if(supplier_item) { %}
+
+                            {{ format_currency(supplier_item.rate) }}
+
+                        {% } else { %}
+
+                            <span class="empty-cell">-</span>
+
+                        {% } %}
+
+                    </td>
+
+                    <td class="num">
+
+                        {% if(supplier_item) { %}
+
+                            {{ format_currency(supplier_item.amount) }}
+
+                        {% } else { %}
+
+                            <span class="empty-cell">-</span>
+
+                        {% } %}
+
+                    </td>
+
+                {% } %}
+
+            </tr>
+
+        {% } %}
+
+        <!-- TOTAL -->
+
+        <tr class="summary-row">
+
+            <td colspan="3" class="summary-label">
+                Total
+            </td>
+
+            {% for(var s = 0; s < suppliers.length; s++) { %}
+
+                <td></td>
+
+                <td class="num">
+                    {{ format_currency(suppliers[s].total_amount || 0) }}
+                </td>
+
+            {% } %}
+
+        </tr>
+
+        <!-- VAT -->
+
+        <tr class="summary-row">
+
+            <td colspan="3" class="summary-label">
+                15% VAT
+            </td>
+
+            {% for(var s = 0; s < suppliers.length; s++) { %}
+
+                <td></td>
+
+                <td class="num">
+                    {{ format_currency(suppliers[s].vat_amount || 0) }}
+                </td>
+
+            {% } %}
+
+        </tr>
+
+        <!-- NET TOTAL -->
+
+        <tr class="summary-row">
+
+            <td colspan="3" class="summary-label">
+                Net Total
+            </td>
+
+            {% for(var s = 0; s < suppliers.length; s++) { %}
+
+                <td></td>
+
+                <td class="num">
+                    {{ format_currency(suppliers[s].net_total || 0) }}
+                </td>
+
+            {% } %}
+
+        </tr>
+
+    </tbody>
+
 </table>
+</div>

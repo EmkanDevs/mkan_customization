@@ -144,13 +144,29 @@ frappe.bid_tabulation_discussion.render_schedule = function(frm) {
             method: "mkan_customization.mkan_customization.doctype.bid_tabulation_discussion.bid_tabulation_discussion.get_supplier_details",
             args: { docname: frm.doc.request_for_quotation },
             callback: function(r) {
-                if (!r.message || !r.message.length) {
+                if (
+                    !r.message ||
+                    !r.message.suppliers ||
+                    !r.message.items
+                ) {
                     frm.dashboard.hide();
-                    frappe.msgprint({ title: __("No Data"), message: __("No supplier or item details found."), indicator: "orange" });
+                
+                    frappe.msgprint({
+                        title: __("No Data"),
+                        message: __("No supplier or item details found."),
+                        indicator: "orange"
+                    });
+                
                     return;
                 }
-
-                const html = frappe.render_template("bid_tabulation_discussion", { schedule_details: r.message });
+                
+                const html = frappe.render_template(
+                    "bid_tabulation_discussion",
+                    {
+                        suppliers: r.message.suppliers || [],
+                        items: r.message.items || []
+                    }
+                );
                 frm.dashboard.add_section(html, __("Supplier Details"));
                 frm.dashboard.show();
 

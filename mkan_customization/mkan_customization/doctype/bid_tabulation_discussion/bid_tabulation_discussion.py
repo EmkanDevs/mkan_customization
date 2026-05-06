@@ -216,79 +216,197 @@ def get_supplier_options(docname):
 	doc = frappe.get_doc("Request for Quotation", docname)
 	return [row.supplier for row in doc.suppliers]
 
+# @frappe.whitelist()
+# def get_supplier_details(docname):
+#     # get all details of supplier
+# 	rfq_doc = frappe.get_doc("Request for Quotation", docname)
+
+# 	processed_suppliers = set()
+# 	processed_items = set()
+
+# 	supplier_details = []
+
+# 	supplier_quotations = frappe.get_all(
+# 		"Supplier Quotation",
+# 		filters={"request_for_quotation": rfq_doc.name,"docstatus":1},
+# 		fields=["name", "supplier", "total", "total_qty"],
+# 		group_by = "name"
+# 	)
+
+# 	for sq in supplier_quotations:
+# 		if sq.supplier not in processed_suppliers:
+# 			supplier_name = frappe.db.get_value("Supplier", sq.supplier, "supplier_name") or ""
+# 			supplier_details.append({
+# 				"supplier": sq.supplier,
+# 				"supplier_name": supplier_name,  # Added supplier name
+# 				"item_code": None,
+# 				"item_name": None,
+# 				"qty": None,
+# 				"uom": None,
+# 				"price": None,
+# 				"amount": None,
+# 				"is_supplier_row": True,
+# 				"total_qty": sq.total_qty,  # Total quantity
+# 				"total": sq.total           # Total amount
+# 			})
+# 			processed_suppliers.add(sq.supplier)
+
+# 		items = frappe.get_all(
+# 			"Supplier Quotation Item",
+# 			filters={"parent": sq.name,"docstatus":1},
+# 			fields=["item_code", "item_name", "qty", "uom", "rate", "amount"]
+# 		)
+# 		for item in items:
+# 			unique_item_key = f"{sq.supplier}-{item.item_code}-{item.qty}-{item.rate}"
+# 			if unique_item_key not in processed_items:
+# 				supplier_details.append({
+# 					"supplier": sq.supplier,
+# 					"supplier_name": supplier_name, 
+# 					"item_code": item.item_code,
+# 					"item_name": item.item_name,
+# 					"qty": item.qty,
+# 					"uom": item.uom,
+# 					"price": item.rate,
+# 					"amount": item.amount,
+# 					"is_supplier_row": False
+# 				})
+# 				processed_items.add(unique_item_key)
+# 	supplier_details = sorted(supplier_details, key=lambda i: i['supplier'], reverse=True)
+# 	return supplier_details
+
+
 @frappe.whitelist()
 def get_supplier_details(docname):
-    # get all details of supplier
-	rfq_doc = frappe.get_doc("Request for Quotation", docname)
 
-	processed_suppliers = set()
-	processed_items = set()
+    rfq_doc = frappe.get_doc("Request for Quotation", docname)
 
-	supplier_details = []
+    suppliers = []
+    items_map = {}
 
-	supplier_quotations = frappe.get_all(
-		"Supplier Quotation",
-		filters={"request_for_quotation": rfq_doc.name,"docstatus":1},
-		fields=["name", "supplier", "total", "total_qty"],
-		group_by = "name"
-	)
+    supplier_quotations = frappe.get_all(
+        "Supplier Quotation",
+        filters={
+            "request_for_quotation": rfq_doc.name,
+            "docstatus": 1
+        },
+        fields=[
+            "name",
+            "supplier",
+            "supplier_name",
+            "total",
+            "taxes_and_charges_added",
+            "grand_total"
+        ]
+    )
 
-	for sq in supplier_quotations:
-		if sq.supplier not in processed_suppliers:
-			supplier_name = frappe.db.get_value("Supplier", sq.supplier, "supplier_name") or ""
-			supplier_details.append({
-				"supplier": sq.supplier,
-				"supplier_name": supplier_name,  # Added supplier name
-				"item_code": None,
-				"item_name": None,
-				"qty": None,
-				"uom": None,
-				"price": None,
-				"amount": None,
-				"is_supplier_row": True,
-				"total_qty": sq.total_qty,  # Total quantity
-				"total": sq.total           # Total amount
-			})
-			processed_suppliers.add(sq.supplier)
+    for sq in supplier_quotations:
 
-		items = frappe.get_all(
-			"Supplier Quotation Item",
-			filters={"parent": sq.name,"docstatus":1},
-			fields=["item_code", "item_name", "qty", "uom", "rate", "amount"]
-		)
-		for item in items:
-			unique_item_key = f"{sq.supplier}-{item.item_code}-{item.qty}-{item.rate}"
-			if unique_item_key not in processed_items:
-				supplier_details.append({
-					"supplier": sq.supplier,
-					"supplier_name": supplier_name, 
-					"item_code": item.item_code,
-					"item_name": item.item_name,
-					"qty": item.qty,
-					"uom": item.uom,
-					"price": item.rate,
-					"amount": item.amount,
-					"is_supplier_row": False
-				})
-				processed_items.add(unique_item_key)
-	supplier_details = sorted(supplier_details, key=lambda i: i['supplier'], reverse=True)
-	return supplier_details
+        supplier_data = {
+            "supplier": sq.supplier,
+            "supplier_name": sq.supplier_name,
+            "total_amount": flt(sq.total),
+            "vat_amount": flt(sq.taxes_and_charges_added),
+            "net_total": flt(sq.grand_total),
+            "item_map": {}
+        }
+
+        sq_items = frappe.get_all(
+            "Supplier Quotation Item",
+            filters={
+                "parent": sq.name
+            },
+            fields=[
+                "item_code",
+                "item_name",
+                "qty",
+                "uom",
+                "rate",
+                "amount"
+            ]
+        )
+
+        for item in sq_items:
+
+            # MASTER ITEMS LIST
+            if item.item_code not in items_map:
+
+                items_map[item.item_code] = {
+                    "item_code": item.item_code,
+                    "item_name": item.item_name,
+                    "qty": item.qty,
+                    "uom": item.uom
+                }
+
+            # SUPPLIER ITEM MAP
+            supplier_data["item_map"][item.item_code] = {
+                "rate": flt(item.rate),
+                "amount": flt(item.amount)
+            }
+
+        suppliers.append(supplier_data)
+
+    items = list(items_map.values())
+
+    return {
+        "suppliers": suppliers,
+        "items": items
+    }
 
 
 @frappe.whitelist()
 def make_purchase_order(source_name, target_doc=None):
-    # make purchase order 
-	bid_tabulation = frappe.flags.args.bid_tabulation
-	def set_missing_values(source, target):
-		# set missing values 
-		target.run_method("set_missing_values")
-		target.run_method("get_schedule_dates")
-		target.run_method("calculate_taxes_and_totals")
-		target.bid_tabulation = bid_tabulation
 
-	def update_item(obj, target, source_parent):
+    bid_tabulation = frappe.flags.args.get("bid_tabulation")
+
+    # Get WBS from Bid Tabulation parent
+    parent_wbs = None
+    if bid_tabulation:
+        parent_wbs = frappe.db.get_value(
+            "Bid Tabulation Discussion",
+            bid_tabulation,
+            "wbs"
+        )
+
+    def set_missing_values(source, target):
+        # Existing ERPNext methods
+        target.run_method("set_missing_values")
+        target.run_method("get_schedule_dates")
+        target.run_method("calculate_taxes_and_totals")
+
+        # Link Bid Tabulation
+        target.bid_tabulation = bid_tabulation
+
+        # 🔥 Set WBS into every PO Item
+        if parent_wbs:
+            for item in target.items:
+                item.custom_wbs = parent_wbs
+
+    doc = get_mapped_doc(
+        "Supplier Quotation",
+        source_name,
+        {
+            "Supplier Quotation": {
+                "doctype": "Purchase Order",
+            },
+            "Supplier Quotation Item": {
+                "doctype": "Purchase Order Item",
+                "field_map": {
+                    "item_code": "item_code",
+                    "qty": "qty",
+                    "rate": "rate",
+                    "amount": "amount"
+                },
+            },
+        },
+        target_doc,
+        set_missing_values
+    )
+
+    return doc
+
+def update_item(obj, target, source_parent):
 		# update item
-		target.stock_qty = flt(obj.qty) * flt(obj.conversion_factor)
+	target.stock_qty = flt(obj.qty) * flt(obj.conversion_factor)
 
 
 	doclist = get_mapped_doc(
@@ -405,5 +523,30 @@ def get_last_po_for_item(item_code):
 
     return po_list
 
+{
+    "suppliers": [
+        {
+            "supplier_name": "ABC Supplier",
+            "total_amount": 1000,
+            "vat_amount": 150,
+            "net_total": 1150,
+            "item_map": {
+                "ITEM-001": {
+                    "rate": 100,
+                    "amount": 500
+                }
+            }
+        }
+    ],
+
+    "items": [
+        {
+            "item_code": "ITEM-001",
+            "item_name": "Cement",
+            "qty": 5,
+            "uom": "Bag"
+        }
+    ]
+}
 
 
