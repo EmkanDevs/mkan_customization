@@ -1,5 +1,7 @@
 import frappe
 from frappe import _
+from frappe.utils import flt
+
 
 def after_insert(self, method):
     self.custom_bid_tabulation_check = 1
@@ -72,3 +74,99 @@ def service_status_map(source_name):
         postprocess=postprocess
     )
 
+
+def validate_rates_against_bid_tabulation(doc):
+    """
+    Returns mismatch data — does NOT throw.
+    Client side handles the dialog.
+    """
+    if not doc.get("bid_tabulation"):
+        return []
+
+    sq_name = frappe.db.get_value(
+        "Bid Tabulation Discussion",
+        doc.bid_tabulation,
+        "supplier_quotation"
+    )
+
+    if not sq_name:
+        return []
+
+    sq_items = frappe.get_all(
+        "Supplier Quotation Item",
+        filters={"parent": sq_name},
+        fields=["item_code", "rate"],
+    )
+
+    sq_rate_map = {row["item_code"]: flt(row["rate"]) for row in sq_items}
+
+    mismatches = []
+
+    for item in doc.items:
+        sq_rate = sq_rate_map.get(item.item_code)
+
+        if sq_rate is None:
+            mismatches.append({
+                "item_code": item.item_code,
+                "item_name": item.item_name,
+                "sq_rate": "Not in SQ",
+                "po_rate": flt(item.rate),
+            })
+        elif flt(sq_rate) != flt(item.rate):
+            mismatches.append({
+                "item_code": item.item_code,
+                "item_name": item.item_name,
+                "sq_rate": sq_rate,
+                "po_rate": flt(item.rate),
+            })
+
+    return mismatches
+
+
+@frappe.whitelist()
+def check_rate_mismatch(doc):
+
+    doc = frappe.parse_json(doc)
+
+    if not doc.get("bid_tabulation"):
+        return []
+
+    sq_name = frappe.db.get_value(
+        "Bid Tabulation Discussion",
+        doc.get("bid_tabulation"),
+        "supplier_quotation"
+    )
+
+    if not sq_name:
+        return []
+
+    sq_items = frappe.get_all(
+        "Supplier Quotation Item",
+        filters={"parent": sq_name},
+        fields=["item_code", "rate"],
+    )
+
+    sq_rate_map = {
+        row["item_code"]: flt(row["rate"])
+        for row in sq_items
+    }
+
+    mismatches = []
+
+    for item in doc.get("items", []):
+
+        sq_rate = sq_rate_map.get(item.get("item_code"))
+
+        if sq_rate is None:
+            continue
+
+        if flt(sq_rate) != flt(item.get("rate")):
+
+            mismatches.append({
+                "item_code": item.get("item_code"),
+                "item_name": item.get("item_name"),
+                "sq_rate": sq_rate,
+                "po_rate": flt(item.get("rate")),
+            })
+
+    return mismatches
