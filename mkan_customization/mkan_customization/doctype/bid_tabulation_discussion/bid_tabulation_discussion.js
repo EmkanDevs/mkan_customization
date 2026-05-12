@@ -27,15 +27,34 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
     },
 
     final_supplier: function(frm) {
+
+        frm.set_value("supplier_quotation", "");
+    
+        // Stop if RFQ not selected
+        if (!frm.doc.request_for_quotation) {
+            frappe.msgprint(__("Please select Request for Quotation first"));
+            return;
+        }
+    
+        // Stop if supplier not selected
+        if (!frm.doc.final_supplier) {
+            return;
+        }
+    
+        frm.refresh_field("supplier_quotation");
+    
         frappe.call({
             method: "mkan_customization.mkan_customization.doctype.bid_tabulation_discussion.bid_tabulation_discussion.set_supplier_quotation_value",
-            args: { request_for_quotation: frm.doc.request_for_quotation, supplier: frm.doc.final_supplier },
-            async: false,
+            args: {
+                request_for_quotation: frm.doc.request_for_quotation,
+                supplier: frm.doc.final_supplier
+            },
             callback: function(r) {
-                if (r.message) {
+    
+                if (r.message && r.message.length) {
                     frm.set_value("supplier_quotation", r.message[0]);
-                    frm.save_or_update();
                 }
+    
             }
         });
     },
@@ -108,7 +127,14 @@ frappe.ui.form.on("Bid Tabulation Discussion", {
             filters: { name: ["in", get_suppliers_from_rfq(frm.doc.request_for_quotation)] }
         }));
         frm.set_query("supplier_quotation", () => ({
-            filters: { name: ["in", get_suppliers_quotation(frm.doc.request_for_quotation)] }
+
+            filters: {
+                name: ["in", get_filtered_supplier_quotation(
+                    frm.doc.request_for_quotation,
+                    frm.doc.final_supplier
+                )]
+            }
+        
         }));
     }
 });
@@ -245,3 +271,24 @@ frappe.bid_tabulation_discussion.render_schedule = function(frm) {
         frm.dashboard.hide();
     }
 };
+
+function get_filtered_supplier_quotation(rfq, supplier) {
+
+    if (!rfq || !supplier) return [];
+
+    let quotations = [];
+
+    frappe.call({
+        method: "mkan_customization.mkan_customization.doctype.bid_tabulation_discussion.bid_tabulation_discussion.set_supplier_quotation_value",
+        args: {
+            request_for_quotation: rfq,
+            supplier: supplier
+        },
+        async: false,
+        callback: function(r) {
+            quotations = r.message || [];
+        }
+    });
+
+    return quotations;
+}
