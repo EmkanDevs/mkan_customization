@@ -45,6 +45,7 @@ frappe.pages['emloyee-custody-dash'].on_page_load = function(wrapper) {
             if (emp) {
                 load_it_assets(emp);
                 load_sim_cards(emp);
+                load_equipment_tools(emp);
             }
         }
     });
@@ -191,6 +192,11 @@ $(page.body).append(employee_info_html);
                 <small>Pending Amount</small>
                 <h3 id="total_pending">0</h3>
             </div>
+
+            <div class="summary-card">
+                <small>Equipment Balance Qty</small>
+                <h3 id="total_equipment_balance">0</h3>
+            </div>
         </div>
 
         <div class="custody-tabs">
@@ -198,12 +204,14 @@ $(page.body).append(employee_info_html);
             <div class="custody-tab" data-tab="sim_cards">SIM Card</div>
             <div class="custody-tab" data-tab="vehicles">Vehicles</div>
             <div class="custody-tab" data-tab="employee_custody">Employee Advance</div>
+            <div class="custody-tab" data-tab="equipment_tools">Equipment's & Tools</div>
         </div>
 
         <div id="it_assets" class="tab-content"></div>
         <div id="sim_cards" class="tab-content" style="display:none;"></div>
         <div id="vehicles" class="tab-content" style="display:none;"></div>
         <div id="employee_custody" class="tab-content" style="display:none;"></div>
+        <div id="equipment_tools" class="tab-content" style="display:none;"></div>
     `;
 
     $(page.body).append(html);
@@ -248,6 +256,7 @@ $(page.body).append(employee_info_html);
         load_sim_cards(emp);
         load_vehicles(emp);
         load_employee_custody(emp);
+        load_equipment_tools(emp);
     }
 
     // =========================
@@ -448,6 +457,33 @@ $(page.body).append(employee_info_html);
         });
     }
 
+    function load_equipment_tools(emp) {
+
+        show_loading('#equipment_tools');
+    
+        frappe.call({
+            method: 'mkan_customization.mkan_customization.page.emloyee_custody_dash.employee_custody_dash.get_equipment_tools',
+    
+            args: {
+                employee: emp,
+                active_only: active_only.get_value()
+            },
+    
+            callback: r => {
+
+                let total_balance = 0;
+            
+                (r.message || []).forEach(d => {
+                    total_balance += (d.balance_qty || 0);
+                });
+            
+                $('#total_equipment_balance').text(total_balance);
+            
+                render_equipment_tools(r.message || []);
+            }
+        });
+    }
+
     function render_employee_custody(data) {
 		let html = `
 			<table class="table table-bordered">
@@ -489,6 +525,71 @@ $(page.body).append(employee_info_html);
 		$('#employee_custody').html(html);
 	}
 };
+
+function render_equipment_tools(data) {
+
+    let html = `
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Item Code</th>
+                    <th>Item Name</th>
+                    <th>Item Group</th>
+                    <th>Stock/Asset</th>
+                    <th>Project Code</th>
+                    <th>Project Name</th>
+                    <th>Balance Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    if (!data.length) {
+
+        html += `
+            <tr>
+                <td colspan="7" class="text-center">
+                    No Records Found
+                </td>
+            </tr>
+        `;
+
+    } else {
+
+        data.forEach(row => {
+
+            html += `
+                <tr>
+
+                    <td>${row.item_code || ''}</td>
+
+                    <td>${row.item_name || ''}</td>
+
+                    <td>${row.item_group || ''}</td>
+
+                    <td>${row.stock_asset || ''}</td>
+
+                    <td>${row.project || ''}</td>
+
+                    <td>${row.project_name || ''}</td>
+
+                    <td style="font-weight:bold;">
+                        ${row.balance_qty || 0}
+                    </td>
+
+                </tr>
+            `;
+        });
+    }
+
+    html += `</tbody></table>`;
+
+    $('#equipment_tools').html(html);
+}
+
+
+
+
 
 function load_employee_details(emp) {
     frappe.db.get_value('Employee', emp, [
