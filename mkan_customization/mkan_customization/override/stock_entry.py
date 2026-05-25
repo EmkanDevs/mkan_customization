@@ -53,3 +53,80 @@ def make_stock_in_entry(source_name, target_doc=None):
 	)
 
 	return doclist
+
+
+
+@frappe.whitelist()
+def create_returned_material_to_warehouse_request(source_name, target_doc=None):
+	"""Create Returned Material to Warehouse Request from Stock Entry"""
+
+	source_doc = frappe.get_doc("Stock Entry", source_name)
+
+	# Get project from first child row
+	project = None
+
+	if source_doc.items:
+		project = source_doc.items[0].project
+
+	if not project:
+		frappe.throw(
+			frappe._("Stock Entry Item must have a Project")
+		)
+
+	def set_missing_values(source, target):
+
+		target.date = frappe.utils.today()
+
+		# Set stock entry reference
+		target.stock_entry_reference = source.name
+
+		# Set project from child row
+		target.project = project
+
+		# Default handed by
+		if not target.handed_by:
+			target.handed_by = frappe.session.user
+
+	def update_item(source_doc, target_doc, source_parent):
+		"""Map Stock Entry Detail to Returned Material to Warehouse Items"""
+
+		target_doc.item_code = source_doc.item_code
+		target_doc.item_name = source_doc.item_name
+		target_doc.description = source_doc.description
+		target_doc.quantity = source_doc.qty
+		target_doc.uom = source_doc.uom
+
+	doclist = get_mapped_doc(
+		"Stock Entry",
+		source_name,
+		{
+			"Stock Entry": {
+				"doctype": "Returned Material to Warehouse Request",
+				"field_map": {
+					"to_warehouse": "default_target_warehouse",
+					"posting_date": "date",
+					"from_warehouse": "default_target_warehouse"
+				},
+				"validation": {
+					"docstatus": ["=", 1]
+				},
+			},
+
+			"Stock Entry Detail": {
+				"doctype": "Returned Material to Warehouse Items",
+				"field_map": {
+					"item_code": "item_code",
+					"item_name": "item_name",
+					"description": "description",
+					"qty": "quantity",
+					"uom": "uom",
+					"project": "project"
+				},
+				"postprocess": update_item,
+			},
+		},
+		target_doc,
+		set_missing_values,
+	)
+
+	return doclist
