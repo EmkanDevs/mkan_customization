@@ -194,6 +194,9 @@ doc_events = {
     "User Role Request" : {
         # "validate" : "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.validate_role_request_child_rows"
     },
+    # "Blanket Order": {
+    #     "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
+    # }
 
 }
 
@@ -217,7 +220,86 @@ scheduler_events = {
     ]
 }
 
-@@ -300,26 +303,25 @@
+# Testing
+# -------
+
+# before_tests = "mkan_customization.install.before_tests"
+
+# Overriding Methods
+# ------------------------------
+#
+override_whitelisted_methods = {
+	"erpnext.stock.doctype.material_request.material_request.make_request_for_quotation": "mkan_customization.mkan_customization.override.material_request.make_request_for_quotation",
+    "erpnext.buying.doctype.request_for_quotation.request_for_quotation.make_supplier_quotation_from_rfq":"mkan_customization.mkan_customization.override.request_for_quotation.make_supplier_quotation_from_rfq",
+    "frappe.desk.form.assign_to.add":"mkan_customization.mkan_customization.override.assign_to.add",
+    "erpnext.stock.doctype.material_request.material_request.make_stock_entry":"mkan_customization.mkan_customization.override.material_request.make_stock_entry",
+    "erpnext.stock.doctype.material_request.material_request.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_mr.make_purchase_order",
+    "erpnext.buying.doctype.supplier_quotation.supplier_quotation.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_sq.make_purchase_order",
+    "erpnext.stock.doctype.stock_entry.stock_entry.make_stock_in_entry":"mkan_customization.mkan_customization.override.stock_entry.make_stock_in_entry"
+}
+#
+# each overriding function accepts a `data` argument;
+# generated from the base implementation of the doctype dashboard,
+# along with any modifications made in other Frappe apps
+# override_doctype_dashboards = {
+# 	"Task": "mkan_customization.task.get_dashboard_data"
+# }
+
+# exempt linked doctypes from being automatically cancelled
+#
+# auto_cancel_exempted_doctypes = ["Auto Repeat"]
+
+# Ignore links to specified DocTypes when deleting documents
+# -----------------------------------------------------------
+
+# ignore_links_on_delete = ["Communication", "ToDo"]
+
+
+
+# Request Events
+# ----------------
+# before_request = ["mkan_customization.utils.before_request"]
+# after_request = ["mkan_customization.utils.after_request"]
+
+# Job Events
+# ----------
+# before_job = ["mkan_customization.utils.before_job"]
+# after_job = ["mkan_customization.utils.after_job"]
+
+# User Data Protection
+# --------------------
+
+# user_data_fields = [
+# 	{
+# 		"doctype": "{doctype_1}",
+# 		"filter_by": "{filter_by}",
+# 		"redact_fields": ["{field_1}", "{field_2}"],
+# 		"partial": 1,
+# 	},
+# 	{
+# 		"doctype": "{doctype_2}",
+# 		"filter_by": "{filter_by}",
+# 		"partial": 1,
+# 	},
+# 	{
+# 		"doctype": "{doctype_3}",
+# 		"strict": False,
+# 	},
+# 	{
+# 		"doctype": "{doctype_4}"
+# 	}
+# ]
+
+# Authentication and authorization
+# --------------------------------
+
+# auth_hooks = [
+# 	"mkan_customization.auth.validate"
+# ]
+
+# Automatically update python controller files with type annotations for this app.
+# export_python_type_annotations = True
+
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
@@ -242,6 +324,4 @@ fixtures = [
 
 from mkan_customization.mkan_customization.override.workflow_action import get_users_next_action_data_for_workflow
 import frappe.workflow.doctype.workflow_action.workflow_action as workflow_action_module
-workflow_action_module.get_users_next_action_data = get_users_next_action_data_for_workflow
-
 workflow_action_module.get_users_next_action_data = get_users_next_action_data_for_workflow
