@@ -55,7 +55,20 @@ doctype_js = {
             "Material Request":"public/js/material_request.js",
             "Sales Invoice":"public/js/sales_invoice.js",
             "Sales Order":"public/js/sales_order.js",
-            "Supplier":"public/js/supplier.js"
+            # "Supplier":"public/js/supplier.js",
+            # "Employee" : "public/js/employee.js",
+}
+
+
+doctype_list_js = {
+    "Timesheet": "public/js/timesheet_list.js",
+    "Rental Equipment Timesheet": "mkan_customization/doctype/rental_equipment_timesheet/rental_equipment_timesheet_list.js",
+    "Mediical Insurance Sheet": "mkan_customization/doctype/medical_insurance_sheet/medical_insurance_sheet_list.js",
+    # "Rental Equipment Timesheet": "public/js/rental_equipment_timesheet_list.js",
+    # "Medical Insurance Sheet":    "public/js/medical_insurance_sheet_list.js",
+    # "Salary Slip":                "public/js/salary_slip_list.js"
+    
+
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -151,7 +164,7 @@ override_doctype_class = {
 
 doc_events = {
     "Purchase Order":{
-        "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert"
+        "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert",
     },
     "Material Request":{
         "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate",
@@ -194,9 +207,9 @@ doc_events = {
     "User Role Request" : {
         # "validate" : "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.validate_role_request_child_rows"
     },
-    "Blanket Order": {
-        "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
-    }
+    # "Blanket Order": {
+    #     "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
+    # }
 
 }
 
