@@ -41,8 +41,8 @@ def make_stock_in_entry(source_name, target_doc=None):
 					"parent": "against_stock_entry",
 					"serial_no": "serial_no",
 					"batch_no": "batch_no",
-					"material_request":"material_request",
-                    "material_request_item":"material_request_item"
+					"material_request":"custom_material_request",
+                    "material_request_item":"custom_material_request_item"
 				},
 				"postprocess": update_item,
 				"condition": lambda doc: flt(doc.qty) - flt(doc.transferred_qty) > 0.00001,
