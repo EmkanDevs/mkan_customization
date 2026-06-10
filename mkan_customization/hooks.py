@@ -193,6 +193,9 @@ doc_events = {
     },
     "User Role Request" : {
         # "validate" : "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.validate_role_request_child_rows"
+    },
+    "Blanket Order": {
+        "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
     }
 
 }
@@ -322,4 +325,3 @@ fixtures = [
 from mkan_customization.mkan_customization.override.workflow_action import get_users_next_action_data_for_workflow
 import frappe.workflow.doctype.workflow_action.workflow_action as workflow_action_module
 workflow_action_module.get_users_next_action_data = get_users_next_action_data_for_workflow
-
