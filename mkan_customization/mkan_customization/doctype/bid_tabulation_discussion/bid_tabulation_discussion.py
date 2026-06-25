@@ -282,6 +282,7 @@ def get_supplier_details(docname):
 
     suppliers = []
     items_map = {}
+    processed_suppliers = set()
 
     supplier_quotations = frappe.get_all(
         "Supplier Quotation",
@@ -296,10 +297,17 @@ def get_supplier_details(docname):
             "total",
             "taxes_and_charges_added",
             "grand_total"
-        ]
+        ],
+        order_by="supplier asc"
     )
 
     for sq in supplier_quotations:
+
+        # Prevent duplicate supplier quotation processing
+        if sq.name in processed_suppliers:
+            continue
+
+        processed_suppliers.add(sq.name)
 
         supplier_data = {
             "supplier": sq.supplier,
@@ -322,22 +330,25 @@ def get_supplier_details(docname):
                 "uom",
                 "rate",
                 "amount"
-            ]
+            ],
+            order_by="idx asc"
         )
 
         for item in sq_items:
 
-            # MASTER ITEMS LIST
-            if item.item_code not in items_map:
+            # Unique item row creation
+            unique_key = f"{item.item_code}-{item.uom}"
 
-                items_map[item.item_code] = {
+            if unique_key not in items_map:
+
+                items_map[unique_key] = {
                     "item_code": item.item_code,
                     "item_name": item.item_name,
-                    "qty": item.qty,
+                    "qty": flt(item.qty),
                     "uom": item.uom
                 }
 
-            # SUPPLIER ITEM MAP
+            # Supplier-wise comparison mapping
             supplier_data["item_map"][item.item_code] = {
                 "rate": flt(item.rate),
                 "amount": flt(item.amount)
@@ -364,11 +375,10 @@ def make_purchase_order(source_name, target_doc=None):
         parent_wbs = frappe.db.get_value(
             "Bid Tabulation Discussion",
             bid_tabulation,
-            "wbs"
+            # "wbs"
         )
 
     def set_missing_values(source, target):
-        # Existing ERPNext methods
         target.run_method("set_missing_values")
         target.run_method("get_schedule_dates")
         target.run_method("calculate_taxes_and_totals")
@@ -376,10 +386,13 @@ def make_purchase_order(source_name, target_doc=None):
         # Link Bid Tabulation
         target.bid_tabulation = bid_tabulation
 
-        # 🔥 Set WBS into every PO Item
-        if parent_wbs:
-            for item in target.items:
-                item.custom_wbs = parent_wbs
+        # Set WBS in PO Items
+        # if parent_wbs:
+        #     for item in target.items:
+        #         item.custom_wbs = parent_wbs
+
+    def update_item(obj, target, source_parent):
+        target.stock_qty = flt(obj.qty) * flt(obj.conversion_factor)
 
     doc = get_mapped_doc(
         "Supplier Quotation",
@@ -387,19 +400,37 @@ def make_purchase_order(source_name, target_doc=None):
         {
             "Supplier Quotation": {
                 "doctype": "Purchase Order",
+                "validation": {
+                    "docstatus": ["=", 1],
+                },
             },
+
             "Supplier Quotation Item": {
                 "doctype": "Purchase Order Item",
+
                 "field_map": {
+                    "name": "supplier_quotation_item",
+                    "parent": "supplier_quotation",
+                    "material_request": "material_request",
+                    "material_request_item": "material_request_item",
+                    "sales_order": "sales_order",
+
+                    # Your existing mappings
                     "item_code": "item_code",
                     "qty": "qty",
                     "rate": "rate",
-                    "amount": "amount"
+                    "amount": "amount",
                 },
+
+                "postprocess": update_item,
+            },
+
+            "Purchase Taxes and Charges": {
+                "doctype": "Purchase Taxes and Charges",
             },
         },
         target_doc,
-        set_missing_values
+        set_missing_values,
     )
 
     return doc

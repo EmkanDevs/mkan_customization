@@ -11,11 +11,14 @@
   "reason_of_return",
   "return_condition",
   "amended_from",
+  "supplier_code",
+  "supplier_name",
   "column_break_zbtw",
   "handed_by",
   "project",
   "project_name",
   "default_target_warehouse",
+  "stock_entry_reference",
   "returned_items_section",
   "returned_item_list",
   "section_break_jhbm",
@@ -106,6 +109,24 @@
    "fieldtype": "Link",
    "label": "Default Target Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "stock_entry_reference",
+   "fieldtype": "Link",
+   "label": "Stock Entry Reference",
+   "options": "Stock Entry"
+  },
+  {
+   "fieldname": "supplier_code",
+   "fieldtype": "Link",
+   "label": "Sub-Contractor Code",
+   "options": "Supplier"
+  },
+  {
+   "fetch_from": "supplier_code.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Sub-Contractor Name"
   }
  ],
  "grid_page_length": 50,
@@ -117,11 +138,11 @@
    "link_fieldname": "custom_return_material_ref_doc"
   }
  ],
- "modified": "2026-02-03 15:05:01.852827",
+ "modified": "2026-06-15 11:05:41.835162",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Returned Material to Warehouse Request",
- "naming_rule": "Expression",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

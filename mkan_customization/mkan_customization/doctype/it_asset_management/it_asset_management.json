@@ -19,6 +19,7 @@
   "ram_size",
   "generation",
   "asset",
+  "irpo",
   "item_information_section",
   "item",
   "manufacturer",
@@ -75,7 +76,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Current Status",
-   "options": "\nIn Storage\nIn Use\nRetired\nAwaiting Disposal"
+   "options": "\nIn Storage\nIn Use\nRetired\nAwaiting Disposal\nDamaged\nSold\nStolen"
   },
   {
    "fieldname": "hard_disk_type",
@@ -245,13 +246,19 @@
    "fieldtype": "Link",
    "label": "Purchase Order",
    "options": "Purchase Order"
+  },
+  {
+   "fieldname": "irpo",
+   "fieldtype": "Link",
+   "label": "IRPO",
+   "options": "Cost Center"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-17 15:17:04.657757",
- "modified_by": "Administrator",
+ "modified": "2026-06-07 16:51:51.159344",
+ "modified_by": "eman.alzainaldeen@conpillars.com",
  "module": "Mkan Customization",
  "name": "IT Asset Management",
  "owner": "Administrator",

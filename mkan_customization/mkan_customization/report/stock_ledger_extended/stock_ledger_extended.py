@@ -89,6 +89,8 @@ def execute(filters=None):
                     "owner",
                     "stock_entry_type",
                     "outgoing_stock_entry",
+                    "custom_supplier_code",
+                    "custom_suppliers_name",
                 ],
                 as_dict=True,
             )
@@ -96,9 +98,25 @@ def execute(filters=None):
             if stock_entry:
 
                 sle["creator"] = stock_entry.owner
+
                 sle["return_material_ref_doc"] = (
                     stock_entry.outgoing_stock_entry
                 )
+
+                sle["supplier_code"] = (
+                    stock_entry.custom_supplier_code
+                )
+
+                sle["supplier_name"] = (
+                    stock_entry.custom_suppliers_name
+                )
+                
+                if stock_entry.supplier:
+                    sle["supplier_name"] = frappe.db.get_value(
+                        "Supplier",
+                        stock_entry.supplier,
+                        "supplier_name"
+                    )
 
             # ------------------------------------------
             # STOCK ENTRY DETAIL
@@ -509,6 +527,22 @@ def get_columns(filters):
                 "width": 120,
             },
 
+            {
+                "label": _("Supplier Code"),
+                "fieldname": "supplier_code",
+                "fieldtype": "Link",
+                "options": "Supplier",
+                "width": 140,
+            },
+
+            {
+                "label": _("Supplier Name"),
+                "fieldname": "supplier_name",
+                "fieldtype": "Data",
+                "width": 200,
+            },
+
+
 
             # {
             #     "label": _("IN/OUT Quantity"),
@@ -614,21 +648,7 @@ def get_columns(filters):
                 "width": 100,
             },
 
-            {
-                "label": _("Supplier Code"),
-                "fieldname": "supplier_code",
-                "fieldtype": "Link",
-                "options": "Supplier",
-                "width": 140,
-            },
-
-            {
-                "label": _("Supplier Name"),
-                "fieldname": "supplier_name",
-                "fieldtype": "Data",
-                "width": 200,
-            },
-
+            
             {
                 "label": _("Supplier Delivery Note"),
                 "fieldname": "supplier_delivery_note",

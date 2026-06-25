@@ -1,0 +1,55 @@
+{
+ "based_on": "creation",
+ "chart_name": "Request for Quotation Requests",
+ "chart_type": "Count",
+ "color": "#e3dc14",
+ "creation": "2025-08-03 09:51:00.279039",
+ "currency": "",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "document_type": "Request for Quotation",
+ "dynamic_filters_json": "[]",
+ "filters_json": "[]",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2025-08-03 09:51:00.279039",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Request for Quotation Requests",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "parent_document_type": "",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "General Manager"
+  },
+  {
+   "role": "Assistant General Manager"
+  },
+  {
+   "role": "Read All Pages"
+  },
+  {
+   "role": "Purchase Manager"
+  },
+  {
+   "role": "Purchase User"
+  },
+  {
+   "role": "Purchase Reviewer"
+  }
+ ],
+ "source": "",
+ "time_interval": "Daily",
+ "timeseries": 1,
+ "timespan": "Last Quarter",
+ "type": "Line",
+ "use_report_chart": 0,
+ "value_based_on": "",
+ "y_axis": []
+}

@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "add_translate_data": 0,
  "columns": [],
  "creation": "2025-10-30 11:37:25.548573",
@@ -7,11 +7,10 @@
  "docstatus": 0,
  "doctype": "Report",
  "filters": [],
- "idx": 0,
+ "idx": 6,
  "is_standard": "Yes",
- "letter_head": "CPC Letterhead",
- "letterhead": null,
- "modified": "2025-10-30 11:37:43.205484",
+ "letter_head": null,
+ "modified": "2026-05-11 11:39:40.960880",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Stock Ledger Extended",
@@ -20,6 +19,25 @@
  "ref_doctype": "Stock Ledger Entry",
  "report_name": "Stock Ledger Extended",
  "report_type": "Script Report",
- "roles": [],
+ "roles": [
+  {
+   "role": "Stock Reviewer"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Read All Pages"
+  },
+  {
+   "role": "General Manager"
+  },
+  {
+   "role": "Deputy G.M"
+  }
+ ],
  "timeout": 0
 }
