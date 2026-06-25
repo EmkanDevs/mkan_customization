@@ -114,6 +114,7 @@
    "fieldname": "stock_entry_reference",
    "fieldtype": "Link",
    "label": "Stock Entry Reference",
+<<<<<<< HEAD
    "options": "Stock Entry"
   },
   {
@@ -121,12 +122,26 @@
    "fieldtype": "Link",
    "label": "Sub-Contractor Code",
    "options": "Supplier"
+=======
+   "options": "Stock Entry",
+   "read_only": 1
+>>>>>>> 3ba3c4b9e515547958484f507d816cba1565df80
   },
   {
    "fetch_from": "supplier_code.supplier_name",
    "fieldname": "supplier_name",
    "fieldtype": "Data",
    "label": "Sub-Contractor Name"
+<<<<<<< HEAD
+=======
+  },
+  {
+   "fetch_from": "supplier_name.custom_code",
+   "fieldname": "supplier_code",
+   "fieldtype": "Link",
+   "label": "Sub-Contractor Code",
+   "options": "Supplier"
+>>>>>>> 3ba3c4b9e515547958484f507d816cba1565df80
   }
  ],
  "grid_page_length": 50,
@@ -138,7 +153,11 @@
    "link_fieldname": "custom_return_material_ref_doc"
   }
  ],
+<<<<<<< HEAD
  "modified": "2026-06-15 11:05:41.835162",
+=======
+ "modified": "2026-06-15 08:57:03.907296",
+>>>>>>> 3ba3c4b9e515547958484f507d816cba1565df80
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Returned Material to Warehouse Request",
