@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-05-25 10:10:37.000446",
+ "modified": "2026-05-25 15:48:40.031453",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Subcontractor Material Return Cycle",
@@ -22,6 +22,36 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role": "General Manager"
+  },
+  {
+   "role": "Deputy G.M"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Stock Reviewer"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Finance Manager"
+  },
+  {
+   "role": "Cost Control Engineer"
+  },
+  {
+   "role": "Cost Control Manager"
   }
  ],
  "timeout": 0

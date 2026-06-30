@@ -55,7 +55,8 @@ doctype_js = {
             "Material Request":"public/js/material_request.js",
             "Sales Invoice":"public/js/sales_invoice.js",
             "Sales Order":"public/js/sales_order.js",
-            "Supplier":"public/js/supplier.js"
+            "Supplier":"public/js/supplier.js",
+            "Employee":"public/js/employee.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -182,9 +183,9 @@ doc_events = {
         "before_save":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.before_save",
         "validate":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.validate"
     },
-    "Purchase Invoice":{
-        "before_validate":"mkan_customization.mkan_customization.doc_events.purchase_invoice.validate"
-    },
+    # "Purchase Invoice":{
+    #     "before_validate":"mkan_customization.mkan_customization.doc_events.purchase_invoice.validate"
+    # },
     "Sales Order":{
         "before_submit":"mkan_customization.mkan_customization.doc_events.sales_order.before_submit"
     },

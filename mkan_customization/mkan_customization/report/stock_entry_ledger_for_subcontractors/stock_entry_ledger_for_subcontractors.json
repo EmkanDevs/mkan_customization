@@ -104,10 +104,10 @@
  "docstatus": 0,
  "doctype": "Report",
  "filters": [],
- "idx": 0,
+ "idx": 1,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-03-09 11:21:40.694863",
+ "modified": "2026-06-02 14:23:38.530362",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Stock Entry Ledger for Subcontractors",
@@ -141,6 +141,9 @@
   },
   {
    "role": "Read All Pages"
+  },
+  {
+   "role": "Cost Control Engineer"
   }
  ],
  "timeout": 0
