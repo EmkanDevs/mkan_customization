@@ -83,8 +83,8 @@ def make_purchase_order(source_name, target_doc=None, args=None):
 		postprocess,
 	)
 
-	if not valid_items_found:
-		frappe.throw("Cannot create Purchase Order: No linked Request for Quotation or Bid Tabulation Discussion found for any items.")
+	# if not valid_items_found:
+	# 	frappe.throw("Cannot create Purchase Order: No linked Request for Quotation or Bid Tabulation Discussion found for any items.")
 
 	doclist.set_onload("load_after_mapping", False)
 	return doclist
