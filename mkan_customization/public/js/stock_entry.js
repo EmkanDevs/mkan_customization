@@ -25,8 +25,6 @@ extend_cscript(cur_frm.cscript, new erpnext.stock.StockEntry({ frm: cur_frm }));
 
 frappe.ui.form.on("Stock Entry", {
     refresh(frm) {
-        // Add button to create Returned Material to Warehouse Request
-        // Only show if Stock Entry is submitted and has a project
         if (frm.doc.docstatus === 1) {
             frm.add_custom_button(__("Create Returned Material to Warehouse Request"), () => {
                 frappe.model.open_mapped_doc({
@@ -55,6 +53,15 @@ frappe.ui.form.on("Stock Entry", {
                 });
             });
         }
+
+
+        frm.set_query("stock_entry_type", function () {
+            return {
+                filters: {
+                    purpose: ["!=", "Send to Subcontractor"]
+                }
+            };
+        });
     }
 });
 
