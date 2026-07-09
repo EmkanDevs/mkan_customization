@@ -1,8 +1,6 @@
-// your_app/public/js/purchase_invoice.js
 frappe.ui.form.on("Purchase Invoice", {
     refresh(frm) {
         if (frm.doc.docstatus === 0) {
-            // remove ERPNext's default entries so we don't get duplicates
             frm.page.remove_inner_button(__("Purchase Order"), __("Get Items From"));
             frm.page.remove_inner_button(__("Purchase Receipt"), __("Get Items From"));
 
@@ -22,13 +20,13 @@ frappe.ui.form.on("Purchase Invoice", {
 function open_get_items_dialog(frm, source_doctype, query_method, mapper_method) {
     const date_field = source_doctype === "Purchase Receipt" ? "posting_date" : "transaction_date";
 
-    new frappe.ui.form.MultiSelectDialog({
+    const dialog = new frappe.ui.form.MultiSelectDialog({
         doctype: source_doctype,
         target: frm,
         setters: { supplier: frm.doc.supplier || null },
-        add_filters_group: 1,                     // restores "+ Add a Filter" / "Clear Filters"
+        add_filters_group: 1,
         date_field: date_field,
-        allow_child_item_selection: 1,             // restores "Select Purchase Order Item" checkbox
+        allow_child_item_selection: 1,
         child_fieldname: "items",
         child_columns: ["item_code", "item_name", "qty", "rate", "amount"],
         columns: ["name", date_field, "supplier", "total", "grand_total", "status"],
@@ -49,6 +47,11 @@ function open_get_items_dialog(frm, source_doctype, query_method, mapper_method)
                 };
             }
 
+            remove_empty_item_rows(frm);
+
+            // ADD THIS ↓
+            frappe.dom.freeze(__("Mapping {0} ...", [source_doctype]));
+
             frappe.call({
                 method: "frappe.model.mapper.map_docs",
                 args: {
@@ -58,11 +61,38 @@ function open_get_items_dialog(frm, source_doctype, query_method, mapper_method)
                     args: mapper_args
                 },
                 callback: (r) => {
-                    frappe.model.sync(r.message);
-                    frm.dirty();
-                    frm.refresh();
+                    // ADD THIS ↓
+                    frappe.dom.unfreeze();
+
+                    if (r.message) {
+                        frappe.model.sync(r.message);
+                        frm.dirty();
+                        frm.refresh();
+                    }
+                    dialog.dialog.hide();
+                },
+                error: (r) => {
+                    // ADD THIS ↓ (so it unfreezes even on error)
+                    frappe.dom.unfreeze();
                 }
             });
         }
     });
+}
+
+function remove_empty_item_rows(frm) {
+    let items = frm.doc.items || [];
+    let rows_to_remove = [];
+
+    items.forEach((row, idx) => {
+        if (!row.item_code && !row.item_name && (!row.qty || row.qty == 0)) {
+            rows_to_remove.push(row.name);
+        }
+    });
+
+    rows_to_remove.forEach(row_name => {
+        frm.doc.items = frm.doc.items.filter(r => r.name !== row_name);
+    });
+
+    frm.refresh_field('items');
 }
