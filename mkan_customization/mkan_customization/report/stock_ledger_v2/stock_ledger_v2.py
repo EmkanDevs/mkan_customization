@@ -269,6 +269,7 @@ class StockBalanceReport:
 				"currency": self.company_currency,
 				"stock_uom": entry.stock_uom,
 				"item_name": entry.item_name,
+				"expense_account": entry.get("expense_account"),
 				"opening_qty": opening_data.get("bal_qty") or 0.0,
 				"opening_val": opening_data.get("bal_val") or 0.0,
 				
@@ -334,6 +335,7 @@ class StockBalanceReport:
 		sle = frappe.qb.DocType("Stock Ledger Entry")
 		item_table = frappe.qb.DocType("Item")
 		stock_entry = frappe.qb.DocType("Stock Entry")
+		stock_entry_detail = frappe.qb.DocType("Stock Entry Detail")
 		purchase_receipt = frappe.qb.DocType("Purchase Receipt")
 
 		query = (
@@ -344,6 +346,12 @@ class StockBalanceReport:
 			.on(
 				(sle.voucher_type == "Stock Entry")
 				& (sle.voucher_no == stock_entry.name)
+			)
+			.left_join(stock_entry_detail)
+			.on(
+				(sle.voucher_type == "Stock Entry")
+				& (sle.voucher_no == stock_entry_detail.parent)
+				& (sle.item_code == stock_entry_detail.item_code)
 			)
 			.left_join(purchase_receipt)
 			.on(
@@ -371,6 +379,7 @@ class StockBalanceReport:
 				item_table.stock_uom,
 				item_table.item_name,
 				stock_entry.stock_entry_type,
+				stock_entry_detail.expense_account,
 				purchase_receipt.is_petty_cash,
 			)
 			.where(
@@ -459,6 +468,13 @@ class StockBalanceReport:
 				"label": _("Item Name / Description"),
 				"fieldname": "item_name",
 				"width": 180,
+			},
+			{
+				"label": _("Expense Account"),
+				"fieldname": "expense_account",
+				"fieldtype": "Link",
+				"options": "Account",
+				"width": 150,
 			},
 			{
 				"label": _("Item Group (Category)"),
@@ -782,6 +798,7 @@ def filter_items_with_no_transactions(
 				"item_code",
 				"warehouse",
 				"item_name",
+				"expense_account",
 				"item_group",
 				"project",
 				"stock_uom",

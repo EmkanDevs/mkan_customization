@@ -131,6 +131,7 @@ def execute(filters=None):
                 [
                     "material_request",
                     "cost_center",
+                    "expense_account",
                 ],
                 as_dict=True,
             )
@@ -139,6 +140,7 @@ def execute(filters=None):
 
                 sle["material_request"] = se_detail.material_request
                 sle["cost_center"] = se_detail.cost_center
+                sle["expense_account"] = se_detail.expense_account
 
             # ------------------------------------------
             # MATERIAL REQUEST
@@ -405,6 +407,15 @@ def get_columns(filters):
             "width": 100,
         },
         {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
+
+        {
+            "label": _("Expense Account"),
+            "fieldname": "expense_account",
+            "fieldtype": "Link",
+            "options": "Account",
+            "width": 150,
+        },
+        
         {
             "label": _("Stock UOM"),
             "fieldname": "stock_uom",
