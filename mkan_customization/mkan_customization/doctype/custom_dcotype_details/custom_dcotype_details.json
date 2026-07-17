@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-11 11:21:18.486538",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "custom_doctype",
+  "has_child_table",
+  "child_table",
+  "field_and_script"
+ ],
+ "fields": [
+  {
+   "fieldname": "custom_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Parent Doctype",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "has_child_table",
+   "fieldtype": "Check",
+   "label": "Has Child Table"
+  },
+  {
+   "depends_on": "eval:doc.has_child_table",
+   "fieldname": "child_table",
+   "fieldtype": "Link",
+   "label": "Child Table",
+   "mandatory_depends_on": "eval:doc.has_child_table",
+   "options": "DocType"
+  },
+  {
+   "default": "0",
+   "fieldname": "field_and_script",
+   "fieldtype": "Check",
+   "label": "Create Field and Script for Parent Account"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-16 08:42:13.699686",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Custom Dcotype Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
