@@ -9,6 +9,7 @@ authors = [
 ]
 
 dependencies = [
+    "pandas~=2.3.3"
 ]
 
 [tool.bench.frappe-dependencies]
