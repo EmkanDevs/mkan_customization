@@ -1,0 +1,159 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-24 16:24:34.064149",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "afrs_no_section",
+  "ar_no",
+  "finding_serial_no",
+  "finding_description",
+  "finding_classification_section",
+  "car",
+  "obs",
+  "section_break_zyhn",
+  "ar_finding_response_from_auditee",
+  "auditor_reponse",
+  "department_section",
+  "ar_finding_status",
+  "section_break_5ax5",
+  "closure_date",
+  "response_on_open_ar_findings",
+  "open_ar_status",
+  "ciosure_date",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "afrs_no_section",
+   "fieldtype": "Section Break",
+   "label": "AFRS No."
+  },
+  {
+   "fieldname": "ar_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "AR No.",
+   "options": "Audit Report",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finding_serial_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Finding Serial No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finding_description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Finding Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "finding_classification_section",
+   "fieldtype": "Section Break",
+   "label": "Finding Classification"
+  },
+  {
+   "default": "0",
+   "fieldname": "car",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "CAR"
+  },
+  {
+   "default": "0",
+   "fieldname": "obs",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "OBS"
+  },
+  {
+   "fieldname": "section_break_zyhn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ar_finding_response_from_auditee",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "AR Finding Response From Auditee"
+  },
+  {
+   "fieldname": "auditor_reponse",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Auditor Reponse"
+  },
+  {
+   "fieldname": "department_section",
+   "fieldtype": "Section Break",
+   "label": "Department"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "ar_finding_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "AR Finding Status",
+   "options": "\nClosed\nOpen"
+  },
+  {
+   "fieldname": "section_break_5ax5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "closure_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Closure Date"
+  },
+  {
+   "depends_on": "eval:doc.ar_finding_status == \"Open\"",
+   "fieldname": "response_on_open_ar_findings",
+   "fieldtype": "Small Text",
+   "label": "Response On Open AR findings"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.ar_finding_status == \"Open\"",
+   "fieldname": "open_ar_status",
+   "fieldtype": "Select",
+   "ignore_user_permissions": 1,
+   "in_list_view": 1,
+   "label": "Open AR Status",
+   "options": "\nAccept\nReject"
+  },
+  {
+   "depends_on": "eval:doc.ar_finding_status == \"Open\"",
+   "fieldname": "ciosure_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "CIosure Date"
+  },
+  {
+   "depends_on": "eval:doc.ar_finding_status == \"Open\"",
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Remark"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-23 02:30:12.387807",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "AFR Summary",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

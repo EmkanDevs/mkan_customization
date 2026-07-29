@@ -4,4 +4,4 @@ Mkan
 
 #### License
 
-mit
+GPL-3.0

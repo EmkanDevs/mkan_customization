@@ -14,15 +14,20 @@
   "status",
   "is_signed",
   "post_date",
+  "wbs_code",
   "cb_party",
-  "zone__area",
   "party_name",
+  "zone__area",
   "party_user",
   "fulfilment_status",
+  "custom_sub_contractor_request",
+  "completed_contract",
+  "wbs_item_list",
   "sb_terms",
   "start_date",
   "project",
   "business_code__cost_center",
+  "vat_rate",
   "cb_date",
   "end_date",
   "project_number",
@@ -57,8 +62,10 @@
  ],
  "fields": [
   {
+   "default": "CONTR-.YY.-.#####",
    "fieldname": "naming_series",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Naming Series"
   },
   {
@@ -350,12 +357,42 @@
    "fieldname": "project_name",
    "fieldtype": "Data",
    "label": "Project Name"
+  },
+  {
+   "fieldname": "custom_sub_contractor_request",
+   "fieldtype": "Link",
+   "label": "Sub-Contractor Request",
+   "options": "Sub-Contractor Request"
+  },
+  {
+   "fieldname": "wbs_item_list",
+   "fieldtype": "Button",
+   "label": "WBS Item List"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "completed_contract",
+   "fieldtype": "Check",
+   "label": "Completed Contract",
+   "read_only": 1
+  },
+  {
+   "fieldname": "wbs_code",
+   "fieldtype": "Data",
+   "label": "WBS Code"
+  },
+  {
+   "fieldname": "vat_rate",
+   "fieldtype": "Link",
+   "label": "Vat rate",
+   "options": "Sales Taxes and Charges Template"
   }
  ],
  "grid_page_length": 50,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-05-23 13:39:39.154401",
+ "modified": "2025-11-26 11:42:44.723550",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Project Sub-Contracts",

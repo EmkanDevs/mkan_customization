@@ -192,7 +192,10 @@ $(page.body).append(employee_info_html);
                 <small>Pending Amount</small>
                 <h3 id="total_pending">0</h3>
             </div>
-
+             <div class="summary-card">
+                <small>Insurance Members</small>
+                <h3 id="total_insurance">0</h3>
+            </div>
             <div class="summary-card">
                 <small>Equipment Balance Qty</small>
                 <h3 id="total_equipment_balance">0</h3>
@@ -204,6 +207,7 @@ $(page.body).append(employee_info_html);
             <div class="custody-tab" data-tab="sim_cards">SIM Card</div>
             <div class="custody-tab" data-tab="vehicles">Vehicles</div>
             <div class="custody-tab" data-tab="employee_custody">Employee Advance</div>
+            <div class="custody-tab" data-tab="medical_insurance">Medical Insurance</div>
             <div class="custody-tab" data-tab="equipment_tools">Equipment's & Tools</div>
         </div>
 
@@ -211,6 +215,7 @@ $(page.body).append(employee_info_html);
         <div id="sim_cards" class="tab-content" style="display:none;"></div>
         <div id="vehicles" class="tab-content" style="display:none;"></div>
         <div id="employee_custody" class="tab-content" style="display:none;"></div>
+        <div id="medical_insurance" class="tab-content" style="display:none;"></div>
         <div id="equipment_tools" class="tab-content" style="display:none;"></div>
     `;
 
@@ -256,6 +261,7 @@ $(page.body).append(employee_info_html);
         load_sim_cards(emp);
         load_vehicles(emp);
         load_employee_custody(emp);
+        load_medical_insurance(emp);
         load_equipment_tools(emp);
     }
 
@@ -456,6 +462,77 @@ $(page.body).append(employee_info_html);
             }
         });
     }
+
+        // =========================
+        // MEDICAL INSURANCE
+        // =========================
+        function load_medical_insurance(emp) {
+            show_loading('#medical_insurance');
+
+            frappe.call({
+                method: 'mkan_customization.mkan_customization.page.emloyee_custody_dash.employee_custody_dash.get_medical_insurance',
+                args: { employee: emp },
+                callback: r => {
+                    if (r.message) {
+                        $('#total_insurance').text(r.message.length);
+                        render_medical_insurance(r.message);
+                    }
+                }
+            });
+        }
+
+        function render_medical_insurance(data) {
+            let html = `
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Bupa ID</th>
+                            <th>Employee ID</th> 
+                            <th>Member Name</th>
+                            <th>Relationship</th>
+                            <th>Main Membership No</th>
+                            <th>Main Membership ID</th>
+                            <th>CCHI Status</th>
+                            <th>Reject Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            if (!data.length) {
+                html += `<tr><td colspan="8" class="text-center">No Records Found</td></tr>`;
+            } else {
+                data.forEach(row => {
+                    const status_color = row.member_cchi_status === 'Approved' ? '#28a745'
+                        : row.member_cchi_status === 'Rejected' ? '#d9534f'
+                        : '#f0ad4e';
+
+                    html += `
+                        <tr>
+                            <td>
+                                <a href="/app/medical-insurance-sheet/${row.bupa_id}" target="_blank">
+                                    ${row.bupa_id || ''}
+                                </a>
+                            </td>
+                            <td>${row.employee_number || ''}</td> 
+                            <td>${row.member_name || ''}</td>
+                            <td>${row.relationship || ''}</td>
+                            <td>${row.main_membership_no || ''}</td>
+                            <td>${row.main_member_id || ''}</td>
+                            <td>
+                                <span class="badge" style="background:${status_color}">
+                                    ${row.member_cchi_status || ''}
+                                </span>
+                            </td>
+                            <td>${row.member_reject_reason || '—'}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `</tbody></table>`;
+            $('#medical_insurance').html(html);
+        }
 
     function load_equipment_tools(emp) {
 

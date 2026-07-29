@@ -1,0 +1,237 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "QA-DP-.###",
+ "creation": "2025-07-21 15:23:34.368898",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "purpose",
+  "annual_audit_plan",
+  "column_break_nk6v",
+  "audit_criteria",
+  "audit_scope",
+  "section_break_egg5",
+  "audit_start_date",
+  "column_break_eevh",
+  "audit_end_date",
+  "audit_team_section",
+  "lead_auditor",
+  "auditor",
+  "column_break_qgdw",
+  "lead_auditor_name",
+  "key_auditee_personnel_section",
+  "name1",
+  "emp_email",
+  "column_break_joi0",
+  "designation",
+  "full_name",
+  "section_break_mbt8",
+  "timing",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Purpose"
+  },
+  {
+   "fieldname": "annual_audit_plan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Annual Audit Plan",
+   "options": "Annual Audit Plan",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_nk6v",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "audit_criteria",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audit Criteria",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audit_scope",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audit Scope",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_egg5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "audit_start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Audit Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_eevh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "audit_end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Audit End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audit_team_section",
+   "fieldtype": "Section Break",
+   "label": "Audit Team"
+  },
+  {
+   "fieldname": "lead_auditor",
+   "fieldtype": "Link",
+   "label": "Lead Auditor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "auditor",
+   "fieldtype": "Table",
+   "label": "Auditor",
+   "options": "Auditors",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qgdw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "lead_auditor.full_name",
+   "fieldname": "lead_auditor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Lead Auditor Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "key_auditee_personnel_section",
+   "fieldtype": "Section Break",
+   "label": "Key Auditee Personnel"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Link",
+   "label": "ID",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "name1.user_id",
+   "fieldname": "emp_email",
+   "fieldtype": "Data",
+   "label": "Emp Email",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_joi0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "name1.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "name1.employee_name",
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "label": "Full Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_mbt8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "timing",
+   "fieldtype": "Table",
+   "label": "Timing",
+   "options": "Audit Plan Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Audit Plan",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Audit Report",
+   "link_fieldname": "audit_plan"
+  }
+ ],
+ "modified": "2025-08-20 23:07:50.220033",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "Audit Plan",
+ "naming_rule": "Random",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Auditor",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

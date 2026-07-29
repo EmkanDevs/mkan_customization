@@ -1,0 +1,36 @@
+[
+ {
+  "charts": [],
+  "content": "[{\"id\":\"xl_nIM7VNX\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Notification View</span>\",\"col\":12}},{\"id\":\"8x0Vi2rhmJ\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"notification_list\",\"col\":12}}]",
+  "custom_blocks": [
+   {
+    "custom_block_name": "notification_list",
+    "label": "notification_list",
+    "parent": "Notification View",
+    "parentfield": "custom_blocks",
+    "parenttype": "Workspace"
+   }
+  ],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "for_user": "",
+  "hide_custom": 0,
+  "icon": "notification",
+  "indicator_color": "green",
+  "is_hidden": 0,
+  "label": "Notification View",
+  "links": [],
+  "modified": "2025-12-08 10:43:15.876063",
+  "module": null,
+  "name": "Notification View",
+  "number_cards": [],
+  "parent_page": "",
+  "public": 1,
+  "quick_lists": [],
+  "restrict_to_domain": null,
+  "roles": [],
+  "sequence_id": 1.0,
+  "shortcuts": [],
+  "title": "Notification View"
+ }
+]

@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-21 16:12:05.743146",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "from_time",
+  "to_time",
+  "activities",
+  "department__company",
+  "auditor",
+  "area",
+  "auditor_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "From Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "To Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "activities",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Activities",
+   "reqd": 1
+  },
+  {
+   "fieldname": "department__company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Department / Company",
+   "options": "Department",
+   "reqd": 1
+  },
+  {
+   "fieldname": "auditor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Auditor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Personnel / Area",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "auditor.full_name",
+   "fieldname": "auditor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Auditor_name"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-11 17:09:13.123417",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "Audit Plan Time",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

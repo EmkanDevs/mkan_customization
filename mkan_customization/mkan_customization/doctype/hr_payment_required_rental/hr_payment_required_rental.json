@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-04 08:26:02.060264",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "national_code",
+  "full_name",
+  "designation",
+  "project",
+  "column_break_hrwm",
+  "company",
+  "company_name",
+  "application_stage",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "national_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "National Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "default": "N/A",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "From Company",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Designation",
+   "options": "Designation"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "application_stage",
+   "fieldtype": "Select",
+   "label": "Application Stage",
+   "options": "Open\nIn Progress\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "column_break_hrwm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "company.supplier_name",
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "From Company Name",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-04 10:36:31.418692",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "HR Payment Required Rental",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

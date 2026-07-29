@@ -33,8 +33,8 @@ function apply_dimensions(frm) {
 	}
 
 	(frm.is_dirty() ? frm.save() : Promise.resolve()).then(() => {
-		frappe.call({
-			method: "mkan_customization.mkan_customization.doctype.add_accounting_dimension_on_custom_doctype.add_accounting_dimension_on_custom_doctype.add_dimensions_for_custom_doctypes",
+		frappe.call({mkan_customization
+			method: ".mkan_customization.doctype.add_accounting_dimension_on_custom_doctype.add_accounting_dimension_on_custom_doctype.add_dimensions_for_custom_doctypes",
 			args: {
 				doctypes: doctypes,
 				doctype_configs: selected_configs,

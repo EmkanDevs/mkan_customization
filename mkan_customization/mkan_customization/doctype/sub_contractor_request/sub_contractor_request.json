@@ -1,0 +1,197 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:naming_series",
+ "creation": "2025-07-16 16:24:36.576405",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "date",
+  "project",
+  "discipline",
+  "selected_supplier",
+  "wbs_item_list",
+  "column_break_waas",
+  "recommended_subcontractor",
+  "project_name",
+  "subcontract_scope",
+  "zone__area",
+  "supplier_name",
+  "section_break_6cje",
+  "bill_of_quantity",
+  "payment_break_down",
+  "section_break_dlto",
+  "estimated_start_date",
+  "column_break_8omr",
+  "estimated_end_date",
+  "section_break_wi6d",
+  "schedule_remark",
+  "section_break_7mfe",
+  "specification",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_dlto",
+   "fieldtype": "Section Break",
+   "label": "Time Schedule"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Sub-Contractor Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "naming_series",
+   "options": "SUB-CONT-.YY.-.####"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "column_break_waas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recommended_subcontractor",
+   "fieldtype": "Data",
+   "label": "Recommended Subcontractor"
+  },
+  {
+   "fieldname": "discipline",
+   "fieldtype": "Select",
+   "label": "Discipline"
+  },
+  {
+   "fieldname": "estimated_start_date",
+   "fieldtype": "Date",
+   "label": "Estimated Start Date"
+  },
+  {
+   "fieldname": "column_break_8omr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "estimated_end_date",
+   "fieldtype": "Date",
+   "label": "Estimated End Date"
+  },
+  {
+   "fieldname": "schedule_remark",
+   "fieldtype": "Small Text",
+   "label": "Schedule Remark"
+  },
+  {
+   "fieldname": "section_break_7mfe",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "specification",
+   "fieldtype": "Long Text",
+   "label": "Specification"
+  },
+  {
+   "fieldname": "subcontract_scope",
+   "fieldtype": "Data",
+   "label": "Subcontract Scope"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_wi6d",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_6cje",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "bill_of_quantity",
+   "fieldtype": "Table",
+   "label": "Bill of Quantity",
+   "options": "Contract Fulfilment Checklist"
+  },
+  {
+   "fieldname": "payment_break_down",
+   "fieldtype": "Table",
+   "label": "Payment Break Down",
+   "options": "Contract Payment Checklist"
+  },
+  {
+   "fieldname": "selected_supplier",
+   "fieldtype": "Link",
+   "label": "Selected Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "zone__area",
+   "fieldtype": "Data",
+   "label": "ZONE / Area"
+  },
+  {
+   "fetch_from": "selected_supplier.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "wbs_item_list",
+   "fieldtype": "Button",
+   "label": "WBS Item List"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-18 08:16:18.321813",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Sub-Contractor Request",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -65,3 +65,4 @@ def make_purchase_order(source_name, target_doc=None):
 		frappe.throw("Cannot create Purchase Order: No linked Request for Quotation or Bid Tabulation Discussion found for any items.")
 
 	return doclist
+

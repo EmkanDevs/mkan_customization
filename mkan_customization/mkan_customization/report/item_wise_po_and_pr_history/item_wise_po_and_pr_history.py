@@ -65,6 +65,11 @@ def get_data(filters):
 
     records = []
 
+    target_item_groups = []
+    if filters.get("item_group"):
+        target_item_groups = get_descendants_of("Item Group", filters.get("item_group"))
+        target_item_groups.append(filters.get("item_group"))
+
     transaction_type = filters.get("transaction_type")
 
     # ----------------------------------------------------------------
@@ -79,6 +84,10 @@ def get_data(filters):
 
             supplier_record = supplier_details.get(r.supplier)
             item_record = item_details.get(r.item_code)
+
+            # ITEM GROUP FILTER
+            if target_item_groups and item_record and item_record.item_group not in target_item_groups:
+                continue
 
             row = map_record_to_row(
                 r, supplier_record, item_record, latest_rate_map,
@@ -99,6 +108,10 @@ def get_data(filters):
 
             supplier_record = supplier_details.get(r.supplier)
             item_record = item_details.get(r.item_code)
+
+            # ITEM GROUP FILTER
+            if target_item_groups and item_record and item_record.item_group not in target_item_groups:
+                continue
 
             row = map_record_to_row(
                 r, supplier_record, item_record, latest_rate_map,

@@ -134,3 +134,28 @@ frappe.ui.form.on("Purchase Receipt", {
 		}
     }
 });
+
+frappe.ui.form.on('Purchase Receipt Item', {
+    uom: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (!row.item_code || !row.uom) return;
+
+        frappe.call({
+            method: 'frappe.client.get',
+            args: { doctype: 'Item', name: row.item_code },
+            callback: function(r) {
+                if (!r.message) return;
+                let valid_uoms = (r.message.uoms || []).map(u => u.uom);
+                if (!valid_uoms.includes(row.uom)) {
+                    frappe.msgprint({
+                        title: __('Invalid UOM'),
+                        message: __(`UOM <b>${row.uom}</b> is not valid for item <b>${row.item_code}</b>.<br>Valid UOM(s): <b>${valid_uoms.join(', ')}</b>`),
+                        indicator: 'red'
+                    });
+                    frappe.model.set_value(cdt, cdn, 'uom', '');
+                    frm.refresh_field('items');
+                }
+            }
+        });
+    }
+});

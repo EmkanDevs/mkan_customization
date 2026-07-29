@@ -1,0 +1,100 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-23 16:37:24.642138",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "corrective_action_description",
+  "minor",
+  "major",
+  "observation",
+  "document_master",
+  "type",
+  "requirements_reference_no",
+  "clause_no",
+  "remarks__recommendations"
+ ],
+ "fields": [
+  {
+   "fieldname": "corrective_action_description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Corrective Action Description",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "minor",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Minor"
+  },
+  {
+   "default": "0",
+   "fieldname": "major",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Major"
+  },
+  {
+   "default": "0",
+   "fieldname": "observation",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Observation"
+  },
+  {
+   "fieldname": "document_master",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Document Master",
+   "options": "Document Master",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "document_master.type_of_document",
+   "fieldname": "type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Type",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "document_master.document_no",
+   "fieldname": "requirements_reference_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Requirements Reference No."
+  },
+  {
+   "fieldname": "clause_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Clause No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks__recommendations",
+   "fieldtype": "Text Editor",
+   "in_list_view": 1,
+   "label": "Remarks / Recommendations",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-07 07:28:07.922032",
+ "modified_by": "chris.panikulangara@finbyz.tech",
+ "module": "Custom Quality Management",
+ "name": "Audit Findings",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -6,10 +6,26 @@ from frappe.model.document import Document
 from datetime import datetime
 from frappe.utils import getdate, today
 from frappe.desk.form.load import get_attachments
+from frappe.model.mapper import get_mapped_doc
 
 class RentalContract(Document):
     pass
 
+@frappe.whitelist()
+def make_payment_request(rental_contract):
+    doc = frappe.get_doc("Rental Contract",rental_contract)
+    data = frappe.new_doc("Payment Requester")
+    data.payment_request_type =  "Outward"
+    data.reference_doctype = "Rental Contract"
+    data.reference_name = doc.name
+    data.grand_total = doc.yearly_rent 
+    data.party_type = "Customer"
+    data.party = frappe.db.get_value("Project",doc.project,"customer")
+    data.payment_account = doc.payment_account
+    data.save()
+    
+    return data
+    
 def send_rental_reminders_electric_and_water():
     today_date = getdate(today())
     day_of_month = today_date.day

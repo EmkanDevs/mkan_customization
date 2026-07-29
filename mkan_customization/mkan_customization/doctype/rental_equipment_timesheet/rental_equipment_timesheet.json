@@ -1,0 +1,243 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-04-16 15:29:18.276475",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "naming_series",
+  "status",
+  "overtime_hours",
+  "column_break_fook",
+  "month",
+  "hours",
+  "time_in",
+  "time_out",
+  "equipment_section",
+  "equipment_name",
+  "category",
+  "column_break_bogs",
+  "iqama",
+  "door_no_or_plate_no",
+  "project_section",
+  "project_id",
+  "contract_id",
+  "column_break_gdwz",
+  "project_code",
+  "column_break_uktj",
+  "project_name",
+  "supplier_section",
+  "supplier_name",
+  "column_break_bpcr",
+  "supplier_title",
+  "section_break_phav",
+  "operator_nationality",
+  "job",
+  "amended_from",
+  "column_break_cdgl",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date "
+  },
+  {
+   "fieldname": "hours",
+   "fieldtype": "Float",
+   "label": "Hours"
+  },
+  {
+   "fieldname": "equipment_section",
+   "fieldtype": "Section Break",
+   "label": "Equipment "
+  },
+  {
+   "fetch_from": "door_no_or_plate_no.equipment_description",
+   "fieldname": "equipment_name",
+   "fieldtype": "Data",
+   "label": "Equipment Name"
+  },
+  {
+   "fieldname": "column_break_bogs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "door_no_or_plate_no",
+   "fieldtype": "Link",
+   "label": "Door No or Plate No",
+   "options": "Equipment Asset Management"
+  },
+  {
+   "fieldname": "project_section",
+   "fieldtype": "Section Break",
+   "label": "Project"
+  },
+  {
+   "fieldname": "project_id",
+   "fieldtype": "Link",
+   "label": "Project ID",
+   "options": "Project"
+  },
+  {
+   "fieldname": "supplier_section",
+   "fieldtype": "Section Break",
+   "label": "Supplier "
+  },
+  {
+   "fieldname": "supplier_name",
+   "fieldtype": "Link",
+   "label": "Supplier Name ",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "section_break_phav",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "operator_nationality",
+   "fieldtype": "Data",
+   "label": "Operator Nationality"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Series",
+   "options": "RET-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Rental Equipment Timesheet",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nBilled\nPayslip\nCompleted\nCancelled",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "column_break_gdwz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project_id.project_code",
+   "fieldname": "project_code",
+   "fieldtype": "Data",
+   "label": "Project Code"
+  },
+  {
+   "fieldname": "column_break_fook",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_uktj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "column_break_bpcr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_title",
+   "fieldtype": "Data",
+   "label": "Supplier Title"
+  },
+  {
+   "fieldname": "column_break_cdgl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "month",
+   "fieldtype": "Data",
+   "label": "Month"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "label": "Category"
+  },
+  {
+   "fieldname": "contract_id",
+   "fieldtype": "Data",
+   "label": "Contract ID"
+  },
+  {
+   "fieldname": "job",
+   "fieldtype": "Data",
+   "label": "Job"
+  },
+  {
+   "fieldname": "iqama",
+   "fieldtype": "Data",
+   "label": "Iqama"
+  },
+  {
+   "fieldname": "overtime_hours",
+   "fieldtype": "Float",
+   "label": "Overtime Hours"
+  },
+  {
+   "fieldname": "time_in",
+   "fieldtype": "Time",
+   "label": "Time In"
+  },
+  {
+   "fieldname": "time_out",
+   "fieldtype": "Time",
+   "label": "Time Out"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-14 08:16:19.539331",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Rental Equipment Timesheet",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

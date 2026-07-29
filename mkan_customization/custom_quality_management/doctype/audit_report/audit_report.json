@@ -1,0 +1,262 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "QA-AR-.####",
+ "creation": "2025-07-23 16:50:50.387423",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "audited_dept",
+  "column_break_reti",
+  "audited_division",
+  "section_break_pchl",
+  "audit_date",
+  "audit_plan",
+  "column_break_aenp",
+  "ar_date",
+  "section_break_jgqj",
+  "audit_team",
+  "column_break_evby",
+  "auditees",
+  "section_break_eeod",
+  "location",
+  "column_break_qqqy",
+  "audit_purpose",
+  "section_break_nxzi",
+  "audit_positive_aspects",
+  "section_break_28dj",
+  "audit_findings",
+  "section_break_ve8z",
+  "conclusion",
+  "section_break_6gev",
+  "lead_auditor",
+  "column_break_1e3v",
+  "key_auditee",
+  "job_title",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "audited_dept",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audited Dept",
+   "options": "Department",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_reti",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "audited_division",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audited Division",
+   "options": "Department"
+  },
+  {
+   "fieldname": "section_break_pchl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "audit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audit Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audit_plan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audit Plan",
+   "options": "Audit Plan",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_aenp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ar_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "A.R. Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_jgqj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "audit_team",
+   "fieldtype": "Table",
+   "label": "Audit Team",
+   "options": "Auditors",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_evby",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auditees",
+   "fieldtype": "Table",
+   "label": "Auditees",
+   "options": "Auditees",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_eeod",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qqqy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "audit_purpose",
+   "fieldtype": "Data",
+   "label": "Audit Purpose"
+  },
+  {
+   "fieldname": "section_break_nxzi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "audit_positive_aspects",
+   "fieldtype": "Small Text",
+   "label": "Audit Positive Aspects",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_28dj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "audit_findings",
+   "fieldtype": "Table",
+   "label": "Audit Findings",
+   "options": "Audit Findings",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_ve8z",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "conclusion",
+   "fieldtype": "Data",
+   "label": "Conclusion"
+  },
+  {
+   "fieldname": "section_break_6gev",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "audit_plan.lead_auditor",
+   "fieldname": "lead_auditor",
+   "fieldtype": "Data",
+   "label": "Lead Auditor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1e3v",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "audit_plan.emp_email",
+   "fieldname": "key_auditee",
+   "fieldtype": "Data",
+   "label": "Key Auditee",
+   "read_only": 1,
+   "translatable": 1
+  },
+  {
+   "fetch_from": "audit_plan.designation",
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "label": "Job Title"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Audit Report",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Corrective Action Requests",
+   "link_fieldname": "audit_report_no"
+  },
+  {
+   "link_doctype": "Audit Findings Response Summary",
+   "link_fieldname": "ar_no"
+  }
+ ],
+ "modified": "2025-08-20 20:14:18.556581",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "Audit Report",
+ "naming_rule": "Expression (old style)",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Auditor",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "audited_dept",
+ "track_changes": 1
+}

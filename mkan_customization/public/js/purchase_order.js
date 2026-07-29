@@ -1,24 +1,5 @@
 frappe.ui.form.on("Purchase Order", {
-    refresh: function (frm) {
-        render_rate_mismatch_warning(frm);
-        frm.add_custom_button(
-            __("Service Status"),
-            () => {
-                frappe.call({
-                    method: "mkan_customization.mkan_customization.doc_events.purchase_order.service_status_map",
-                    args: {
-                        source_name: frm.doc.name
-                    },
-                    callback: function (response) {
-                        if (response.message) {
-                            frappe.model.sync(response.message);
-                            frappe.set_route("Form", response.message.doctype, response.message.name);
-                        }
-                    }
-                });
-            },
-            __("Create")
-        );
+    setup: function (frm) {
         if (frm.doc.custom_bid_tabulation_check == 0) {
             frappe.call({
                 method: "frappe.client.get_list",
@@ -55,6 +36,27 @@ frappe.ui.form.on("Purchase Order", {
                 }
             });
         }
+    },
+    refresh: function (frm) {
+        render_rate_mismatch_warning(frm);
+        frm.add_custom_button(
+            __("Service Status"),
+            () => {
+                frappe.call({
+                    method: "mkan_customization.mkan_customization.doc_events.purchase_order.service_status_map",
+                    args: {
+                        source_name: frm.doc.name
+                    },
+                    callback: function (response) {
+                        if (response.message) {
+                            frappe.model.sync(response.message);
+                            frappe.set_route("Form", response.message.doctype, response.message.name);
+                        }
+                    }
+                });
+            },
+            __("Create")
+        );
     },
 
     validate(frm) {
@@ -247,3 +249,42 @@ async function render_rate_mismatch_warning(frm) {
         </div>
     `);
 }
+
+
+frappe.ui.form.on('Purchase Order Item', {
+    uom: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+
+        // Skip if item_code or uom is not set
+        if (!row.item_code || !row.uom) return;
+
+        frappe.call({
+            method: 'frappe.client.get',
+            args: {
+                doctype: 'Item',
+                name: row.item_code
+            },
+            callback: function(r) {
+                if (!r.message) return;
+
+                // Extract valid UOMs from the item's UOM child table
+                let valid_uoms = (r.message.uoms || []).map(u => u.uom);
+
+                if (!valid_uoms.includes(row.uom)) {
+                    frappe.msgprint({
+                        title: __('Invalid UOM'),
+                        message: __(
+                            `UOM <b>${row.uom}</b> is not available for item <b>${row.item_code}</b>.<br>
+                            Valid UOM(s): <b>${valid_uoms.join(', ')}</b>`
+                        ),
+                        indicator: 'red'
+                    });
+
+                    // Clear the invalid UOM
+                    frappe.model.set_value(cdt, cdn, 'uom', '');
+                    frm.refresh_field('items');
+                }
+            }
+        });
+    }
+});

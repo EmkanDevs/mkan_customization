@@ -243,5 +243,4 @@ def get_data(filters):
         values,
         as_dict=True,
     )
-
     return data

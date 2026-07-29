@@ -147,7 +147,3 @@ def clear_petty_cash_request(purchase_receipt):
         return "error"
 
 
-# from mkan_customization.api import send_email_on_state_change
-# @frappe.whitelist()
-# def notify_supervisor(petty_cash_request):
-#     send_email_on_state_change(petty_cash_request)

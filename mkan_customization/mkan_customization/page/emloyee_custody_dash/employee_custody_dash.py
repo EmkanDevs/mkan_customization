@@ -123,6 +123,47 @@ def get_employee_custody(employee=None):
     return data
 
 @frappe.whitelist()
+def get_medical_insurance(employee):
+    # Try employee_number first
+    emp_number = frappe.db.get_value('Employee', employee, 'employee_number')
+
+    if emp_number:
+        data = frappe.db.sql("""
+            SELECT
+                mis.main_member_id AS employee,
+                mis.main_member_id,
+                mis.bupa_id,
+                mis.employee_number,
+                mis.member_name,
+                mis.relationship,
+                mis.main_membership_no,
+                mis.member_cchi_status,
+                mis.member_reject_reason
+            FROM `tabMedical Insurance Sheet` mis
+            WHERE mis.employee_number = %s
+            ORDER BY mis.creation DESC
+        """, (emp_number,), as_dict=True)
+    else:
+        # Fallback: match directly by main_member_id
+        data = frappe.db.sql("""
+            SELECT
+                mis.main_member_id AS employee,
+                mis.main_member_id,
+                mis.bupa_id,
+                mis.employee_number,
+                mis.member_name,
+                mis.relationship,
+                mis.main_membership_no,
+                mis.member_cchi_status,
+                mis.member_reject_reason
+            FROM `tabMedical Insurance Sheet` mis
+            WHERE mis.main_member_id = %s
+            ORDER BY mis.creation DESC
+        """, (employee,), as_dict=True)
+
+    return data
+
+@frappe.whitelist()
 def get_equipment_tools(employee, active_only=0):
 
     records = frappe.db.sql("""

@@ -9,6 +9,7 @@
   "section_break_ygsy",
   "user_list",
   "request_for_quotation",
+  "wbs",
   "supplier",
   "reason",
   "column_break_cqhl",
@@ -116,8 +117,15 @@
   {
    "fieldname": "section_break_bbja",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "wbs",
+   "fieldtype": "Link",
+   "label": "WBS",
+   "options": "WBS item"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [
@@ -130,7 +138,7 @@
    "link_fieldname": "bid_tabulation"
   }
  ],
- "modified": "2025-02-20 11:55:43.167734",
+ "modified": "2026-02-12 09:11:40.793419",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Bid Tabulation Discussion",
@@ -154,6 +162,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

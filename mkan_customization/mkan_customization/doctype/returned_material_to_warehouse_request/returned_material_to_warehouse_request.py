@@ -40,7 +40,7 @@ def create_stock_entry_from_rmwr(rmwr_name):
     stock_entry = frappe.new_doc("Stock Entry")
     stock_entry.stock_entry_type = "Material Receipt"
     stock_entry.custom_return_material_ref_doc = rmwr_doc.name
-    stock_entry.to_warehouse = rmwr_doc.default_target_warehouse
+    stock_entry.from_warehouse = rmwr_doc.default_target_warehouse
     stock_entry.posting_date = rmwr_doc.date or frappe.utils.today()
     stock_entry.company = (
         frappe.defaults.get_user_default("company")
@@ -65,7 +65,7 @@ def create_stock_entry_from_rmwr(rmwr_name):
             "qty": item.quantity,
             "uom": item.uom,
             "stock_uom": item.uom,
-            "t_warehouse": rmwr_doc.default_target_warehouse,
+            "s_warehouse" : rmwr_doc.default_target_warehouse,
             "project": rmwr_doc.project or "",
         })
 

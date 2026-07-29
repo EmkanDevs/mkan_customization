@@ -11,9 +11,10 @@
   "date",
   "vendor",
   "start_date",
-  "invoice_no",
   "invoice_date",
   "discpline",
+  "sales_order",
+  "created_from",
   "column_break_vewf",
   "client",
   "project_no",
@@ -24,8 +25,39 @@
   "project_sub_contracts",
   "work_progress_report",
   "amended_from",
+  "version",
   "section_break_tiqc",
-  "invoice_released_memo_detail"
+  "select_items",
+  "invoice_released_memo_detail",
+  "section_break_yvde",
+  "total_contract_price",
+  "total_progress_percentage",
+  "total_previous",
+  "column_break_xhde",
+  "total_current",
+  "total_accumulated",
+  "section_break_kdaa",
+  "retention",
+  "advanced_payment_recovery",
+  "retention_recovery",
+  "column_break_doac",
+  "retention_amount",
+  "advanced_payment_recovery_amount",
+  "other_warranty",
+  "section_break_kmbq",
+  "supplier_materials",
+  "supplier_materials_table",
+  "section_break_fems",
+  "supplied_material_total",
+  "safety",
+  "quality",
+  "other_deductions",
+  "vate_rate",
+  "column_break_lexr",
+  "grand_total_including_vat",
+  "grand_total",
+  "remarks",
+  "total_deductions"
  ],
  "fields": [
   {
@@ -63,7 +95,7 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Series",
-   "options": "IRM-"
+   "options": "CONTR-\nSO-"
   },
   {
    "fieldname": "project_no",
@@ -81,6 +113,8 @@
    "label": "Project Code"
   },
   {
+   "fetch_from": "sales_order.cost_center",
+   "fetch_if_empty": 1,
    "fieldname": "cost_code",
    "fieldtype": "Link",
    "label": "Cost Code",
@@ -132,22 +166,188 @@
    "read_only": 1
   },
   {
-   "fieldname": "invoice_no",
+   "fetch_from": "sales_order.project",
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "label": "Project Name",
+   "options": "Project"
+  },
+  {
+   "fieldname": "version",
    "fieldtype": "Data",
    "label": "Invoice No."
   },
   {
-   "fetch_from": "project_no.custom_parent_project_name",
-   "fieldname": "project_name",
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "section_break_yvde",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_contract_price",
+   "fieldtype": "Currency",
+   "label": "Total Contract Price",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_progress_percentage",
+   "fieldtype": "Percent",
+   "label": "Total Progress Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_previous",
+   "fieldtype": "Currency",
+   "label": "Total Previous",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_current",
+   "fieldtype": "Currency",
+   "label": "Total Current",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_accumulated",
+   "fieldtype": "Currency",
+   "label": "Total Accumulated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xhde",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_kdaa",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "retention",
+   "fieldtype": "Percent",
+   "label": "Retention"
+  },
+  {
+   "fieldname": "other_warranty",
+   "fieldtype": "Currency",
+   "label": "Other Warranty"
+  },
+  {
+   "fieldname": "retention_recovery",
+   "fieldtype": "Currency",
+   "label": "Retention Recovery"
+  },
+  {
+   "fieldname": "advanced_payment_recovery",
+   "fieldtype": "Percent",
+   "label": "Advanced Payment Recovery"
+  },
+  {
+   "default": "0",
+   "fieldname": "supplier_materials",
+   "fieldtype": "Check",
+   "label": "Supplier Materials"
+  },
+  {
+   "fieldname": "supplier_materials_table",
+   "fieldtype": "Table",
+   "label": "Supplied Materials Table",
+   "options": "Supplier Materials"
+  },
+  {
+   "fieldname": "supplied_material_total",
+   "fieldtype": "Currency",
+   "label": "Supplied Material Total "
+  },
+  {
+   "fieldname": "safety",
+   "fieldtype": "Currency",
+   "label": "Safety"
+  },
+  {
+   "fieldname": "quality",
+   "fieldtype": "Currency",
+   "label": "Quality"
+  },
+  {
+   "fieldname": "other_deductions",
+   "fieldtype": "Currency",
+   "label": "Other deductions"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total"
+  },
+  {
+   "fieldname": "grand_total_including_vat",
+   "fieldtype": "Currency",
+   "label": "Grand Total Excluding VAT"
+  },
+  {
+   "fieldname": "select_items",
+   "fieldtype": "Button",
+   "label": "Select Items"
+  },
+  {
+   "fieldname": "retention_amount",
+   "fieldtype": "Currency",
+   "label": "Retention Amount"
+  },
+  {
+   "fieldname": "created_from",
    "fieldtype": "Data",
-   "label": "Project Name"
+   "hidden": 1,
+   "label": "Created From"
+  },
+  {
+   "fieldname": "column_break_doac",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "advanced_payment_recovery_amount",
+   "fieldtype": "Currency",
+   "label": "Advanced Payment Recovery Amount"
+  },
+  {
+   "fieldname": "section_break_kmbq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_fems",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_lexr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vate_rate",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vat rate",
+   "options": "Sales Taxes and Charges Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_deductions",
+   "fieldtype": "Currency",
+   "label": "Total Deductions"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-05-22 14:58:03.026256",
+ "modified": "2026-02-06 10:03:18.087376",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Invoice released Memo",

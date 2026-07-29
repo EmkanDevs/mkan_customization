@@ -1,0 +1,203 @@
+frappe.query_reports["Timesheet Monthly Summary Per Project"] = {
+	filters: [
+		{
+			fieldname: "month",
+			label: __("Month"),
+			fieldtype: "Select",
+			options: [
+				"",
+				"January","February","March","April","May","June",
+				"July","August","September","October","November","December",
+			].join("\n"),
+			width: "100",
+		},
+		{
+			fieldname: "year",
+			label: __("Year"),
+			fieldtype: "Int",
+			default: frappe.datetime.now_datetime().substring(0, 4),
+			width: "80",
+		},
+		{
+			fieldname: "project",
+			label: __("Project"),
+			fieldtype: "Link",
+			options: "Project",
+			width: "100",
+		},
+		{
+			fieldname: "department",
+			label: __("Department"),
+			fieldtype: "Link",
+			options: "Department",
+			width: "100",
+			get_query: function () {
+				return { filters: { company: frappe.defaults.get_default("company") } };
+			},
+		},
+		{
+			fieldname: "branch",
+			label: __("Branch"),
+			fieldtype: "Link",
+			options: "Branch",
+			width: "100",
+		},
+		{
+			fieldname: "employment_type",
+			label: __("Employment Type"),
+			fieldtype: "Link",
+			options: "Employment Type",
+			width: "100",
+		},
+		{
+			fieldname: "state",
+			label: __("State"),
+			fieldtype: "Select",
+			options: ["", "Draft", "Submitted", "Cancelled", "Payslip", "Completed"].join("\n"),
+			width: "100",
+		},
+		{
+			fieldname: "stand_by",
+			label: __("Stand By"),
+			fieldtype: "Select",
+			options: "\nYes\nNo",
+		},
+	],
+
+	onload: function(report) {
+		console.log("Report onload called");
+		console.log("User roles:", frappe.user_roles);
+		console.log("Has General Manager role:", frappe.user.has_role("General manager"));
+		
+		// Check if user has General manager role (note: lowercase 'm')
+		if (frappe.user.has_role("General manager")) {
+			console.log("Adding Approval button");
+			report.page.add_inner_button(__("Approval"), function() {
+				let filters = report.get_values();
+				
+				// Validate that required filters are set
+				if (!filters.year || !filters.month) {
+					frappe.msgprint({
+						title: __("Missing Filters"),
+						message: __("Please select Project, Year, and Month before approving."),
+						indicator: "red"
+					});
+					return;
+				}
+
+				// Confirm approval action
+				frappe.confirm(
+					__("Are you sure you want to approve all Timesheets for the selected filters?"),
+					function() {
+						// Call server method to approve timesheets
+						frappe.call({
+							method: "mkan_customization.mkan_customization.report.timesheet_monthly_summary_per_project.timesheet_monthly_summary_per_project.approve_timesheets",
+							args: {
+								filters: filters
+							},
+							freeze: true,
+							freeze_message: __("Approving timesheets..."),
+							callback: function(r) {
+								if (r.message) {
+									frappe.msgprint({
+										title: __("Success"),
+										message: __("{0} timesheet(s) have been approved successfully.", [r.message.count]),
+										indicator: "green"
+									});
+									// Refresh the report
+									report.refresh();
+								}
+							},
+							error: function(r) {
+								frappe.msgprint({
+									title: __("Error"),
+									message: __("Failed to approve timesheets. Please try again."),
+									indicator: "red"
+								});
+							}
+						});
+					}
+				);
+			});
+		} else {
+			console.log("User does not have General manager role");
+		}
+	},
+
+	// -------------------------------------------------------------------------
+	// Formatter
+	// -------------------------------------------------------------------------
+	formatter: function (value, row, column, data, default_formatter) {
+		value = default_formatter(value, row, column, data);
+
+		if (data && data.bold) {
+			value = `<span style="font-weight:700;">${value}</span>`;
+		}
+		if (data && !data.bold) {
+			if (column.fieldname === "working_hours" && data.working_hours === 0) {
+				value = `<span style="color:#aaa;">${value}</span>`;
+			}
+			if (column.fieldname === "ot_hours" && data.ot_hours > 0) {
+				value = `<span style="">${value}</span>`;
+			}
+		}
+		return value;
+	},
+
+	// -------------------------------------------------------------------------
+	// Chart — 4 datasets: Working Hours, OT Hours, Working Amount, OT Amount
+	// Uses two Y-axes: hours (left) and amounts (right via scale label trick)
+	// -------------------------------------------------------------------------
+	get_chart_data: function (columns, result) {
+		// Skip Total/bold rows and collect unique months in order
+		const months    = [];
+		const monthSeen = {};
+
+		result.forEach(function (row) {
+			if (row.month && row.month !== __("Total") && !row.bold && !monthSeen[row.month]) {
+				months.push(row.month);
+				monthSeen[row.month] = true;
+			}
+		});
+
+		function sumByMonth(field) {
+			return months.map(function (m) {
+				return result
+					.filter(r => r.month === m && !r.bold)
+					.reduce((acc, r) => acc + (r[field] || 0), 0);
+			});
+		}
+
+		return {
+			data: {
+				labels: months,
+				datasets: [
+					{
+						name:      __("Working Hours"),
+						values:    sumByMonth("working_hours"),
+						chartType: "bar",
+					},
+					{
+						name:      __("OT Hours"),
+						values:    sumByMonth("ot_hours"),
+						chartType: "bar",
+					},
+					{
+						name:      __("Working Hour Amount"),
+						values:    sumByMonth("working_hour_amount"),
+						chartType: "bar",
+					},
+					{
+						name:      __("OT Hour Amount"),
+						values:    sumByMonth("ot_hour_amount"),
+						chartType: "bar",
+					},
+				],
+			},
+			type: "axis-mixed",
+			barOptions:  { stacked: false },
+			lineOptions: { regionFill: 0, hideDots: 0 },
+			colors: ["#fa5d77ff", "#4da6ff", "#00c49f", "#ff7f50"],
+		};
+	},
+};

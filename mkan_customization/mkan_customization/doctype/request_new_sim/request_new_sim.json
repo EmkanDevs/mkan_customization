@@ -9,6 +9,7 @@
   "voice_sim_card",
   "data_sim_card",
   "reason_of_purchase",
+  "sim_type",
   "column_break_szfr",
   "department",
   "project",
@@ -155,12 +156,18 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "sim_type",
+   "fieldtype": "Select",
+   "label": "SIM Type",
+   "options": "\nPhysical\ne-SIM"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-22 15:16:41.844942",
+ "modified": "2025-07-03 08:45:14.549783",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Request New SIM",

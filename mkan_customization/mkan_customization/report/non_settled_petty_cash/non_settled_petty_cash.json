@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "add_translate_data": 0,
  "columns": [],
  "creation": "2025-08-07 12:41:31.159710",
@@ -11,7 +11,7 @@
  "is_standard": "Yes",
  "letter_head": "CPC Letterhead",
  "letterhead": null,
- "modified": "2025-08-07 12:41:31.159710",
+ "modified": "2025-09-16 15:23:46.724062",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Non-Settled Petty Cash",

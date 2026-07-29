@@ -7,6 +7,7 @@
  "field_order": [
   "employee",
   "employee_id",
+  "employee_code",
   "employee_name",
   "user_id",
   "status",
@@ -168,6 +169,13 @@
    "fieldname": "custom_html_tab",
    "fieldtype": "HTML",
    "label": "Custom Html tab"
+  },
+  {
+   "fetch_from": "employee.employee",
+   "fieldname": "employee_code",
+   "fieldtype": "Data",
+   "label": "Employee Code",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -182,7 +190,7 @@
    "link_fieldname": "petty_cash_request"
   }
  ],
- "modified": "2025-03-25 07:53:29.647942",
+ "modified": "2026-01-26 14:13:04.233070",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Petty Cash Request",
@@ -240,6 +248,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

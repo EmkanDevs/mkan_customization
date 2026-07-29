@@ -88,3 +88,4 @@ def check_report_access(doc, method=None):
                 frappe.PermissionError,
             )
 
+

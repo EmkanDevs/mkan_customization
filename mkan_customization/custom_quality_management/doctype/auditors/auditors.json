@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-21 15:11:41.655456",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "auditor",
+  "name1",
+  "auditor_email"
+ ],
+ "fields": [
+  {
+   "fieldname": "auditor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Auditor",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "auditor.employee_name",
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name"
+  },
+  {
+   "fetch_from": "auditor.user_id",
+   "fieldname": "auditor_email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Auditor Email"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-13 17:16:55.280253",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "Auditors",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

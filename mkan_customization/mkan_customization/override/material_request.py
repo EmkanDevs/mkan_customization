@@ -19,7 +19,7 @@ def make_request_for_quotation(source_name, target_doc=None):
 					["name", "material_request_item"],
 					["parent", "material_request"],
 					["uom", "uom"],
-					["project","project_name"]
+					["project","project_name"],
 				],
 			},
 		},
@@ -53,6 +53,8 @@ def make_stock_entry(source_name, target_doc=None):
 
 		if source_parent.material_request_type == "Material Transfer":
 			target.s_warehouse = obj.from_warehouse
+			
+		target.cost_center = obj.cost_center or source_parent.cost_center 
 
 	def set_missing_values(source, target):
 		target.purpose = source.material_request_type
@@ -81,6 +83,11 @@ def make_stock_entry(source_name, target_doc=None):
 				target.fg_completed_qty = job_card_details[0].for_quantity
 				target.from_bom = 1
 
+		if source.cost_center:
+			for item in target.items:
+				if not item.cost_center:
+					item.cost_center = source.cost_center
+
 	doclist = get_mapped_doc(
 		"Material Request",
 		source_name,
@@ -100,10 +107,11 @@ def make_stock_entry(source_name, target_doc=None):
 				"field_map": {
 					"name": "material_request_item",
 					"parent": "material_request",
+					"cost_center": "cost_center",
 					"uom": "stock_uom",
 					"job_card_item": "job_card_item",
-					"cost_center" : "cost_center"
 				},
+				"field_no_map": ["expense_account"],
 				"postprocess": update_item,
 				"condition": lambda doc: (
 					flt(doc.ordered_qty, doc.precision("ordered_qty"))
@@ -116,3 +124,5 @@ def make_stock_entry(source_name, target_doc=None):
 	)
 
 	return doclist
+
+

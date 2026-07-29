@@ -1,0 +1,154 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:{#####}",
+ "creation": "2025-07-17 14:24:36.584262",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "property",
+  "address",
+  "column_break_blxx",
+  "tax_id",
+  "image",
+  "date_of_retrieval",
+  "section_break_e5cw",
+  "amenities",
+  "column_break_nd0z",
+  "agent",
+  "agent_name",
+  "agent_no",
+  "section_break_a2og",
+  "description",
+  "section_break_klwh",
+  "cfc"
+ ],
+ "fields": [
+  {
+   "fieldname": "property",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Property Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "image",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "agent",
+   "fieldtype": "Link",
+   "label": "Agent",
+   "options": "Agent"
+  },
+  {
+   "fieldname": "column_break_blxx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_a2og",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_e5cw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amenities",
+   "fieldtype": "Table",
+   "label": "Amenities",
+   "options": "Property Amenity Detail"
+  },
+  {
+   "fieldname": "section_break_klwh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fetch_from": "company.tax_id",
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "label": "Tax ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_of_retrieval",
+   "fieldtype": "Date",
+   "label": "Date of Retrieval"
+  },
+  {
+   "fieldname": "cfc",
+   "fieldtype": "Table",
+   "label": "CFC",
+   "options": "Contract Fulfilment Checklist"
+  },
+  {
+   "fieldname": "column_break_nd0z",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "agent.agent_name",
+   "fieldname": "agent_name",
+   "fieldtype": "Data",
+   "label": "Agent name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "agent.phone",
+   "fieldname": "agent_no",
+   "fieldtype": "Data",
+   "label": "Agent No. ",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-20 11:10:22.814949",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Mkan Customization",
+ "name": "Property",
+ "naming_rule": "Expression (old style)",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

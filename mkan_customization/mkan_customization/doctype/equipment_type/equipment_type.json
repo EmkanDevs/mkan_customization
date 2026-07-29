@@ -7,20 +7,34 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "equipment_type"
+  "equipment_type",
+  "equipment_type_arabic",
+  "equipment_description"
  ],
  "fields": [
   {
    "fieldname": "equipment_type",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Equipment Type",
+   "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "equipment_type_arabic",
+   "fieldtype": "Data",
+   "label": "Equipment Type Arabic"
+  },
+  {
+   "fieldname": "equipment_description",
+   "fieldtype": "Small Text",
+   "label": "Equipment Description"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-11 14:44:32.473353",
+ "modified": "2025-07-03 11:12:28.175668",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Equipment Type",
@@ -45,5 +59,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "equipment_type_arabic",
  "track_changes": 1
 }

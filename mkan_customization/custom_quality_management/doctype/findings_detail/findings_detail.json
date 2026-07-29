@@ -1,0 +1,45 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-27 10:53:21.928395",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "details_of_finding",
+  "findings_status"
+ ],
+ "fields": [
+  {
+   "fetch_from": "audit_finding.corrective_action_description",
+   "fieldname": "details_of_finding",
+   "fieldtype": "Text Editor",
+   "in_list_view": 1,
+   "label": "Details of Finding",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "findings_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Findings Status",
+   "options": "\nIncomplete\nCompleted",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-08-23 02:30:55.624148",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "Findings Detail",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

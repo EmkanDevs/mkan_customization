@@ -1,0 +1,207 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "STAFF-DOC-EXP-.#####",
+ "creation": "2026-04-14 08:17:41.906271",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "gov_document_type",
+  "gov_document_type_ar",
+  "employee_no",
+  "employee_name",
+  "column_break_cskg",
+  "reminder_in_days",
+  "targeted_office",
+  "employee_type",
+  "department",
+  "designation",
+  "column_break_weyp",
+  "issue_on",
+  "expire_on",
+  "branch",
+  "section_break_hmei",
+  "prev_copy",
+  "latest_copy",
+  "expires_in_days",
+  "renewal_status",
+  "customer",
+  "customer_name",
+  "column_break_ydiz",
+  "remark",
+  "supplier",
+  "supplier_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "gov_document_type",
+   "fieldtype": "Link",
+   "label": "Gov Document Type",
+   "options": "Gov Document Type"
+  },
+  {
+   "fetch_from": "gov_document_type.gov_document_type_ar",
+   "fieldname": "gov_document_type_ar",
+   "fieldtype": "Data",
+   "label": "Gov Document Type AR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cskg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "gov_document_type.reminder_in_days",
+   "fieldname": "reminder_in_days",
+   "fieldtype": "Data",
+   "label": "Reminder in Days",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "gov_document_type.targeted_office",
+   "fieldname": "targeted_office",
+   "fieldtype": "Data",
+   "label": "Targeted Office",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_weyp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issue_on",
+   "fieldtype": "Date",
+   "label": "Issue On"
+  },
+  {
+   "fieldname": "expire_on",
+   "fieldtype": "Date",
+   "label": "Expire On"
+  },
+  {
+   "fieldname": "section_break_hmei",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "prev_copy",
+   "fieldtype": "Attach",
+   "label": "Prev. Copy"
+  },
+  {
+   "fieldname": "latest_copy",
+   "fieldtype": "Attach",
+   "label": "Latest Copy"
+  },
+  {
+   "default": "Renewed - \u062a\u0645 \u0627\u0644\u062a\u062c\u062f\u064a\u062f",
+   "fieldname": "renewal_status",
+   "fieldtype": "Select",
+   "label": "Renewal Status",
+   "options": "\nRenewed - \u062a\u0645 \u0627\u0644\u062a\u062c\u062f\u064a\u062f\nUnder Renewal - \u062a\u062d\u062a \u0627\u0644\u062a\u062c\u062f\u064a\u062f\nCancelled - \u062a\u0645 \u0627\u0644\u0625\u0644\u063a\u0627\u0621"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_ydiz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "expires_in_days",
+   "fieldtype": "Data",
+   "label": "Expires in Days"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "supplier.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee_no",
+   "fieldtype": "Link",
+   "label": "Employee No",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee_no.employee",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
+  },
+  {
+   "fetch_from": "employee_no.employment_type",
+   "fieldname": "employee_type",
+   "fieldtype": "Data",
+   "label": "Employee Type"
+  },
+  {
+   "fetch_from": "employee_no.department",
+   "fieldname": "department",
+   "fieldtype": "Data",
+   "label": "Department"
+  },
+  {
+   "fetch_from": "employee_no.designation",
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "label": "Designation"
+  },
+  {
+   "fetch_from": "employee_no.branch",
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "label": "Branch"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-18 16:05:52.374016",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Staff Document Expiration",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

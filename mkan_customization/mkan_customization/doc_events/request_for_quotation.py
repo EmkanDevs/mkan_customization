@@ -1,10 +1,19 @@
 import frappe
+from frappe import _
 from frappe.model.mapper import get_mapped_doc
+
 
 @frappe.whitelist()
 def bid_tabulation(source_name, target_doc=None):
 
-	doclist = get_mapped_doc(
+	def set_parent_wbs(source, target):
+		# 🔥 Set first custom_wbs from RFQ items to parent wbs field
+		for row in source.items:
+			if row.custom_wbs:
+				target.wbs = row.custom_wbs
+				break  # take first and stop
+
+	doc = get_mapped_doc(
 		"Request for Quotation",
 		source_name,
 		{
@@ -16,10 +25,13 @@ def bid_tabulation(source_name, target_doc=None):
 			},
 		},
 		target_doc,
+		postprocess=set_parent_wbs
 	)
 
-	return doclist
+	return doc
 
-def on_submit(self,method):
+
+# 🔥 Supplier validation on submit
+def on_submit(self, method):
 	if len(self.suppliers) < 3:
-		frappe.throw("At least 3 suppliers are required to submit the Request for Quotation.")
+		frappe.throw(_("At least 3 suppliers are required to submit the Request for Quotation."))

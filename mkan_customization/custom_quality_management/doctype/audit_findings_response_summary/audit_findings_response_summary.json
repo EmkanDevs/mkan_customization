@@ -1,0 +1,162 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "QA-AFR-.####",
+ "creation": "2025-07-24 16:45:22.142429",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "amended_from",
+  "ar_no",
+  "column_break_uzxf",
+  "audited_dept",
+  "section_break_rcgx",
+  "afr",
+  "section_break_wsgl",
+  "audit_date",
+  "column_break_47sr",
+  "audit_plan",
+  "section_break_ytw8",
+  "lead_auditor",
+  "column_break_75ul",
+  "key_auditee"
+ ],
+ "fields": [
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Audit Findings Response Summary",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "ar_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "A.R. NO.",
+   "options": "Audit Report",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_uzxf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "ar_no.audited_dept",
+   "fieldname": "audited_dept",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audited Dept",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_rcgx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "afr",
+   "fieldtype": "Table",
+   "label": "AFR",
+   "options": "AFR Summary"
+  },
+  {
+   "fieldname": "section_break_wsgl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "ar_no.audit_date",
+   "fieldname": "audit_date",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audit Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_47sr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "ar_no.audit_plan",
+   "fieldname": "audit_plan",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audit Plan",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_ytw8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "ar_no.lead_auditor",
+   "fieldname": "lead_auditor",
+   "fieldtype": "Data",
+   "label": "Lead Auditor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_75ul",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "ar_no.key_auditee",
+   "fieldname": "key_auditee",
+   "fieldtype": "Data",
+   "label": "Key Auditee",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-08-13 19:33:12.347659",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "Audit Findings Response Summary",
+ "naming_rule": "Expression (old style)",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Auditor",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

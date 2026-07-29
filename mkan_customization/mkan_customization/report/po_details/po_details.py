@@ -16,11 +16,10 @@ def execute(filters=None):
 
 def get_columns():
     """Define the report columns"""
-
     return [
         {"label": "Purchase Order", "fieldname": "purchase_order", "fieldtype": "Link", "options": "Purchase Order", "width": 250},
-		{"label": "Created By", "fieldname": "owner", "fieldtype": "Data", "width": 150},
-		{"label": "Created On", "fieldname": "creation_date", "fieldtype": "Data", "width": 150},
+        {"label": "Created By", "fieldname": "owner", "fieldtype": "Data", "width": 150},
+        {"label": "Created On", "fieldname": "creation_date", "fieldtype": "Data", "width": 150},
         {"label": "Workflow State", "fieldname": "workflow_state", "fieldtype": "Data", "width": 150},
         {"label": "Approval Date", "fieldname": "approval_date", "fieldtype": "Data", "width": 150},
         {"label": "Status", "fieldname": "status", "fieldtype": "Data", "width": 120},
@@ -29,6 +28,7 @@ def get_columns():
         {"label": "Item Name", "fieldname": "item_name", "fieldtype": "Data", "width": 150},
         {"label": "Quantity", "fieldname": "qty", "fieldtype": "Float", "width": 100},
         {"label": "Project", "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 150},
+        {"label": "Project Name", "fieldname": "project_name", "fieldtype": "Data", "width": 200},  # 🔹 new column
         {"label": "Schedule Date", "fieldname": "schedule_date", "fieldtype": "Date", "width": 120},
         {"label": "Indent", "fieldname": "indent", "fieldtype": "Int", "width": 50,"hidden":1},
         {"label": "Purchase Receipt", "fieldname": "purchase_receipt", "fieldtype": "Link", "options": "Purchase Receipt", "width": 250},
@@ -54,13 +54,12 @@ def get_data(filters):
 
     # Handle project filtering
     if filters.get("project"):
-        # Modify the query to ensure proper project filtering
         project_conditions = []
         if isinstance(filters["project"], list):
-            project_conditions.append("EXISTS (SELECT 1 FROM `tabPurchase Order Item` mri WHERE mri.parent = mr.name AND mri.project IN %(projects)s)")
+            project_conditions.append("EXISTS (SELECT 1 FROM `tabPurchase Order Item` poi WHERE poi.parent = mr.name AND poi.project IN %(projects)s)")
             values["projects"] = tuple(filters["project"])
         else:
-            project_conditions.append("EXISTS (SELECT 1 FROM `tabPurchase Order Item` mri WHERE mri.parent = mr.name AND mri.project = %(project)s)")
+            project_conditions.append("EXISTS (SELECT 1 FROM `tabPurchase Order Item` poi WHERE poi.parent = mr.name AND poi.project = %(project)s)")
             values["project"] = filters["project"]
         
         conditions.extend(project_conditions)
@@ -69,9 +68,9 @@ def get_data(filters):
         conditions.append("""
             EXISTS (
                 SELECT 1 
-                FROM `tabPurchase Order Item` mri 
-                WHERE mri.parent = mr.name
-                AND mri.schedule_date BETWEEN %(from_date)s AND %(to_date)s
+                FROM `tabPurchase Order Item` poi 
+                WHERE poi.parent = mr.name
+                AND poi.schedule_date BETWEEN %(from_date)s AND %(to_date)s
             )
         """)
         values["from_date"] = filters["from_date"]
@@ -82,11 +81,11 @@ def get_data(filters):
     parent_query = f"""
         SELECT 
             mr.name AS purchase_order,
-            (select DATE_FORMAT(modification_time ,'%%d-%%m-%%Y %%H:%%i:%%s') from `tabState Change Items` sc
-            where sc.parent = mr.name 
-            and sc.docstatus = 1 and workflow_state = 'Approved') AS approval_date,
+            (select DATE_FORMAT(modification_time ,'%%d-%%m-%%Y %%H:%%i:%%s') 
+             from `tabState Change Items` sc
+             where sc.parent = mr.name 
+             and sc.docstatus = 1 and workflow_state = 'Approved') AS approval_date,
             mr.owner,
-            # DATE_FORMAT(creation, '%%d-%%m-%%Y %%r') AS creation_date,
             DATE_FORMAT(creation, '%%d-%%m-%%Y %%H:%%i:%%s') AS creation_date,
             mr.workflow_state,
             mr.status,
@@ -95,21 +94,22 @@ def get_data(filters):
              FROM `tabPurchase Receipt Item` pri
              JOIN `tabPurchase Order Item` poi ON pri.purchase_order_item = poi.name
              WHERE poi.parent = mr.name) AS purchase_receipt,
-             (select GROUP_CONCAT(DISTINCT PR.name SEPARATOR ', ')
-          from `tabPayment Request` PR inner join `tabPurchase Order` PO on PO.name = PR.reference_name where mr.name = PR.reference_name) as payment_request,
-          (select GROUP_CONCAT(DISTINCT PRI.supplier_quotation SEPARATOR ', ') 
-            from `tabPurchase Order Item` PRI where PRI.parent = mr.name) as supplier_quotation,
-            (select GROUP_CONCAT(DISTINCT PRI.material_request SEPARATOR ', ') 
-            from `tabPurchase Order Item` PRI where PRI.parent = mr.name) as material_request,
-            (select GROUP_CONCAT(DISTINCT PER.parent SEPARATOR ', ') 
-            from `tabPayment Entry Reference` PER 
-            where PER.reference_name = mr.name) as payment_entry,
-             (select GROUP_CONCAT(DISTINCT PII.parent SEPARATOR ', ') 
-             from `tabPurchase Invoice Item` PII where PII.purchase_order = mr.name) as purchase_invoice,
+            (select GROUP_CONCAT(DISTINCT PR.name SEPARATOR ', ')
+             from `tabPayment Request` PR inner join `tabPurchase Order` PO on PO.name = PR.reference_name 
+             where mr.name = PR.reference_name) as payment_request,
+            (select GROUP_CONCAT(DISTINCT poi.supplier_quotation SEPARATOR ', ') 
+             from `tabPurchase Order Item` poi where poi.parent = mr.name) as supplier_quotation,
+            (select GROUP_CONCAT(DISTINCT poi.material_request SEPARATOR ', ') 
+             from `tabPurchase Order Item` poi where poi.parent = mr.name) as material_request,
+            (select GROUP_CONCAT(DISTINCT per.parent SEPARATOR ', ') 
+             from `tabPayment Entry Reference` per where per.reference_name = mr.name) as payment_entry,
+            (select GROUP_CONCAT(DISTINCT pii.parent SEPARATOR ', ') 
+             from `tabPurchase Invoice Item` pii where pii.purchase_order = mr.name) as purchase_invoice,
             NULL AS item_code,
             NULL AS item_name,
             NULL AS qty,
             NULL AS project,
+            NULL AS project_name,  -- 🔹 placeholder for parent
             NULL AS schedule_date,
             0 AS indent  
         FROM `tabPurchase Order` mr
@@ -120,44 +120,42 @@ def get_data(filters):
     parent_rows = frappe.db.sql(parent_query, values, as_dict=True)
     
     data = []
-    print(parent_rows)
     for parent in parent_rows:
         # Fetch Purchase Order Items (Child Rows)
-        child_conditions = "mri.parent = %s"
+        child_conditions = "poi.parent = %s"
         child_values = [parent["purchase_order"]]
 
-        # Additional project filtering for child rows
         if filters.get("project"):
             if isinstance(filters["project"], list):
-                child_conditions += " AND (mri.project IN %s OR mri.project IS NULL)"
+                child_conditions += " AND (poi.project IN %s OR poi.project IS NULL)"
                 child_values.append(tuple(filters["project"]))
             else:
-                child_conditions += " AND (mri.project = %s OR mri.project IS NULL)"
+                child_conditions += " AND (poi.project = %s OR poi.project IS NULL)"
                 child_values.append(filters["project"])
 
         child_query = f"""
             SELECT 
                 NULL AS purchase_order,  
-				NULL AS owner,
+                NULL AS owner,
                 NULL AS creation,
                 NULL AS workflow_state,
                 NULL AS status,
-                Null AS transaction_date,
-                mri.item_code,
-                mri.item_name,
-                mri.qty,
-                IFNULL(CAST(mri.project AS CHAR), '') AS project,
-                mri.schedule_date,
+                NULL AS transaction_date,
+                poi.item_code,
+                poi.item_name,
+                poi.qty,
+                IFNULL(CAST(poi.project AS CHAR), '') AS project,
+                (SELECT project_name FROM `tabProject` WHERE name = poi.project) AS project_name, -- 🔹 fetch project_name
+                poi.schedule_date,
                 %s AS parent_purchase_order,
                 1 AS indent  
-            FROM `tabPurchase Order Item` AS mri
+            FROM `tabPurchase Order Item` AS poi
             WHERE {child_conditions}
         """
         
         child_values.insert(0, parent["purchase_order"])
         child_rows = frappe.db.sql(child_query, child_values, as_dict=True)
         
-        # Only add parent and children if there are child rows
         if child_rows:
             data.append(parent)
             data.extend(child_rows)

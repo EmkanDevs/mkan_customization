@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-21 11:12:06.576728",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "auditee",
+  "auditee_name",
+  "level"
+ ],
+ "fields": [
+  {
+   "fieldname": "auditee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Auditee",
+   "options": "User"
+  },
+  {
+   "fieldname": "level",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Level"
+  },
+  {
+   "fetch_from": "auditee.full_name",
+   "fieldname": "auditee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Auditee Name"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-21 14:23:50.265041",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Auditees Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -6,42 +6,61 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "boq_details_id",
+  "boq_id",
   "item",
   "item_name",
-  "description",
+  "wbs_code",
   "unit",
+  "version",
+  "column_break_gewe",
+  "description",
+  "boq_details",
+  "project",
   "original_contract_section",
   "contract__quantity",
-  "unit_rate",
   "contract_price",
+  "column_break_ppob",
+  "unit_rate",
   "site_progress_section",
   "previous_quantity",
   "current_quantity",
+  "column_break_hots",
   "accumulate_quantity",
+  "accumulate_final_quantity",
   "section_break_wlje",
-  "progress_percentage"
+  "previous",
+  "current",
+  "accumulated",
+  "column_break_zfhk",
+  "progress_percentage",
+  "progress_completion"
  ],
  "fields": [
   {
+   "columns": 1,
    "fieldname": "item",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Item",
-   "options": "Item"
+   "options": "Item",
+   "read_only": 1
   },
   {
+   "columns": 1,
    "fetch_from": "item.description",
    "fieldname": "description",
    "fieldtype": "Text Editor",
-   "in_list_view": 1,
-   "label": "Description"
+   "label": "Description",
+   "read_only": 1
   },
   {
    "fetch_from": "item.stock_uom",
    "fieldname": "unit",
    "fieldtype": "Link",
    "label": "Unit",
-   "options": "UOM"
+   "options": "UOM",
+   "read_only": 1
   },
   {
    "fieldname": "original_contract_section",
@@ -49,22 +68,26 @@
    "label": "Original Contract "
   },
   {
+   "columns": 1,
    "fieldname": "contract__quantity",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Contract  Quantity"
+   "label": "Contract  Quantity",
+   "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "unit_rate",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Unit Rate"
+   "label": "Unit Rate",
+   "read_only": 1
   },
   {
    "fieldname": "contract_price",
    "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Contract Price"
+   "label": "Contract Price",
+   "read_only": 1
   },
   {
    "fieldname": "site_progress_section",
@@ -72,18 +95,22 @@
    "label": "Site Progress"
   },
   {
+   "columns": 1,
    "fieldname": "previous_quantity",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Previous Quantity"
+   "label": "Previous Quantity",
+   "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "current_quantity",
    "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Current Quantity"
+   "label": "Current Quantity",
+   "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "accumulate_quantity",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -94,24 +121,123 @@
    "fieldtype": "Section Break"
   },
   {
+   "columns": 1,
+   "default": "0",
    "fieldname": "progress_percentage",
    "fieldtype": "Percent",
    "in_list_view": 1,
-   "label": "Progress Percentage"
+   "label": "Progress Percentage",
+   "reqd": 1
   },
   {
    "fetch_from": "item.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "wbs_code",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "WBS code",
+   "options": "WBS item",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "boq_id",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "BOQ",
+   "options": "BOQ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accumulate_final_quantity",
+   "fieldtype": "Float",
+   "label": "Accumulate Final Quantity",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "previous",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Item Name"
+   "label": "Previous Amount",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "current",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Current Amount",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "accumulated",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Accumulated Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_gewe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ppob",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hots",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "progress_completion",
+   "fieldtype": "Percent",
+   "label": "Progress Completion"
+  },
+  {
+   "fieldname": "column_break_zfhk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "boq_details",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "BOQ Details",
+   "options": "BOQ Details"
+  },
+  {
+   "columns": 1,
+   "fieldname": "boq_details_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "BOQ Details ID"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-05-25 08:00:46.434194",
+ "modified": "2026-02-02 14:52:13.774777",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Invoice released memo detail",

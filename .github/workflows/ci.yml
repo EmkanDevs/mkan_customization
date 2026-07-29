@@ -4,11 +4,11 @@ name: CI
 on:
   push:
     branches:
-      - develop
+      - main
   pull_request:
 
 concurrency:
-  group: develop-mkan_customization-${{ github.event.number }}
+  group: main-mkan_customization-${{ github.event.number }}
   cancel-in-progress: true
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
         ports:
           - 11000:6379
       mariadb:
-        image: mariadb:10.6
+        image: mariadb:10.6.18
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
@@ -47,16 +47,16 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.10.12'
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           check-latest: true
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
@@ -68,7 +68,7 @@ jobs:
         id: yarn-cache-dir-path
         run: 'echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT'
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -77,21 +77,25 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install MariaDB Client
-        run: sudo apt-get install mariadb-client-10.6
+        run: sudo apt-get install -y mariadb-client
 
       - name: Setup
         run: |
           pip install frappe-bench
-          bench init --skip-redis-config-generation --skip-assets --python "$(which python)" ~/frappe-bench
+          bench init --frappe-branch version-15 --skip-redis-config-generation --skip-assets --python "$(which python)" ~/frappe-bench
           mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
           mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
-      - name: Install
+      - name:  Install ERPNext and Custom App
         working-directory: /home/runner/frappe-bench
         run: |
-          bench get-app mkan_customization $GITHUB_WORKSPACE
+          bench get-app erpnext --branch version-15
+          bench get-app ksa_compliance https://github.com/lavaloon-eg/ksa_compliance.git
+          bench get-app mkan_customization https://github.com/EmkanDevs/mkan_customization.git
           bench setup requirements --dev
-          bench new-site --db-root-password root --admin-password admin test_site
+          bench new-site test_site --db-root-password root --admin-password admin --no-mariadb-socket
+          bench --site test_site install-app erpnext
+          bench --site test_site install-app ksa_compliance
           bench --site test_site install-app mkan_customization
           bench build
         env:

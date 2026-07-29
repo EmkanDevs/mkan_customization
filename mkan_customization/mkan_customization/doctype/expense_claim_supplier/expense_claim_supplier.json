@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:cr_number",
+ "creation": "2025-10-15 10:43:25.804646",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_informations_section",
+  "cr_number",
+  "tax_id",
+  "column_break_z52t",
+  "supplier_name",
+  "supplier_name_in_arabic",
+  "section_break_8pwf",
+  "address"
+ ],
+ "fields": [
+  {
+   "fieldname": "cr_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CR Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "tax_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tax ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_z52t",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Supplier Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supplier_name_in_arabic",
+   "fieldtype": "Data",
+   "label": "Supplier Name in Arabic"
+  },
+  {
+   "fieldname": "section_break_8pwf",
+   "fieldtype": "Section Break",
+   "label": "Address/Location:"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "basic_informations_section",
+   "fieldtype": "Section Break",
+   "label": "Basic Informations"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-15 15:41:14.493147",
+ "modified_by": "Administrator",
+ "module": "Mkan Customization",
+ "name": "Expense Claim Supplier",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "supplier_name",
+ "track_changes": 1
+}

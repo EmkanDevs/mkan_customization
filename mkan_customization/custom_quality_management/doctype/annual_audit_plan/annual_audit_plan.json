@@ -1,0 +1,284 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "QA-AP-.####",
+ "creation": "2025-07-21 10:41:19.192629",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "audit_scope",
+  "column_break_mrgs",
+  "plan_issue_date",
+  "state_change_reference",
+  "section_break_rtmf",
+  "created_by",
+  "job_title1",
+  "date1",
+  "name1",
+  "column_break_iuau",
+  "reviewed_by",
+  "job_title2",
+  "date2",
+  "name2",
+  "section_break_mk0n",
+  "initial_approved_by",
+  "job_title3",
+  "date3",
+  "name3",
+  "column_break_l8ne",
+  "final_approved_by",
+  "job_title4",
+  "date4",
+  "name4",
+  "section_break_hvk9",
+  "amended_from",
+  "section_break_uyrn",
+  "plan"
+ ],
+ "fields": [
+  {
+   "fieldname": "audit_scope",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Audit Scope",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_mrgs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plan_issue_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Plan Issue Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Annual Audit Plan",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_uyrn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "plan",
+   "fieldtype": "Table",
+   "label": "Plan",
+   "options": "Annual Department Audit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Created By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Reviewed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "initial_approved_by",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Initial Approved By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "final_approved_by",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Final Approved By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_title1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Job Title1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_title2",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Job Title2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date2",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date3",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date4",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date4",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_title3",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Job Title3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_title4",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Job Title4",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_rtmf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_iuau",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_mk0n",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_l8ne",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_hvk9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "state_change_reference",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "State Change",
+   "options": "State Change"
+  },
+  {
+   "fetch_from": "created_by.full_name",
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "name1"
+  },
+  {
+   "fetch_from": "reviewed_by.full_name",
+   "fieldname": "name2",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Name2"
+  },
+  {
+   "fetch_from": "initial_approved_by.full_name",
+   "fieldname": "name3",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Name3"
+  },
+  {
+   "fetch_from": "final_approved_by.full_name",
+   "fieldname": "name4",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "name4"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Audit checklist",
+   "link_fieldname": "annual_audit_plan"
+  },
+  {
+   "link_doctype": "Audit Plan",
+   "link_fieldname": "annual_audit_plan"
+  }
+ ],
+ "modified": "2025-08-18 20:23:16.398792",
+ "modified_by": "alkatout99@gmail.com",
+ "module": "Custom Quality Management",
+ "name": "Annual Audit Plan",
+ "naming_rule": "Expression (old style)",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Auditor",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -2,8 +2,28 @@ import frappe
 
 def validate(self,method):
     self.custom_created_by_user = self.owner
+    for item in self.items:
+        validate_item_uom(item)
     
+def validate_item_uom(item_row):
+    allowed_uoms = frappe.get_all(
+        "UOM Conversion Detail",
+        filters={"parent": item_row.item_code},
+        fields=["uom"]
+    )
 
+    allowed_uoms_list = [d.uom for d in allowed_uoms]
+
+    stock_uom = frappe.db.get_value("Item", item_row.item_code, "stock_uom")
+    if stock_uom and stock_uom not in allowed_uoms_list:
+        allowed_uoms_list.append(stock_uom)
+
+    if item_row.uom not in allowed_uoms_list:
+        frappe.throw(
+            f"Row #{item_row.idx}: UOM <b>{item_row.uom}</b> is not valid for Item <b>{item_row.item_code}</b>.<br>"
+            f"Allowed UOMs: {', '.join(allowed_uoms_list)}"
+        )
+        
 @frappe.whitelist()
 def validate_before_po_creation(material_request):
     # Check if there are any submitted RFQs linked to the Material Request

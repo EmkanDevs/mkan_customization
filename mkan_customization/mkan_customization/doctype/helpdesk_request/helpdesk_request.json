@@ -11,7 +11,8 @@
   "employee_id",
   "project",
   "department",
-  "naming_series"
+  "naming_series",
+  "other_company"
  ],
  "fields": [
   {
@@ -50,13 +51,19 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": " Ticket ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "other_company",
+   "fieldtype": "Check",
+   "label": "Other Company"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-08 16:17:57.790754",
+ "modified": "2026-06-04 13:16:23.353153",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Helpdesk Request",
@@ -80,5 +87,26 @@
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [
+  {
+   "color": "Blue",
+   "title": "In Progress"
+  },
+  {
+   "color": "Orange",
+   "title": "Waiting to Be Assigned"
+  },
+  {
+   "color": "Red",
+   "title": "Canceled by Support Team"
+  },
+  {
+   "color": "Purple",
+   "title": "Waiting for User Feedback"
+  },
+  {
+   "color": "Green",
+   "title": "Closed"
+  }
+ ]
 }

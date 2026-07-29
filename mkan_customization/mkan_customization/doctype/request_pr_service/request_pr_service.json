@@ -8,10 +8,13 @@
  "field_order": [
   "request_date",
   "required_by",
+  "request_pr_service_no",
   "column_break_iekc",
   "pr_request_type",
   "location",
+  "location_arabic",
   "column_break_5nfg",
+  "request_type_arabic",
   "project",
   "project_name",
   "section_break_jzan",
@@ -102,7 +105,7 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0632\u064a\u0627\u0631\u0629"
+   "label": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0637\u0644\u0628"
   },
   {
    "fieldname": "required_by",
@@ -123,6 +126,24 @@
    "in_standard_filter": 1,
    "label": "\u0627\u0644\u062d\u0627\u0644\u0629",
    "options": "Active\nIn-Active\nResolved"
+  },
+  {
+   "fieldname": "location_arabic",
+   "fieldtype": "Data",
+   "label": "\u0627\u0644\u0645\u0648\u0642\u0639 \u0628\u0627\u0644\u0639\u0631\u0628\u064a"
+  },
+  {
+   "fetch_from": "pr_request_type.pr_request_type_arabic",
+   "fieldname": "request_type_arabic",
+   "fieldtype": "Data",
+   "label": "\u0646\u0648\u0639 \u0627\u0644\u0637\u0644\u0628 \u0628\u0627\u0644\u0639\u0631\u0628\u064a",
+   "read_only": 1
+  },
+  {
+   "fieldname": "request_pr_service_no",
+   "fieldtype": "Data",
+   "label": "Request PR Service No",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -131,11 +152,11 @@
  "links": [
   {
    "link_doctype": "Public Relation Visit",
-   "link_fieldname": "request_pr_service"
+   "link_fieldname": "request_pr_service_no"
   }
  ],
- "modified": "2025-05-06 09:34:22.610362",
- "modified_by": "Administrator",
+ "modified": "2025-08-12 15:35:35.094665",
+ "modified_by": "alkatout99@gmail.com",
  "module": "Mkan Customization",
  "name": "Request PR Service",
  "naming_rule": "By \"Naming Series\" field",

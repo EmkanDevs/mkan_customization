@@ -1,0 +1,449 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "QA-CARS-.####",
+ "creation": "2025-08-03 10:25:35.011147",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "amended_from",
+  "department",
+  "section",
+  "column_break_xcn5",
+  "audit_report_no",
+  "state_change_reference",
+  "column_break_wzd2",
+  "date_of_audit",
+  "date",
+  "type_of_audit",
+  "scheduled",
+  "type_of_audit2",
+  "column_break_bxjt",
+  "column_break_c8dv",
+  "unscheduled",
+  "follow_up",
+  "personnel",
+  "auditors",
+  "column_break_ywx9",
+  "auditees",
+  "column_break_cpqf",
+  "document_ref",
+  "part_1_section",
+  "minor",
+  "finding_type",
+  "column_break_vbab",
+  "column_break_8wvz",
+  "observation",
+  "major",
+  "finding_details",
+  "findings",
+  "part_2_section",
+  "proposed_corrective_action",
+  "date_of_completion_of_corrective_action",
+  "part_3_section",
+  "follow_up_details",
+  "car_close_out_date",
+  "column_break_asbr",
+  "follow_up_date",
+  "section_break_lawi",
+  "auditor",
+  "lead_auditor1",
+  "lead_auditor_name",
+  "job_title1",
+  "name1",
+  "date1",
+  "auditee1",
+  "date3",
+  "auditee_name",
+  "column_break_uzvs",
+  "key_auditee",
+  "job_title",
+  "auditor1",
+  "date2",
+  "auditor_name",
+  "key_auditee_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Corrective Action Requests",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fetch_from": "audit_report_no.audited_dept",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "audit_report_no.audited_division",
+   "fieldname": "section",
+   "fieldtype": "Link",
+   "label": "Section",
+   "options": "Department"
+  },
+  {
+   "fieldname": "column_break_xcn5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "audit_report_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Audit Report No",
+   "options": "Audit Report",
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_wzd2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "audit_report_no.audit_date",
+   "fieldname": "date_of_audit",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date of Audit",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "type_of_audit",
+   "fieldtype": "Section Break",
+   "label": "Type Of Audit."
+  },
+  {
+   "default": "0",
+   "fieldname": "scheduled",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Scheduled"
+  },
+  {
+   "fieldname": "column_break_bxjt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "follow_up",
+   "fieldtype": "Check",
+   "label": "Follow_up"
+  },
+  {
+   "fieldname": "column_break_c8dv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "unscheduled",
+   "fieldtype": "Check",
+   "label": "Unscheduled"
+  },
+  {
+   "fieldname": "personnel",
+   "fieldtype": "Section Break",
+   "label": "Personnel"
+  },
+  {
+   "fieldname": "auditors",
+   "fieldtype": "Table",
+   "label": "Auditors",
+   "options": "Auditors",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ywx9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auditees",
+   "fieldtype": "Table",
+   "label": "Auditees",
+   "options": "Auditees",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_cpqf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "document_ref",
+   "fieldtype": "Data",
+   "label": "Document Ref"
+  },
+  {
+   "fieldname": "part_1_section",
+   "fieldtype": "Section Break",
+   "label": "Part 1 (By Auditor)"
+  },
+  {
+   "default": "0",
+   "fieldname": "minor",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Minor"
+  },
+  {
+   "fieldname": "column_break_vbab",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "major",
+   "fieldtype": "Check",
+   "label": "Major"
+  },
+  {
+   "fieldname": "column_break_8wvz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "observation",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Observation"
+  },
+  {
+   "fieldname": "finding_details",
+   "fieldtype": "Section Break",
+   "label": "Finding details"
+  },
+  {
+   "fieldname": "findings",
+   "fieldtype": "Table",
+   "label": "Findings",
+   "options": "Findings Detail"
+  },
+  {
+   "depends_on": "eval:doc.workflow_state == 'Waiting For Auditee Feedback' || doc.workflow_state == 'Auditor Follow-up'\n",
+   "fieldname": "part_2_section",
+   "fieldtype": "Section Break",
+   "label": "Part 2 (By Auditee)"
+  },
+  {
+   "fieldname": "proposed_corrective_action",
+   "fieldtype": "Small Text",
+   "label": "Proposed Corrective Action"
+  },
+  {
+   "fieldname": "date_of_completion_of_corrective_action",
+   "fieldtype": "Date",
+   "label": "Date of Completion of Corrective Action"
+  },
+  {
+   "depends_on": "eval:doc.workflow_state == 'Auditor Follow-up'",
+   "fieldname": "part_3_section",
+   "fieldtype": "Section Break",
+   "label": "Part 3 ( By Auditor)"
+  },
+  {
+   "fieldname": "follow_up_details",
+   "fieldtype": "Small Text",
+   "label": "Follow up Details"
+  },
+  {
+   "fieldname": "car_close_out_date",
+   "fieldtype": "Date",
+   "label": "Car Close Out Date"
+  },
+  {
+   "fieldname": "column_break_asbr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "follow_up_date",
+   "fieldtype": "Date",
+   "label": "Follow up Date"
+  },
+  {
+   "fieldname": "section_break_lawi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "audit_report_no.lead_auditor",
+   "fieldname": "auditor",
+   "fieldtype": "Data",
+   "label": "Lead Auditor",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_uzvs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "audit_report_no.job_title",
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "label": "Job Title"
+  },
+  {
+   "fieldname": "lead_auditor1",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Lead Auditor1",
+   "options": "User"
+  },
+  {
+   "fieldname": "job_title1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Job title1"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Name1"
+  },
+  {
+   "fieldname": "date1",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date1"
+  },
+  {
+   "fieldname": "auditee1",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Auditee1",
+   "options": "User"
+  },
+  {
+   "fieldname": "date3",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date3"
+  },
+  {
+   "fieldname": "auditor1",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Auditor1",
+   "options": "User"
+  },
+  {
+   "fieldname": "date2",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Date2"
+  },
+  {
+   "fieldname": "state_change_reference",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "State Change",
+   "options": "State Change"
+  },
+  {
+   "fetch_from": "audit_report_no.key_auditee",
+   "fieldname": "key_auditee",
+   "fieldtype": "Link",
+   "label": "Key Auditee",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "lead_auditor1.full_name",
+   "fieldname": "lead_auditor_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Lead Auditor Name"
+  },
+  {
+   "fetch_from": "auditee1.full_name",
+   "fieldname": "auditee_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Auditee Name"
+  },
+  {
+   "fetch_from": "auditor1.full_name",
+   "fieldname": "auditor_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Auditor Name"
+  },
+  {
+   "fetch_from": "key_auditee.full_name",
+   "fieldname": "key_auditee_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Key Auditee Name"
+  },
+  {
+   "fieldname": "finding_type",
+   "fieldtype": "Select",
+   "label": "Finding Type",
+   "options": "Minor\nMajor\nObservation"
+  },
+  {
+   "fieldname": "type_of_audit2",
+   "fieldtype": "Select",
+   "label": "Type Of Audit",
+   "options": "Scheduled\nUnscheduled\nFollow_up"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-01-19 15:39:04.880785",
+ "modified_by": "Administrator",
+ "module": "Custom Quality Management",
+ "name": "Corrective Action Requests",
+ "naming_rule": "Expression (old style)",
+ "owner": "alkatout99@gmail.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Auditor",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
