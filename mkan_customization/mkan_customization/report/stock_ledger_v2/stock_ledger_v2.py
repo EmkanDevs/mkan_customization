@@ -347,11 +347,9 @@ class StockBalanceReport:
 				(sle.voucher_type == "Stock Entry")
 				& (sle.voucher_no == stock_entry.name)
 			)
-			.left_join(stock_entry_detail)
-			.on(
+			.left_join(stock_entry_detail).on(
 				(sle.voucher_type == "Stock Entry")
-				& (sle.voucher_no == stock_entry_detail.parent)
-				& (sle.item_code == stock_entry_detail.item_code)
+				& (sle.voucher_detail_no == stock_entry_detail.name)
 			)
 			.left_join(purchase_receipt)
 			.on(
