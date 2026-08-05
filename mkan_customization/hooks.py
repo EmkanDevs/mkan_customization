@@ -25,7 +25,7 @@ app_license = "GPL-3.0"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/mkan_customization/css/mkan_customization.css"
+app_include_css = "/assets/mkan_customization/css/supplier_purchase_da.css"
 # app_include_js = "/assets/mkan_customization/js/mkan_customization.js"
 # app_include_js = "/assets/mkan_customization/js/doctype_list.js"
 
