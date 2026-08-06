@@ -28,6 +28,7 @@ def execute(filters=None):
     items = get_items(filters)
     sl_entries = get_stock_ledger_entries(filters, items)
     item_details = get_item_details(items, sl_entries, include_uom)
+    excluded_related_party_accounts = get_related_party_accounts(filters)
     if filters.get("batch_no"):
         opening_row = get_opening_balance_from_batch(filters, columns, sl_entries)
     else:
@@ -74,6 +75,7 @@ def execute(filters=None):
         sle["supplier_delivery_note"] = None
         sle["return_material_ref_doc"] = None
         sle["purchase_order"] = None
+        sle["expense_account"] = None
 
 
         # ======================================================
@@ -257,6 +259,10 @@ def execute(filters=None):
             if sle.project
             else None
         )
+
+        if sle.expense_account in excluded_related_party_accounts:
+            continue
+
         if bundle_info := bundle_details.get(sle.serial_and_batch_bundle):
             data.extend(get_segregated_bundle_entries(sle, bundle_info, batch_balance_dict, filters))
             continue
@@ -685,6 +691,53 @@ def get_columns(filters):
     )
 
     return columns
+
+
+def get_related_party_accounts(filters):
+    if not filters.get("exclude_related_parties_accounts"):
+        return set()
+
+    parent_account = get_related_party_parent_account(filters)
+    if not parent_account:
+        return set()
+
+    account = frappe.qb.DocType("Account")
+    accounts = (
+        frappe.qb.from_(account)
+        .select(account.name)
+        .where(
+            (account.lft >= parent_account.lft)
+            & (account.rgt <= parent_account.rgt)
+            & (account.company == parent_account.company)
+        )
+        .run(pluck=True)
+    )
+
+    return set(accounts)
+
+
+def get_related_party_parent_account(filters):
+    account_filters = {
+        "company": filters.get("company"),
+        "account_number": "1181100",
+    }
+
+    account = frappe.db.get_value("Account", account_filters, ["name", "lft", "rgt", "company"], as_dict=True)
+    if account:
+        return account
+
+    account_filters.pop("account_number")
+    account_filters["account_name"] = "Related Parties Accounts"
+    account = frappe.db.get_value("Account", account_filters, ["name", "lft", "rgt", "company"], as_dict=True)
+    if account:
+        return account
+
+    return frappe.db.get_value(
+        "Account",
+        "1181100 - Related Parties Accounts",
+        ["name", "lft", "rgt", "company"],
+        as_dict=True,
+    )
 
 
 def get_stock_ledger_entries(filters, items):

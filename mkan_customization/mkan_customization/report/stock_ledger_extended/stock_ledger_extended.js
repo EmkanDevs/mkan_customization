@@ -128,6 +128,12 @@ frappe.query_reports["Stock Ledger Extended"] = {
 			label: __("Active Items Only"),
 			fieldtype: "Check",
 			default: 1
+		},
+		{
+			fieldname: "exclude_related_parties_accounts",
+			label: __("Exclude Related Parties Accounts"),
+			fieldtype: "Check",
+			default: 1
 		}
 		
 	],
