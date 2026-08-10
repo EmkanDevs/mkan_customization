@@ -3,14 +3,11 @@
 
 
 import copy
-from collections import defaultdict
 
 import frappe
 from frappe import _
-from frappe.query_builder.functions import CombineDatetime, Sum
+from frappe.query_builder.functions import DateFormat, Sum
 from frappe.utils import cint, flt, get_datetime
-from frappe.query_builder.functions import Cast
-from frappe.query_builder.functions import DateFormat
 from erpnext.stock.doctype.inventory_dimension.inventory_dimension import get_inventory_dimensions
 from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos
 from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_stock_balance_for
@@ -27,11 +24,12 @@ def execute(filters=None):
     columns = get_columns(filters)
     items = get_items(filters)
     sl_entries = get_stock_ledger_entries(filters, items)
+    voucher_details = get_voucher_details(sl_entries)
     item_details = get_item_details(items, sl_entries, include_uom)
     if filters.get("batch_no"):
         opening_row = get_opening_balance_from_batch(filters, columns, sl_entries)
     else:
-        opening_row = get_opening_balance(filters, columns, sl_entries)
+        opening_row = get_opening_balance(filters, columns, sl_entries, voucher_details)
 
     precision = cint(frappe.db.get_single_value("System Settings", "float_precision"))
     bundle_details = {}
@@ -65,15 +63,20 @@ def execute(filters=None):
         # EXTENDED STOCK LEDGER FIELDS
         # ======================================================
 
-        sle["creator"] = None
-        sle["material_request"] = None
-        sle["cost_center"] = None
-        sle["is_petty_cash"] = 0
-        sle["supplier_code"] = None
-        sle["supplier_name"] = None
-        sle["supplier_delivery_note"] = None
-        sle["return_material_ref_doc"] = None
-        sle["purchase_order"] = None
+        sle.update(
+            {
+                "creator": None,
+                "material_request": None,
+                "cost_center": None,
+                "is_petty_cash": 0,
+                "supplier_code": None,
+                "supplier_name": None,
+                "supplier_delivery_note": None,
+                "return_material_ref_doc": None,
+                "purchase_order": None,
+                "expense_account": None,
+            }
+        )
 
 
         # ======================================================
@@ -81,19 +84,7 @@ def execute(filters=None):
         # ======================================================
 
         if sle.voucher_type == "Stock Entry":
-
-            stock_entry = frappe.db.get_value(
-                "Stock Entry",
-                sle.voucher_no,
-                [
-                    "owner",
-                    "stock_entry_type",
-                    "outgoing_stock_entry",
-                    "custom_supplier_code",
-                    "custom_suppliers_name",
-                ],
-                as_dict=True,
-            )
+            stock_entry = voucher_details.stock_entries.get(sle.voucher_no)
 
             if stock_entry:
 
@@ -112,29 +103,13 @@ def execute(filters=None):
                 )
                 
                 if stock_entry.supplier:
-                    sle["supplier_name"] = frappe.db.get_value(
-                        "Supplier",
-                        stock_entry.supplier,
-                        "supplier_name"
-                    )
+                    sle["supplier_name"] = voucher_details.suppliers.get(stock_entry.supplier)
 
             # ------------------------------------------
             # STOCK ENTRY DETAIL
             # ------------------------------------------
 
-            se_detail = frappe.db.get_value(
-                "Stock Entry Detail",
-                {
-                    "parent": sle.voucher_no,
-                    "item_code": sle.item_code,
-                },
-                [
-                    "material_request",
-                    "cost_center",
-                    "expense_account",
-                ],
-                as_dict=True,
-            )
+            se_detail = voucher_details.stock_entry_details.get((sle.voucher_no, sle.item_code))
 
             if se_detail:
 
@@ -142,40 +117,13 @@ def execute(filters=None):
                 sle["cost_center"] = se_detail.cost_center
                 sle["expense_account"] = se_detail.expense_account
 
-            # ------------------------------------------
-            # MATERIAL REQUEST
-            # ------------------------------------------
-
-            material_request = frappe.db.get_value(
-                "Stock Entry Detail",
-                {
-                    "parent": sle.voucher_no,
-                    "item_code": sle.item_code,
-                },
-                "material_request",
-            )
-
-            if material_request:
-                sle["material_request"] = material_request
-
 
         # ======================================================
         # PURCHASE RECEIPT DETAILS
         # ======================================================
 
         elif sle.voucher_type == "Purchase Receipt":
-
-            purchase_receipt = frappe.db.get_value(
-                "Purchase Receipt",
-                sle.voucher_no,
-                [
-                    "owner",
-                    "supplier",
-                    "supplier_name",
-                    "supplier_delivery_note",
-                ],
-                as_dict=True,
-            )
+            purchase_receipt = voucher_details.purchase_receipts.get(sle.voucher_no)
 
             if purchase_receipt:
 
@@ -190,44 +138,18 @@ def execute(filters=None):
             # PURCHASE RECEIPT ITEM DETAILS
             # ------------------------------------------
 
-            pr_item = frappe.db.get_value(
-                "Purchase Receipt Item",
-                {
-                    "parent": sle.voucher_no,
-                    "item_code": sle.item_code,
-                },
-                [
-                    "purchase_order",
-                    "cost_center",
-                ],
-                as_dict=True,
-            )
+            pr_item = voucher_details.purchase_receipt_items.get((sle.voucher_no, sle.item_code))
 
             if pr_item:
 
                 sle["purchase_order"] = pr_item.purchase_order
                 sle["cost_center"] = pr_item.cost_center
 
-            # ------------------------------------------
-            # PURCHASE ORDER
-            # ------------------------------------------
-
-            purchase_order = frappe.db.get_value(
-                "Purchase Receipt Item",
-                {
-                    "parent": sle.voucher_no,
-                    "item_code": sle.item_code,
-                },
-                "purchase_order",
-            )
-
-            if purchase_order:
-                sle["purchase_order"] = purchase_order
-
         # --- Add new computed fields ---
         sle["stock_entry_type"] = (
-            frappe.db.get_value("Stock Entry", sle.voucher_no, "stock_entry_type")
+            voucher_details.stock_entries.get(sle.voucher_no).stock_entry_type
             if sle.voucher_type == "Stock Entry"
+            and voucher_details.stock_entries.get(sle.voucher_no)
             else None
         )
 
@@ -253,7 +175,7 @@ def execute(filters=None):
 
         # Project Name
         sle["project_name"] = (
-            frappe.db.get_value("Project", sle.project, "project_name")
+            voucher_details.projects.get(sle.project)
             if sle.project
             else None
         )
@@ -297,6 +219,115 @@ def execute(filters=None):
 
     update_included_uom_in_report(columns, data, include_uom, conversion_factors)
     return columns, data
+
+
+def get_voucher_details(sl_entries):
+    stock_entry_names = {
+        sle.voucher_no for sle in sl_entries if sle.voucher_type == "Stock Entry" and sle.voucher_no
+    }
+    purchase_receipt_names = {
+        sle.voucher_no for sle in sl_entries if sle.voucher_type == "Purchase Receipt" and sle.voucher_no
+    }
+    project_names = {sle.project for sle in sl_entries if sle.project}
+    stock_reconciliation_names = {
+        sle.voucher_no
+        for sle in sl_entries
+        if sle.voucher_type == "Stock Reconciliation" and sle.voucher_no
+    }
+
+    stock_entries = {}
+    suppliers = {}
+    stock_entry_details = {}
+    if stock_entry_names:
+        stock_entries = {
+            d.name: d
+            for d in frappe.get_all(
+                "Stock Entry",
+                filters={"name": ("in", list(stock_entry_names))},
+                fields=[
+                    "name",
+                    "owner",
+                    "stock_entry_type",
+                    "outgoing_stock_entry",
+                    "custom_supplier_code",
+                    "custom_suppliers_name",
+                    "supplier",
+                ],
+            )
+        }
+
+        supplier_names = {d.supplier for d in stock_entries.values() if d.supplier}
+        if supplier_names:
+            suppliers = {
+                d.name: d.supplier_name
+                for d in frappe.get_all(
+                    "Supplier",
+                    filters={"name": ("in", list(supplier_names))},
+                    fields=["name", "supplier_name"],
+                )
+            }
+
+        for d in frappe.get_all(
+            "Stock Entry Detail",
+            filters={"parent": ("in", list(stock_entry_names))},
+            fields=["parent", "item_code", "material_request", "cost_center", "expense_account"],
+            order_by="parent, idx",
+        ):
+            stock_entry_details.setdefault((d.parent, d.item_code), d)
+
+    purchase_receipts = {}
+    purchase_receipt_items = {}
+    if purchase_receipt_names:
+        purchase_receipts = {
+            d.name: d
+            for d in frappe.get_all(
+                "Purchase Receipt",
+                filters={"name": ("in", list(purchase_receipt_names))},
+                fields=["name", "owner", "supplier", "supplier_name", "supplier_delivery_note"],
+            )
+        }
+
+        for d in frappe.get_all(
+            "Purchase Receipt Item",
+            filters={"parent": ("in", list(purchase_receipt_names))},
+            fields=["parent", "item_code", "purchase_order", "cost_center"],
+            order_by="parent, idx",
+        ):
+            purchase_receipt_items.setdefault((d.parent, d.item_code), d)
+
+    projects = {}
+    if project_names:
+        projects = {
+            d.name: d.project_name
+            for d in frappe.get_all(
+                "Project",
+                filters={"name": ("in", list(project_names))},
+                fields=["name", "project_name"],
+            )
+        }
+
+    stock_reconciliations = {}
+    if stock_reconciliation_names:
+        stock_reconciliations = {
+            d.name: d.purpose
+            for d in frappe.get_all(
+                "Stock Reconciliation",
+                filters={"name": ("in", list(stock_reconciliation_names))},
+                fields=["name", "purpose"],
+            )
+        }
+
+    return frappe._dict(
+        {
+            "stock_entries": stock_entries,
+            "suppliers": suppliers,
+            "stock_entry_details": stock_entry_details,
+            "purchase_receipts": purchase_receipts,
+            "purchase_receipt_items": purchase_receipt_items,
+            "projects": projects,
+            "stock_reconciliations": stock_reconciliations,
+        }
+    )
 
 
 def get_segregated_bundle_entries(sle, bundle_details, batch_balance_dict, filters):
@@ -934,9 +965,11 @@ def get_opening_balance_from_batch(filters, columns, sl_entries):
     }
 
 
-def get_opening_balance(filters, columns, sl_entries):
+def get_opening_balance(filters, columns, sl_entries, voucher_details=None):
     if not (filters.item_code and filters.warehouse and filters.from_date):
         return
+
+    voucher_details = voucher_details or frappe._dict({"stock_reconciliations": {}})
 
     from erpnext.stock.stock_ledger import get_previous_sle
 
@@ -954,7 +987,7 @@ def get_opening_balance(filters, columns, sl_entries):
         if (
             sle.get("voucher_type") == "Stock Reconciliation"
             and sle.posting_date == filters.from_date
-            and frappe.db.get_value("Stock Reconciliation", sle.voucher_no, "purpose") == "Opening Stock"
+            and voucher_details.stock_reconciliations.get(sle.voucher_no) == "Opening Stock"
         ):
             last_entry = sle
             sl_entries.remove(sle)
