@@ -59,6 +59,7 @@ doctype_js = {
             "Employee":"public/js/employee.js",
             "Purchase Invoice":"public/js/purchase_invoice.js",
             "Journal Entry":"public/js/journal_entry.js",
+            "Blanket Order":"public/js/blanket_order.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -185,9 +186,11 @@ doc_events = {
         "before_save":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.before_save",
         "validate":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.validate"
     },
-    # "Purchase Invoice":{
-    #     "before_validate":"mkan_customization.mkan_customization.doc_events.purchase_invoice.validate"
-    # },
+    "Purchase Invoice":{
+        "validate":"mkan_customization.mkan_customization.doc_events.purchase_invoice.validate",
+        "on_submit":"mkan_customization.mkan_customization.doc_events.purchase_invoice.on_submit",
+        "on_cancel":"mkan_customization.mkan_customization.doc_events.purchase_invoice.on_cancel"
+    },
     "Sales Order":{
         "before_submit":"mkan_customization.mkan_customization.doc_events.sales_order.before_submit"
     },
@@ -196,6 +199,9 @@ doc_events = {
     },
     "User Role Request" : {
         # "validate" : "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.validate_role_request_child_rows"
+    },
+    "Item": {
+        "validate": "mkan_customization.mkan_customization.doc_events.item.validate_stock_blanket_exclusivity"
     },
     # "Blanket Order": {
     #     "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
@@ -310,7 +316,7 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"dt": ["in", ["Helpdesk Request"]]},
+        "filters": {"dt": ["in", ["Helpdesk Request", "Purchase Invoice Item"]]},
     },
     {
         "doctype": "Workspace",

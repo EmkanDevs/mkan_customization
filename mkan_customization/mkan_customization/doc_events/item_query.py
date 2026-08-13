@@ -12,3 +12,7 @@ def get_all_items(doctype, txt, searchfield, start, page_len, filters):
         "start": start,
         "page_len": page_len
     })
+
+
+
+
