@@ -261,7 +261,6 @@ function toggle_rate_readonly(frm) {
 
     // Inline grid row view
     frm.fields_dict["items"].grid.update_docfield_property("rate", "read_only", is_locked);
-.
     frm.fields_dict["items"].grid.grid_rows.forEach(row => {
         if (row.grid_form && row.grid_form.fields_dict && row.grid_form.fields_dict.rate) {
             row.grid_form.fields_dict.rate.df.read_only = is_locked;
