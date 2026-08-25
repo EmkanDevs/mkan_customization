@@ -97,50 +97,86 @@ def execute(filters=None):
             pr.total AS purchase_receipt_amount,
             pr.workflow_state AS purchase_receipt_status,
 
-            COUNT(DISTINCT pi.name) AS no_of_invoices,
+            (
+                SELECT COUNT(DISTINCT pii.parent)
+                FROM `tabPurchase Receipt Item` pri
+                INNER JOIN `tabPurchase Invoice Item` pii
+                    ON (
+                        pii.pr_detail = pri.name
 
-            IFNULL(SUM(pii.net_amount), 0) AS purchase_invoices_amount,
+                        OR (
+                            pii.pr_detail IS NULL
+                            AND pii.purchase_order = pri.purchase_order
+                            AND pii.po_detail = pri.purchase_order_item
+                        )
+                    )
+                INNER JOIN `tabPurchase Invoice` pi
+                    ON pi.name = pii.parent
+                    AND pi.docstatus = 1
+                WHERE
+                    pri.parent = pr.name
+                    AND pii.docstatus = 1
+            ) AS no_of_invoices,
 
             (
-                pr.total - IFNULL(SUM(pii.net_amount), 0)
+                SELECT COALESCE(SUM(invoice_items.net_amount), 0)
+                FROM (
+                    SELECT DISTINCT
+                        pii.name,
+                        pii.net_amount
+                    FROM `tabPurchase Receipt Item` pri
+                    INNER JOIN `tabPurchase Invoice Item` pii
+                        ON (
+                            pii.pr_detail = pri.name
+
+                            OR (
+                                pii.pr_detail IS NULL
+                                AND pii.purchase_order = pri.purchase_order
+                                AND pii.po_detail = pri.purchase_order_item
+                            )
+                        )
+                    INNER JOIN `tabPurchase Invoice` pi
+                        ON pi.name = pii.parent
+                        AND pi.docstatus = 1
+                    WHERE
+                        pri.parent = pr.name
+                        AND pii.docstatus = 1
+                ) invoice_items
+            ) AS purchase_invoices_amount,
+
+            (
+                pr.total
+                -
+                (
+                    SELECT COALESCE(SUM(invoice_items.net_amount), 0)
+                    FROM (
+                        SELECT DISTINCT
+                            pii.name,
+                            pii.net_amount
+                        FROM `tabPurchase Receipt Item` pri
+                        INNER JOIN `tabPurchase Invoice Item` pii
+                            ON (
+                                pii.pr_detail = pri.name
+
+                                OR (
+                                    pii.pr_detail IS NULL
+                                    AND pii.purchase_order = pri.purchase_order
+                                    AND pii.po_detail = pri.purchase_order_item
+                                )
+                            )
+                        INNER JOIN `tabPurchase Invoice` pi
+                            ON pi.name = pii.parent
+                            AND pi.docstatus = 1
+                        WHERE
+                            pri.parent = pr.name
+                            AND pii.docstatus = 1
+                    ) invoice_items
+                )
             ) AS pending_amount
 
         FROM `tabPurchase Receipt` pr
 
-        INNER JOIN `tabPurchase Receipt Item` pri
-            ON pri.parent = pr.name
-
-        LEFT JOIN `tabPurchase Invoice Item` pii
-            ON (
-                pii.pr_detail = pri.name
-
-                OR
-
-                (
-                    pii.pr_detail IS NULL
-                    AND pii.purchase_order IS NOT NULL
-                    AND pii.purchase_order = pri.purchase_order
-                )
-            )
-            AND pii.docstatus = 1
-
-        LEFT JOIN `tabPurchase Invoice` pi
-            ON pi.name = pii.parent
-            AND pi.docstatus = 1
-
-        LEFT JOIN `tabProject` prj
-            ON pr.project = prj.name
-
         WHERE {" AND ".join(conditions)}
-
-        GROUP BY
-            pr.name,
-            pr.posting_date,
-            pr.supplier,
-            pr.supplier_name,
-            pr.project,
-            pr.total,
-            pr.workflow_state
 
         ORDER BY pr.posting_date DESC
     """
