@@ -26,6 +26,9 @@ def execute(filters=None):
     sl_entries = get_stock_ledger_entries(filters, items)
     voucher_details = get_voucher_details(sl_entries)
     item_details = get_item_details(items, sl_entries, include_uom)
+    excluded_accounts = set()
+    if filters.get("exclude_related_parties_accounts"):
+        excluded_accounts = set(get_related_party_accounts())
     if filters.get("batch_no"):
         opening_row = get_opening_balance_from_batch(filters, columns, sl_entries)
     else:
@@ -118,6 +121,13 @@ def execute(filters=None):
                 sle["expense_account"] = se_detail.expense_account
 
 
+            # ======================================================
+            # EXCLUDE RELATED PARTIES ACCOUNTS
+            # ======================================================
+            if excluded_accounts and sle.get("expense_account") in excluded_accounts:
+                continue
+
+
         # ======================================================
         # PURCHASE RECEIPT DETAILS
         # ======================================================
@@ -148,6 +158,13 @@ def execute(filters=None):
         # --- Add new computed fields ---
         sle["stock_entry_type"] = (
             voucher_details.stock_entries.get(sle.voucher_no).stock_entry_type
+            if sle.voucher_type == "Stock Entry"
+            and voucher_details.stock_entries.get(sle.voucher_no)
+            else None
+        )
+
+        sle["custom_remark"] = (
+            voucher_details.stock_entries.get(sle.voucher_no).custom_remark
             if sle.voucher_type == "Stock Entry"
             and voucher_details.stock_entries.get(sle.voucher_no)
             else None
@@ -252,6 +269,7 @@ def get_voucher_details(sl_entries):
                     "custom_supplier_code",
                     "custom_suppliers_name",
                     "supplier",
+                    "custom_remark",
                 ],
             )
         }
@@ -568,7 +586,12 @@ def get_columns(filters):
                 "fieldtype": "Data",
                 "width": 120,
             },
-
+            {
+                "label": _("Remark"),
+                "fieldname": "custom_remark",
+                "fieldtype": "Data",
+                "width": 200,
+            },
             {
                 "label": _("Supplier Code"),
                 "fieldname": "supplier_code",
@@ -1057,3 +1080,10 @@ def check_inventory_dimension_filters_applied(filters) -> bool:
             return True
 
     return False
+
+def get_related_party_accounts():
+    return frappe.get_all(
+        "Account",
+        filters={"parent_account": "1181100 - Related Parties Accounts - CPC"},
+        pluck="name",
+    )
