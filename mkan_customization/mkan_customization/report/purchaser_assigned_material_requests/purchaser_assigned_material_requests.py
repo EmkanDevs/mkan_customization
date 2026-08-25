@@ -188,7 +188,7 @@ def get_data(filters):
                 FROM `tabPurchase Order Item` poi
                 INNER JOIN `tabPurchase Order` po
                     ON po.name = poi.parent
-                    AND po.docstatus = 1
+                    AND po.docstatus != 2
                 WHERE poi.material_request = mr.name
                 ORDER BY po.transaction_date DESC
                 LIMIT 1
@@ -199,7 +199,7 @@ def get_data(filters):
                 FROM `tabPurchase Order Item` poi
                 INNER JOIN `tabPurchase Order` po
                     ON po.name = poi.parent
-                    AND po.docstatus = 1
+                    AND po.docstatus != 2
                 WHERE poi.material_request = mr.name
                 ORDER BY po.transaction_date DESC
                 LIMIT 1
@@ -210,7 +210,7 @@ def get_data(filters):
                 FROM `tabPurchase Order Item` poi
                 INNER JOIN `tabPurchase Order` po
                     ON po.name = poi.parent
-                    AND po.docstatus = 1
+                    AND po.docstatus != 2
                 WHERE poi.material_request = mr.name
                 ORDER BY po.transaction_date DESC
                 LIMIT 1
