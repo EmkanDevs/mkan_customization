@@ -161,7 +161,11 @@ doc_events = {
         "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate",
     },
     "Purchase Receipt":{
-        "validate":"mkan_customization.mkan_customization.doc_events.purchase_receipt.validate",
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.purchase_receipt.validate",
+            "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+        ],
         "on_cancel":"mkan_customization.mkan_customization.doc_events.purchase_receipt.on_cancel",
         "after_insert":"mkan_customization.mkan_customization.doc_events.purchase_receipt.after_insert"
     },
@@ -177,8 +181,16 @@ doc_events = {
     },
     "Payment Entry":{
         "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+        ],
     },
     "Sales Invoice":{
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+        ],
         "before_validate":"mkan_customization.mkan_customization.doc_events.sales_invoice.validate",
         "before_save":"mkan_customization.mkan_customization.doc_events.sales_invoice.add_items"
     },
@@ -187,13 +199,17 @@ doc_events = {
         "validate":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.validate"
     },
     "Purchase Invoice":{
-        "validate":"mkan_customization.mkan_customization.doc_events.purchase_invoice.validate",
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.purchase_invoice.validate",
+            "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+        ],
         "on_submit":"mkan_customization.mkan_customization.doc_events.purchase_invoice.on_submit",
         "on_cancel":"mkan_customization.mkan_customization.doc_events.purchase_invoice.on_cancel"
     },
-    "Sales Order":{
-        "before_submit":"mkan_customization.mkan_customization.doc_events.sales_order.before_submit"
-    },
+    # "Sales Order":{
+    #     "before_submit":"mkan_customization.mkan_customization.doc_events.sales_order.before_submit"
+    # },
     "User": {
         "before_save": "mkan_customization.mkan_customization.doctype.role_allotment.role_allotment.on_user_before_save"
     },
@@ -201,11 +217,24 @@ doc_events = {
         # "validate" : "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.validate_role_request_child_rows"
     },
     "Item": {
-        "validate": "mkan_customization.mkan_customization.doc_events.item.validate_stock_blanket_exclusivity"
+        "validate": "mkan_customization.mkan_customization.doc_events.item.validate_stock_blanket_exclusivity",
+        "before_insert": "mkan_customization.mkan_customization.doc_events.item.set_item_naming"
     },
     # "Blanket Order": {
     #     "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
-    # }
+    # },
+    "Journal Entry": {
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+        ],
+    },
+    "Delivery Note": {
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+        ],
+    }
 
 }
 
@@ -250,9 +279,6 @@ override_whitelisted_methods = {
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
-override_doctype_dashboards = {
-    "Stock Entry": "mkan_customization.mkan_customization.override_doctype_dashboards.stock_entry_dashboard.get_data"
-}
 
 # exempt linked doctypes from being automatically cancelled
 #
