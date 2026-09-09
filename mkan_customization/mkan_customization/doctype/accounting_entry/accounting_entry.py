@@ -1,5 +1,5 @@
 # Copyright (c) 2026, Finbyz Tech Pvt Ltd and contributors
-# For license information, please see license.txt 
+# For license information, please see license.txt
 
 import frappe
 from frappe import _
@@ -75,6 +75,9 @@ class AccountingEntry(Document):
 
 	def on_cancel(self):
 		self.cancel_linked_invoices()
+
+	def on_trash(self):
+		self.delete_linked_invoices()
 
 	def validate_mandatory(self):
 		if not self.company:
@@ -257,15 +260,43 @@ class AccountingEntry(Document):
 				frappe.ValidationError
 			)
 
+	def _linked_invoice_pairs(self):
+		"""Returns [(fieldname, doctype), ...] for whichever invoices this
+		Accounting Entry actually generated."""
+		return [
+			("purchase_invoice", "Purchase Invoice"),
+			("sales_invoice", "Sales Invoice"),
+		]
+
 	def cancel_linked_invoices(self):
-		if self.purchase_invoice:
-			pi = frappe.get_doc("Purchase Invoice", self.purchase_invoice)
-			if pi.docstatus == 1:
-				pi.cancel()
-		if self.sales_invoice:
-			si = frappe.get_doc("Sales Invoice", self.sales_invoice)
-			if si.docstatus == 1:
-				si.cancel()
+		for fieldname, doctype in self._linked_invoice_pairs():
+			docname = self.get(fieldname)
+			if not docname or not frappe.db.exists(doctype, docname):
+				continue
+			doc = frappe.get_doc(doctype, docname)
+			if doc.docstatus == 1:
+				doc.flags.ignore_permissions = True
+				doc.cancel()
+
+
+	def delete_linked_invoices(self):
+		"""Called on_trash: cancels (if still submitted) and permanently
+		deletes any Purchase/Sales Invoice this Accounting Entry generated,
+		so deleting an Accounting Entry doesn't leave an orphaned invoice behind."""
+		for fieldname, doctype in self._linked_invoice_pairs():
+			docname = self.get(fieldname)
+			if not docname or not frappe.db.exists(doctype, docname):
+				continue
+			doc = frappe.get_doc(doctype, docname)
+			if doc.docstatus == 1:
+				doc.flags.ignore_permissions = True
+				doc.cancel()
+			# docstatus is now 0 (draft, shouldn't normally happen) or 2 (cancelled)
+			frappe.delete_doc(
+				doctype, docname,
+				ignore_permissions=True,
+				force=True,
+			)
 
 	def _propagate_accounting_dimensions(self, invoice):
 		"""Copy every enabled Accounting Dimension field value from this
@@ -488,11 +519,26 @@ class AccountingEntry(Document):
 		base_paid_amount = flt(cash_bank_row.debit_in_company_currency) or paid_amount
 		mode_of_payment = get_mode_of_payment_for_account(cash_bank_row.account, self.company, acc_type)
 
+		# 3b. Batch-fetch account_type for every distinct account on this entry,
+		# so we can detect tax rows even when is_auto_tax_row wasn't set upstream.
+		account_names = list({row.account for row in self.accounts if row.account})
+		account_type_map = {
+			d["name"]: d["account_type"]
+			for d in frappe.get_all(
+				"Account",
+				filters={"name": ["in", account_names]},
+				fields=["name", "account_type"],
+			)
+		}
+
+		def _is_tax_row(row):
+			return bool(row.is_auto_tax_row) or account_type_map.get(row.account) == "Tax"
+
 		# Resolve a project to propagate to the invoice header (needed for accounts with mandatory project)
 		invoice_project = cash_bank_row.project if cash_bank_row.project else None
 		if not invoice_project:
 			for row in self.accounts:
-				if not row.is_auto_tax_row and row.name != cash_bank_row.name and flt(row.credit) > 0 and row.project:
+				if not _is_tax_row(row) and row.name != cash_bank_row.name and flt(row.credit) > 0 and row.project:
 					invoice_project = row.project
 					break
 
@@ -521,7 +567,7 @@ class AccountingEntry(Document):
 
 		# 5. Populate Items: Each separate non-tax credit row -> separate item row with its income_account
 		for row in self.accounts:
-			if row.is_auto_tax_row:
+			if _is_tax_row(row):
 				continue
 			if row.name == cash_bank_row.name:
 				continue
@@ -547,9 +593,9 @@ class AccountingEntry(Document):
 					except Exception:
 						pass
 
-		# 6. Populate Taxes: from Auto Tax rows
+		# 6. Populate Taxes: from Auto Tax rows OR rows on a Tax-type account
 		for row in self.accounts:
-			if row.is_auto_tax_row and flt(row.credit) > 0:
+			if _is_tax_row(row) and flt(row.credit) > 0:
 				tax_row = si.append("taxes", {})
 				tax_row.charge_type = "Actual"
 				tax_row.account_head = row.account
@@ -569,7 +615,7 @@ class AccountingEntry(Document):
 		# the invoice with: "Please Include Sales Taxes and Charges Template on invoice"
 		_first_tax_category = None
 		for r in self.accounts:
-			if r.tax_category and not r.is_auto_tax_row:
+			if r.tax_category and not _is_tax_row(r):
 				_first_tax_category = r.tax_category
 				break
 		if _first_tax_category:
@@ -645,7 +691,7 @@ class AccountingEntry(Document):
 			if t.charge_type == "Actual" and flt(t.tax_amount) > 0:
 				rate = flt(flt(t.tax_amount) / net_total * 100, 2)
 				frappe.db.set_value(t.doctype, t.name, "rate", rate)
-			
+
 @frappe.whitelist()
 def make_invoice(docname):
 	"""Returns the mapped Purchase Invoice or Sales Invoice doc as dict for client-side routing/preview."""
