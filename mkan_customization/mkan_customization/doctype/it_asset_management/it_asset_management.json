@@ -259,13 +259,13 @@
    "fieldname": "transferred_to",
    "fieldtype": "Link",
    "label": "Transferred To",
-   "options": "Supplier"
+   "options": "Customer"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-27 12:06:32.416781",
+ "modified": "2026-09-14 11:01:49.309748",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "IT Asset Management",
