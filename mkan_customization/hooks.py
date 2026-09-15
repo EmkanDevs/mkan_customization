@@ -192,8 +192,7 @@ doc_events = {
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
         ],
-        "before_validate":"mkan_customization.mkan_customization.doc_events.sales_invoice.validate",
-        "before_save":"mkan_customization.mkan_customization.doc_events.sales_invoice.add_items"
+        "before_validate":"mkan_customization.mkan_customization.doc_events.sales_invoice.validate"
     },
     "PO Invoice Acknowledgement":{
         "before_save":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.before_save",
@@ -343,11 +342,7 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"dt": ["in", ["Helpdesk Request", "Purchase Invoice Item"]]},
-    },
-    {
-        "dt": "Custom Field",
-        "filters": {"module": ["in", ["Mkan Customization"]]},
+        "filters": {"fieldname": ["in", ["custom_visa_type", "custom_abbreviation","custom_item_group_l3","custom_abbreviation_l3","custom_item_group_l2","custom_abbreviation_l2","custom_item_group_l1","custom_abbreviation_l1",""]]},
     },
     {
         "dt": "Property Setter",
@@ -371,3 +366,10 @@ fixtures = [
 from mkan_customization.mkan_customization.override.workflow_action import get_users_next_action_data_for_workflow
 import frappe.workflow.doctype.workflow_action.workflow_action as workflow_action_module
 workflow_action_module.get_users_next_action_data = get_users_next_action_data_for_workflow
+
+from mkan_customization.mkan_customization.override.asset import _make_journal_entry_for_depreciation
+import erpnext.assets.doctype.asset.depreciation as depreciation_module
+
+depreciation_module._make_journal_entry_for_depreciation = (
+    _make_journal_entry_for_depreciation
+)
