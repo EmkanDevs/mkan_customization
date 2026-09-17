@@ -441,7 +441,7 @@ class AccountingEntry(Document):
 			if row.project:
 				item_row.project = row.project
 			if row.department:
-				item_row.custom_department = row.department
+				item_row.department = row.department
 			# Propagate per-row accounting dimensions (task, employee, etc.)
 			for _dim_field in ["task", "employee", "region_location", "asset"]:
 				_val = row.get(_dim_field) or self.get(_dim_field)
