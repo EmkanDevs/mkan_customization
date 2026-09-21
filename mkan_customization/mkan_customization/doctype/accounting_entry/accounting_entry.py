@@ -627,14 +627,23 @@ class AccountingEntry(Document):
 			if _idx < len(_saved_income_accounts) and _saved_income_accounts[_idx]:
 				_item.income_account = _saved_income_accounts[_idx]
 
-		# Ensure payments account is preserved and paid amounts synchronized
-		if si.payments:
-			si.payments[0].account = cash_bank_row.account
-			si.payments[0].amount = paid_amount
-			si.payments[0].base_amount = base_paid_amount
+		# Re-build the payments table from scratch after set_missing_values and
+		# calculate_taxes_and_totals, because set_missing_values (via set_pos_data)
+		# rebuilds the payments child table using the Mode of Payment's *default*
+		# account for this company — not our cash_bank_row.account. Clearing and
+		# re-appending the single correct row guarantees the right bank account is used.
+		si.set("payments", [])
+		payment_row = si.append("payments", {})
+		payment_row.mode_of_payment = mode_of_payment
+		payment_row.amount = paid_amount
+		payment_row.base_amount = base_paid_amount
+		payment_row.account = cash_bank_row.account
 		si.paid_amount = paid_amount
 		si.base_paid_amount = base_paid_amount
 
+		# Carry the correct account on the doc so create_and_submit_invoice can
+		# patch it after insert() (before_save wipes it via set_account_for_mode_of_payment).
+		si._correct_payment_account = cash_bank_row.account
 		return si
 
 	@frappe.whitelist()
@@ -662,6 +671,20 @@ class AccountingEntry(Document):
 				return {"doctype": "Sales Invoice", "name": self.sales_invoice}
 			invoice = self.make_sales_invoice()
 			invoice.insert(ignore_permissions=True)
+			# ERPNext's before_save() calls set_account_for_mode_of_payment() during
+			# insert(), which overwrites our payment account with the Mode of Payment's
+			# default account for the company. Patch the correct account directly in DB
+			# BEFORE submit() so GL entries are created against the right bank account.
+			correct_payment_account = getattr(invoice, "_correct_payment_account", None)
+			if correct_payment_account and invoice.payments:
+				payment_child = invoice.payments[0]
+				frappe.db.set_value(
+					payment_child.doctype,
+					payment_child.name,
+					"account",
+					correct_payment_account,
+				)
+				payment_child.account = correct_payment_account
 			invoice.submit()
 			self._backfill_actual_tax_rate(invoice)
 			frappe.db.set_value("Accounting Entry", self.name, "sales_invoice", invoice.name)
