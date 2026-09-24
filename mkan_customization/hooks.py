@@ -351,6 +351,16 @@ fixtures = [
         },
     },
     {
+        "dt": "Custom Field",
+        "filters": {"module": ["in", ["Mkan Customization"]]},
+    },
+    {
+        "dt": "Property Setter",
+        "filters": {
+            "module": ["in", ["Mkan Customization"]]
+        },
+    },
+    {
         "doctype": "Workspace",
         "filters": {"name": ["in", ["Notification View"]]},
         "data": [
