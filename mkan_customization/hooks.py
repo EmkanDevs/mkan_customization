@@ -342,16 +342,6 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"fieldname": ["in", ["custom_visa_type", "custom_abbreviation","custom_item_group_l3","custom_abbreviation_l3","custom_item_group_l2","custom_abbreviation_l2","custom_item_group_l1","custom_abbreviation_l1",""]]},
-    },
-    {
-        "dt": "Property Setter",
-        "filters": {
-            "module": ["in", ["Mkan Customization"]]
-        },
-    },
-    {
-        "dt": "Custom Field",
         "filters": {"module": ["in", ["Mkan Customization"]]},
     },
     {
