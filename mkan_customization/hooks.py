@@ -60,7 +60,8 @@ doctype_js = {
             "Purchase Invoice":"public/js/purchase_invoice.js",
             "Journal Entry":"public/js/journal_entry.js",
             "Blanket Order":"public/js/blanket_order.js",
-            "Item":"public/js/item.js"
+            "Item":"public/js/item.js",
+            "Asset Movement":"public/js/asset_movement.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -234,7 +235,12 @@ doc_events = {
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
         ],
-    }
+    },
+    "Asset Movement" :{
+        "validate": "mkan_customization.mkan_customization.doc_events.asset_movement.set_target_project",
+        "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
+        "on_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
+    },
 
 }
 
