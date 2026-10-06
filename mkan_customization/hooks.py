@@ -256,6 +256,9 @@ scheduler_events = {
         "mkan_customization.mkan_customization.doctype.gov_document_expiration.gov_document_expiration.send_expiration_reminders",
         "mkan_customization.mkan_customization.doctype.rental_contract.rental_contract.send_rental_reminders_electric_and_water",
         "mkan_customization.mkan_customization.doctype.rental_contract.rental_contract.send_rent_payment_reminders",
+        
+    ],
+    "daily_maintenance": [
         "mkan_customization.mkan_customization.override.asset.post_depreciation_entries",
     ]
 }
