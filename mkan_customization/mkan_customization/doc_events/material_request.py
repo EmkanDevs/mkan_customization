@@ -1,7 +1,10 @@
 import frappe
 
+from mkan_customization.mkan_customization.doc_events.material_request_dimensions import validate_item_dimensions
+
 def validate(self,method):
     self.custom_created_by_user = self.owner
+    validate_item_dimensions(self)
     
 
 @frappe.whitelist()
