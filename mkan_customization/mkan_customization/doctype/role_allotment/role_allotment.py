@@ -91,13 +91,13 @@ def get_role_owners_from_allotment(role_name):
     role_allotments = frappe.get_all(
         "Role Allotment Details",
         filters={"role": role_name},
-        fields=["role_owner"]
+        fields=["role_owners"]
     )
     
     for allotment in role_allotments:
-        if allotment.role_owner:
+        if allotment.role_owners:
             # Split by comma or newline and clean up email addresses
-            emails = allotment.role_owner.replace('\n', ',').split(',')
+            emails = allotment.role_owners.replace('\n', ',').split(',')
             for email in emails:
                 email = email.strip()
                 if email and email not in role_owners:
