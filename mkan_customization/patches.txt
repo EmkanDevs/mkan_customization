@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 
 mkan_customization.mkan_customization.patches.add_project_settings_custom_fields
+mkan_customization.mkan_customization.patches.add_department_cost_center
