@@ -25,6 +25,14 @@ frappe.ui.form.on("Material Request", {
 			}
 		});
 	},
+	onload(frm) {
+		frm.set_query('department', 'items', function(doc, cdt, cdn) {
+            let row = locals[cdt][cdn];
+            return {
+                filters: { custom_project: row.project }
+            };
+        });
+	},
 	refresh: function (frm) {
 		(frm.doc.items || []).forEach(row => set_row_department_requirement(frm, row));
 		frm.events.make_custom_buttons(frm);
