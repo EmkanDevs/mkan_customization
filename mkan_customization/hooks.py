@@ -61,7 +61,12 @@ doctype_js = {
             "Journal Entry":"public/js/journal_entry.js",
             "Blanket Order":"public/js/blanket_order.js",
             "Item":"public/js/item.js",
-            "Asset Movement":"public/js/asset_movement.js"
+            "Asset Movement":"public/js/asset_movement.js",
+            "Timesheet" : "public/js/timesheet.js",
+}
+
+doctype_list_js = {
+    "Timesheet": "public/js/timesheet_list.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -278,7 +283,8 @@ override_whitelisted_methods = {
     "erpnext.stock.doctype.material_request.material_request.make_stock_entry":"mkan_customization.mkan_customization.override.material_request.make_stock_entry",
     "erpnext.stock.doctype.material_request.material_request.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_mr.make_purchase_order",
     "erpnext.buying.doctype.supplier_quotation.supplier_quotation.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_sq.make_purchase_order",
-    "erpnext.stock.doctype.stock_entry.stock_entry.make_stock_in_entry":"mkan_customization.mkan_customization.override.stock_entry.make_stock_in_entry"
+    "erpnext.stock.doctype.stock_entry.stock_entry.make_stock_in_entry":"mkan_customization.mkan_customization.override.stock_entry.make_stock_in_entry",
+    "erpnext.assets.doctype.asset.asset.make_asset_movement":"mkan_customization.mkan_customization.override.asset.make_asset_movement"
 }
 #
 # each overriding function accepts a `data` argument;
@@ -347,7 +353,7 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project","Asset-custom_project"]]},
+        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project", "Asset-custom_project", "Asset Movement Item-department"]]},
     },
     {
         "dt": "Property Setter",
