@@ -61,7 +61,13 @@ doctype_js = {
             "Journal Entry":"public/js/journal_entry.js",
             "Blanket Order":"public/js/blanket_order.js",
             "Item":"public/js/item.js",
-            "Asset Movement":"public/js/asset_movement.js"
+            "Asset Movement":"public/js/asset_movement.js",
+            "Timesheet" : "public/js/timesheet.js",
+}
+
+
+doctype_list_js = {
+    "Timesheet": "public/js/timesheet_list.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
