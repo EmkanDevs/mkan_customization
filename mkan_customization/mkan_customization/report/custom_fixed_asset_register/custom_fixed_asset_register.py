@@ -21,6 +21,9 @@ from erpnext.accounts.utils import get_fiscal_year
 # are different.
 ASSET_CLASS_FIELD_CANDIDATES = ["custom_asset_class", "asset_class"]
 PROJECT_FIELD_CANDIDATES = ["project", "custom_project"]
+DISPOSAL_DATE_FIELD_CANDIDATES = ["disposal_date", "custom_disposal_date"]
+DISPOSAL_PROCEEDS_FIELD_CANDIDATES = ["disposal_proceeds", "custom_disposal_proceeds"]
+DISPOSAL_GAIN_LOSS_FIELD_CANDIDATES = ["gain_loss_on_disposal", "custom_gain_loss_on_disposal"]
 
 
 def _first_existing_field(doctype, candidates):
@@ -75,6 +78,9 @@ def get_data(filters):
 
 	asset_class_field = _first_existing_field("Asset", ASSET_CLASS_FIELD_CANDIDATES)
 	project_field = _first_existing_field("Asset", PROJECT_FIELD_CANDIDATES)
+	disposal_date_field = _first_existing_field("Asset", DISPOSAL_DATE_FIELD_CANDIDATES)
+	disposal_proceeds_field = _first_existing_field("Asset", DISPOSAL_PROCEEDS_FIELD_CANDIDATES)
+	disposal_gain_loss_field = _first_existing_field("Asset", DISPOSAL_GAIN_LOSS_FIELD_CANDIDATES)
 
 	fields = [
 		"name as asset_id",
@@ -98,6 +104,12 @@ def get_data(filters):
 		fields.append(asset_class_field)
 	if project_field:
 		fields.append(project_field)
+	if disposal_date_field:
+		fields.append(disposal_date_field)
+	if disposal_proceeds_field:
+		fields.append(disposal_proceeds_field)
+	if disposal_gain_loss_field:
+		fields.append(disposal_gain_loss_field)
 
 	assets_record = frappe.db.get_all("Asset", filters=conditions, fields=fields)
 	asset_ids = [a.asset_id for a in assets_record]
@@ -112,8 +124,10 @@ def get_data(filters):
 	)
 	finance_book_map = get_asset_finance_book_map(asset_ids, finance_book)
 
-	as_of_date = filters.to_date if filters.filter_based_on == "Date Range" else (
-		filters.year_end_date if filters.filter_based_on == "Fiscal Year" else nowdate()
+	as_of_date = (
+		filters.to_date if filters.filter_based_on == "Date Range"
+		else filters.get("till_date") or filters.year_end_date if filters.filter_based_on == "Fiscal Year"
+		else nowdate()
 	)
 	booked_depreciation_count_map = get_booked_depreciation_count_map(asset_ids, finance_book, as_of_date)
 
@@ -161,35 +175,33 @@ def get_data(filters):
 
 		row = {
 			"bs_account": bs_account,
-			"account_name": account_name_map.get(bs_account),
-			"depreciation_expense_account": cat_accounts.get("depreciation_expense_account"),
 			"accumulated_depreciation_account": cat_accounts.get("accumulated_depreciation_account"),
-			"asset_class": asset_class_value,
-			"asset_category": asset.asset_category,
+			"depreciation_expense_account": cat_accounts.get("depreciation_expense_account"),
 			"asset_id": asset.asset_id,
 			"asset_code": asset.item_code,
-			"asset_description": item_description_map.get(asset.item_code) or asset.asset_name,
+			"asset_category": asset.asset_category,
+			"asset_name": asset.asset_name,
+			"status": asset.status,
+			"op_or_add": "OP" if filters.get("filter_based_on") == "Fiscal Year" and asset.get(frappe.scrub(filters.date_based_on or "Purchase Date")) and getdate(asset.get(frappe.scrub(filters.date_based_on or "Purchase Date"))) < getdate(filters.year_start_date) else "Add",
 			"purchase_date": asset.purchase_date,
 			"available_for_use_date": asset.available_for_use_date,
-			"useful_life_months": useful_life_months,
-			"remaining_life_months": remaining_life_months,
-			"depreciation_method": afb.get("depreciation_method"),
-			"purchase_receipt": asset.purchase_receipt,
+			"opening_gross_cost": opening_gross_cost,
+			"opening_accumulated_depreciation": asset.opening_accumulated_depreciation,
+			"opening_net_book_value": opening_gross_cost - asset.opening_accumulated_depreciation,
+			"depreciation_expense_during_period": depreciation_amount,
+			"closing_accumulated_depreciation": closing_accumulated_depreciation,
+			"closing_net_book_value": asset_value,
 			"project": project_value,
 			"department": asset.department,
-			"vendor_name": pr_supplier_map.get(asset.purchase_receipt)
-			or pi_supplier_map.get(asset.purchase_invoice),
+			"vendor_name": pr_supplier_map.get(asset.purchase_receipt) or pi_supplier_map.get(asset.purchase_invoice),
 			"location": asset.location,
-			"status": asset.status,
-			"opening_gross_cost": opening_gross_cost,
-			"additions": additions,
-			"disposals": disposals,
+			"additions_during_period": additions,
+			"gross_cost_disposed": disposals,
+			"accumulated_depreciation_on_disposals": 0,
 			"closing_gross_cost": closing_gross_cost,
-			"opening_accumulated_depreciation": asset.opening_accumulated_depreciation,
-			"depreciated_amount": depreciation_amount,
-			"closing_accumulated_depreciation": closing_accumulated_depreciation,
-			"asset_value": asset_value,
-			"cost_center": asset.cost_center,
+			"disposal_date": asset.get(disposal_date_field) if disposal_date_field else None,
+			"disposal_proceeds": flt(asset.get(disposal_proceeds_field)) if disposal_proceeds_field else 0,
+			"gain_loss_on_disposal": flt(asset.get(disposal_gain_loss_field)) if disposal_gain_loss_field else 0,
 			"company": asset.company,
 		}
 		data.append(row)
@@ -355,9 +367,12 @@ def get_conditions(filters):
 		fiscal_year = get_fiscal_year_data(filters.from_fiscal_year, filters.to_fiscal_year)
 		validate_fiscal_year(fiscal_year, filters.from_fiscal_year, filters.to_fiscal_year)
 		filters.year_start_date = getdate(fiscal_year.year_start_date)
-		filters.year_end_date = getdate(fiscal_year.year_end_date)
+		filters.year_end_date = getdate(filters.get("till_date") or fiscal_year.year_end_date)
+		if filters.year_end_date < filters.year_start_date:
+			frappe.throw(_("Till Date cannot be earlier than the fiscal year's start date."))
 
-		conditions[date_field] = ["between", [filters.year_start_date, filters.year_end_date]]
+		# Register includes opening assets acquired before the fiscal year, plus additions up to Till Date.
+		conditions[date_field] = ["<=", filters.year_end_date]
 
 	if filters.get("only_existing_assets"):
 		conditions["is_existing_asset"] = filters.get("only_existing_assets")
@@ -407,12 +422,27 @@ def prepare_chart_data(data, filters):
 			d.get("label"), frappe._dict({"asset_value": 0, "depreciated_amount": 0})
 		)
 
+	
 	for d in data:
 		if d.get(date_field):
 			date = d.get(date_field)
 			belongs_to_month = formatdate(date, "MMM YYYY")
-			labels_values_map[belongs_to_month].asset_value += d.get("asset_value")
-			labels_values_map[belongs_to_month].depreciated_amount += d.get("depreciated_amount")
+
+			# Create the month entry if it does not exist
+			if belongs_to_month not in labels_values_map:
+				labels_values_map[belongs_to_month] = frappe._dict({
+					"asset_value": 0,
+					"depreciated_amount": 0,
+				})
+
+			labels_values_map[belongs_to_month].asset_value += flt(
+				d.get("asset_value") or 0
+			)
+
+			labels_values_map[belongs_to_month].depreciated_amount += flt(
+				d.get("depreciated_amount") or 0
+			)
+
 
 	return {
 		"data": {
@@ -593,41 +623,43 @@ def get_purchase_invoice_supplier_map():
 def get_columns(filters):
 	if filters.get("group_by") in ["Asset Category", "Location"]:
 		return [
-			{"label": _("{}").format(filters.get("group_by")), "fieldtype": "Link", "fieldname": frappe.scrub(filters.get("group_by")), "options": filters.get("group_by"), "width": 216},
-			{"label": _("Gross Purchase Amount"), "fieldname": "gross_purchase_amount", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 250},
-			{"label": _("Opening Accumulated Depreciation"), "fieldname": "opening_accumulated_depreciation", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 250},
-			{"label": _("Depreciated Amount"), "fieldname": "depreciated_amount", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 250},
-			{"label": _("Asset Value"), "fieldname": "asset_value", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 250},
+			{"label": _(filters.get("group_by")), "fieldtype": "Link", "fieldname": frappe.scrub(filters.get("group_by")), "options": filters.get("group_by"), "width": 180},
+			{"label": _("Gross Purchase Amount"), "fieldname": "gross_purchase_amount", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 180},
+			{"label": _("Opening Accumulated Depreciation"), "fieldname": "opening_accumulated_depreciation", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 190},
+			{"label": _("Depreciated Amount"), "fieldname": "depreciated_amount", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 160},
+			{"label": _("Asset Value"), "fieldname": "asset_value", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 160},
 			{"label": _("Company"), "fieldname": "company", "fieldtype": "Link", "options": "Company", "width": 120},
 		]
 
+	currency = "Company:company:default_currency"
 	return [
-		{"label": _("B.S. Account"), "fieldname": "bs_account", "fieldtype": "Link", "options": "Account", "width": 140},
-		{"label": _("Account Name"), "fieldname": "account_name", "fieldtype": "Data", "width": 140},
-		{"label": _("Depreciation Expense Account"), "fieldname": "depreciation_expense_account", "fieldtype": "Link", "options": "Account", "width": 160},
-		{"label": _("Accumulated Depreciation Account"), "fieldname": "accumulated_depreciation_account", "fieldtype": "Link", "options": "Account", "width": 160},
-		{"label": _("Asset Class"), "fieldname": "asset_class", "fieldtype": "Data", "width": 100},
-		{"label": _("Asset Category"), "fieldname": "asset_category", "fieldtype": "Link", "options": "Asset Category", "width": 100},
-		{"label": _("Asset ID"), "fieldname": "asset_id", "fieldtype": "Link", "options": "Asset", "width": 100},
-		{"label": _("Asset Code"), "fieldname": "asset_code", "fieldtype": "Data", "width": 100},
-		{"label": _("Asset Description"), "fieldname": "asset_description", "fieldtype": "Data", "width": 160},
-		{"label": _("Purchase Date"), "fieldname": "purchase_date", "fieldtype": "Date", "width": 90},
-		{"label": _("Available for Use Date"), "fieldname": "available_for_use_date", "fieldtype": "Date", "width": 90},
-		{"label": _("Useful Life (Months)"), "fieldname": "useful_life_months", "fieldtype": "Float", "width": 100},
-		{"label": _("Remaining Life (Months)"), "fieldname": "remaining_life_months", "fieldtype": "Float", "width": 110},
-		{"label": _("Depreciation Method"), "fieldname": "depreciation_method", "fieldtype": "Data", "width": 120},
-		{"label": _("Purchase Receipt"), "fieldname": "purchase_receipt", "fieldtype": "Link", "options": "Purchase Receipt", "width": 120},
-		{"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
-		{"label": _("Department"), "fieldname": "department", "fieldtype": "Link", "options": "Department", "width": 100},
-		{"label": _("Vendor Name"), "fieldname": "vendor_name", "fieldtype": "Data", "width": 100},
-		{"label": _("Location"), "fieldname": "location", "fieldtype": "Link", "options": "Location", "width": 100},
-		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 80},
-		{"label": _("Opening Gross Cost (APC)"), "fieldname": "opening_gross_cost", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 130},
-		{"label": _("Additions / Capitalization"), "fieldname": "additions", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 130},
-		{"label": _("Disposals / Transfers"), "fieldname": "disposals", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 130},
-		{"label": _("Closing Gross Cost (APC)"), "fieldname": "closing_gross_cost", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 130},
-		{"label": _("Opening Accumulated Depreciation"), "fieldname": "opening_accumulated_depreciation", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 140},
-		{"label": _("Current Period Depreciation"), "fieldname": "depreciated_amount", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 140},
-		{"label": _("Closing Accumulated Depreciation"), "fieldname": "closing_accumulated_depreciation", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 140},
-		{"label": _("Closing Net Book Value (NBV)"), "fieldname": "asset_value", "fieldtype": "Currency", "options": "Company:company:default_currency", "width": 140},
+		{"label": _("B.S Account"), "fieldname": "bs_account", "fieldtype": "Link", "options": "Account", "width": 140},
+		{"label": _("Accum. Depr Acc"), "fieldname": "accumulated_depreciation_account", "fieldtype": "Link", "options": "Account", "width": 160},
+		{"label": _("Depr Expense Acc"), "fieldname": "depreciation_expense_account", "fieldtype": "Link", "options": "Account", "width": 160},
+		{"label": _("Asset ID"), "fieldname": "asset_id", "fieldtype": "Link", "options": "Asset", "width": 130},
+		{"label": _("Asset Code"), "fieldname": "asset_code", "fieldtype": "Data", "width": 120},
+		{"label": _("Asset Category"), "fieldname": "asset_category", "fieldtype": "Link", "options": "Asset Category", "width": 140},
+		{"label": _("Asset Name"), "fieldname": "asset_name", "fieldtype": "Data", "width": 180},
+		{"label": _("Status"), "fieldname": "status", "fieldtype": "Data", "width": 100},
+		{"label": _("OP or Add"), "fieldname": "op_or_add", "fieldtype": "Data", "width": 90},
+		{"label": _("Purchase Date"), "fieldname": "purchase_date", "fieldtype": "Date", "width": 110},
+		{"label": _("Available For Use Date"), "fieldname": "available_for_use_date", "fieldtype": "Date", "width": 130},
+		{"label": _("Opening Gross Cost"), "fieldname": "opening_gross_cost", "fieldtype": "Currency", "options": currency, "width": 150},
+		{"label": _("Opening Accumulated Depreciation"), "fieldname": "opening_accumulated_depreciation", "fieldtype": "Currency", "options": currency, "width": 180},
+		{"label": _("Opening Net Book Value"), "fieldname": "opening_net_book_value", "fieldtype": "Currency", "options": currency, "width": 150},
+		{"label": _("Depreciation Expense during Period"), "fieldname": "depreciation_expense_during_period", "fieldtype": "Currency", "options": currency, "width": 180},
+		{"label": _("Closing Accumulated Depreciation"), "fieldname": "closing_accumulated_depreciation", "fieldtype": "Currency", "options": currency, "width": 180},
+		{"label": _("Closing Net Book Value"), "fieldname": "closing_net_book_value", "fieldtype": "Currency", "options": currency, "width": 160},
+		{"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 130},
+		{"label": _("Department"), "fieldname": "department", "fieldtype": "Link", "options": "Department", "width": 130},
+		{"label": _("Vendor Name"), "fieldname": "vendor_name", "fieldtype": "Data", "width": 160},
+		{"label": _("Location"), "fieldname": "location", "fieldtype": "Link", "options": "Location", "width": 130},
+		{"label": _("Additions during Period"), "fieldname": "additions_during_period", "fieldtype": "Currency", "options": currency, "width": 160},
+		{"label": _("Gross Cost Disposed"), "fieldname": "gross_cost_disposed", "fieldtype": "Currency", "options": currency, "width": 150},
+		{"label": _("Accumulated Depreciation on Disposals"), "fieldname": "accumulated_depreciation_on_disposals", "fieldtype": "Currency", "options": currency, "width": 190},
+		{"label": _("Closing Gross Cost"), "fieldname": "closing_gross_cost", "fieldtype": "Currency", "options": currency, "width": 150},
+		{"label": _("Closing Accumulated Depreciation"), "fieldname": "closing_accumulated_depreciation", "fieldtype": "Currency", "options": currency, "width": 180},
+		{"label": _("Disposal Date"), "fieldname": "disposal_date", "fieldtype": "Date", "width": 120},
+		{"label": _("Disposal Proceeds"), "fieldname": "disposal_proceeds", "fieldtype": "Currency", "options": currency, "width": 150},
+		{"label": _("Gain / (Loss) on Disposal"), "fieldname": "gain_loss_on_disposal", "fieldtype": "Currency", "options": currency, "width": 170},
 	]
