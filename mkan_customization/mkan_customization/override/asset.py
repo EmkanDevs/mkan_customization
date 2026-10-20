@@ -233,6 +233,15 @@ def _make_journal_entry_for_depreciation(
 		credit_entry["project"] = project
 		debit_entry["project"] = project
 
+	department = get_asset_department(asset.name)
+	if department:
+		if hasattr(je, "department"):
+			je.department = department
+		elif hasattr(je, "custom_department"):
+			je.custom_department = department
+		credit_entry["department"] = department
+		debit_entry["department"] = department
+
 	je.append("accounts", credit_entry)
 	je.append("accounts", debit_entry)
 
@@ -306,6 +315,51 @@ def get_asset_project(asset_name):
 		as_dict=True
 	)
 	return res[0].get("custom_target_project") if res else frappe.db.get_value("Asset", asset_name, "custom_project")
+
+def get_asset_department(asset_name):
+	res = frappe.db.sql(
+		"""
+		SELECT ami.department
+		FROM `tabAsset Movement Item` ami
+		JOIN `tabAsset Movement` am ON am.name = ami.parent
+		WHERE ami.asset = %s AND am.docstatus = 1
+		  AND IFNULL(ami.department, '') != ''
+		ORDER BY am.transaction_date DESC, am.creation DESC
+		LIMIT 1
+		""",
+		asset_name,
+		as_dict=True
+	)
+	return res[0].get("department") if res else frappe.db.get_value("Asset", asset_name, "department")
+
+@frappe.whitelist()
+def make_asset_movement(assets, purpose=None):
+	import json
+
+	if isinstance(assets, str):
+		assets = json.loads(assets)
+
+	if len(assets) == 0:
+		frappe.throw(_("Atleast one asset has to be selected."))
+
+	asset_movement = frappe.new_doc("Asset Movement")
+	asset_movement.quantity = len(assets)
+	for asset in assets:
+		asset_doc = frappe.get_doc("Asset", asset.get("name"))
+		asset_movement.company = asset_doc.get("company")
+		row = {
+			"asset": asset_doc.get("name"),
+			"asset_name": asset_doc.get("asset_name"),
+			"source_location": asset_doc.get("location"),
+			"from_employee": asset_doc.get("custodian"),
+			"department": asset_doc.get("department"),
+		}
+		if asset_doc.get("custom_project"):
+			row["custom_target_project"] = asset_doc.get("custom_project")
+		asset_movement.append("assets", row)
+
+	if asset_movement.get("assets"):
+		return asset_movement.as_dict()
 
 def get_acc_frozen_upto():
 	acc_frozen_upto = frappe.db.get_single_value("Accounts Settings", "acc_frozen_upto")
