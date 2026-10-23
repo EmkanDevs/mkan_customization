@@ -9,6 +9,21 @@ def validate(self,method):
 
 @frappe.whitelist()
 def validate_before_po_creation(material_request):
+    if frappe.db.get_value("Material Request", material_request, "is_created_from_task"):
+        return True
+
+    # IRPO-linked MR (any line carries an unplanned or planned IRPO row ref):
+    # the IRPO flow controls it, so RFQ and Bid Tabulation are not required
+    irpo_linked = frappe.db.sql(
+        """select name from `tabMaterial Request Item`
+           where parent = %s
+             and (ifnull(cpc_irpo_unplanned_row_ref, '') != ''
+                  or ifnull(cpc_irpo_budget_row_ref, '') != '')
+           limit 1""",
+        material_request,
+    )
+    if irpo_linked:
+        return True
     # Check if there are any submitted RFQs linked to the Material Request
     rfqs = frappe.get_all(
         "Request for Quotation Item",
