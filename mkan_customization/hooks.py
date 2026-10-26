@@ -25,7 +25,10 @@ app_license = "GPL-3.0"
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/mkan_customization/css/supplier_purchase_da.css"
+app_include_css = [
+	"/assets/mkan_customization/css/supplier_purchase_da.css",
+	"/assets/mkan_customization/css/recruitment_control_center.css",
+]
 # app_include_js = "/assets/mkan_customization/js/mkan_customization.js"
 # app_include_js = "/assets/mkan_customization/js/doctype_list.js"
 
@@ -154,6 +157,7 @@ has_permission = {
 
 override_doctype_class = {
 	"Expense Claim": "mkan_customization.mkan_customization.override.expense_claim.ExpenseClaim",
+	"Asset Movement": "mkan_customization.mkan_customization.override.asset_movement.AssetMovement",
 }
 
 # Document Events
@@ -247,7 +251,17 @@ doc_events = {
         "on_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
     },
 
+    "IT Asset Management": {
+        "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+    },
+    "Driver History": {
+        "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+    },
+    "Equipment Log Register": {
+        "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+    },
 }
+
 
 # Scheduled Tasks
 # ---------------
