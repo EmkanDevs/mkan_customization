@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-10-26 11:45:47.425527",
+ "modified": "2026-10-27 07:57:54.223706",
  "modified_by": "Administrator",
  "module": "mkan_customization",
  "name": "Onboarding Task Progress",
@@ -25,6 +25,9 @@
   },
   {
    "role": "HR User"
+  },
+  {
+   "role": "System Manager"
   }
  ],
  "timeout": 0

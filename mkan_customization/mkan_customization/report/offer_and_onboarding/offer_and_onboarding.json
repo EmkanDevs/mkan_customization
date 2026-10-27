@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-10-26 11:43:58.186252",
+ "modified": "2026-10-27 07:58:02.985437",
  "modified_by": "Administrator",
  "module": "mkan_customization",
  "name": "Offer and Onboarding",
@@ -25,6 +25,9 @@
   },
   {
    "role": "HR Manager"
+  },
+  {
+   "role": "System Manager"
   }
  ],
  "timeout": 0

@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2026-10-26 12:50:03.402069",
+ "modified": "2026-10-27 08:14:52.842354",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "recruitment-control-center",
@@ -12,7 +12,13 @@
  "page_name": "recruitment-control-center",
  "roles": [
   {
-   "role": "Recruitment Control Center User"
+   "role": "System Manager"
+  },
+  {
+   "role": "HR User"
+  },
+  {
+   "role": "HR Manager"
   }
  ],
  "script": null,
