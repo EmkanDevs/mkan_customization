@@ -257,9 +257,9 @@ doc_events = {
     "Driver History": {
         "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
     },
-    "Equipment Log Register": {
-        "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
-    },
+    # "Equipment Log Register": {
+    #     "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+    # },
 }
 
 
