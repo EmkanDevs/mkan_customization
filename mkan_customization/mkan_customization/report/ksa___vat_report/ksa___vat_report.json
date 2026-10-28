@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "add_translate_data": 0,
  "columns": [],
  "creation": "2026-10-05 10:20:08.046428",
@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": null,
- "modified": "2026-10-05 10:20:08.046428",
+ "modified": "2026-10-26 14:54:11.582562",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "KSA - VAT Report",
