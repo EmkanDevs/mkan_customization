@@ -28,6 +28,10 @@ app_license = "GPL-3.0"
 app_include_css = [
 	"/assets/mkan_customization/css/supplier_purchase_da.css",
 	"/assets/mkan_customization/css/recruitment_control_center.css",
+    
+]
+app_include_js = [
+	"/assets/mkan_customization/js/excel_export.js?v=1.2",
 ]
 # app_include_js = "/assets/mkan_customization/js/mkan_customization.js"
 # app_include_js = "/assets/mkan_customization/js/doctype_list.js"
@@ -192,6 +196,8 @@ doc_events = {
     },
     "Payment Entry":{
         "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
+        "on_submit": "mkan_customization.mkan_customization.doc_events.payment_entry.on_submit",
+        "on_cancel": "mkan_customization.mkan_customization.doc_events.payment_entry.on_cancel",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
@@ -248,18 +254,33 @@ doc_events = {
     "Asset Movement" :{
         "validate": "mkan_customization.mkan_customization.doc_events.asset_movement.set_target_project",
         "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
-        "on_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
+        # "on_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
+        "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.block_movement_cancel_if_driver_history_submitted",
+        "on_cancel": [
+            "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
+            "mkan_customization.mkan_customization.doc_events.asset_movement.clear_assignment_link_on_cancel",
+        ],
     },
 
     "IT Asset Management": {
+        # "validate": "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
+            "mkan_customization.mkan_customization.doc_events.asset_movement.validate_single_new_assignment_row",
+            # "mkan_customization.mkan_customization.doc_events.asset_movement.validate_location_locked",
+        ],
         "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
     },
     "Driver History": {
-        "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+        # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+        "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement_on_submit",
+        "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
     },
-    # "Equipment Log Register": {
-    #     "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
-    # },
+    "Equipment Log Register": {
+        # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+        "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+        "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
+    },
 }
 
 
