@@ -193,17 +193,20 @@ def export_query_report(form_params):
     fieldtypes = [c.get("fieldtype") or "Data" for c in col_dicts]
 
     _build_and_send(
-        report_name, labels, fieldnames, fieldtypes,
-        data.get("result") or [], frappe.scrub(report_name) + ".xlsx",
+        report_name,
+        labels,
+        fieldnames,
+        fieldtypes,
+        data.get("result") or [],
+        frappe.scrub(report_name) + ".xlsx",
     )
 
 
 # ---------------------------------------------------------------------------
-# 2. List View export
+# 2. Report View export (current filters, sort, visible columns)
 # ---------------------------------------------------------------------------
 @frappe.whitelist()
 def export_list_view(form_params):
-    """Export the current list view (filters, sort, visible columns) to Excel."""
     if isinstance(form_params, str):
         form_params = json.loads(form_params)
     form_params = frappe._dict(form_params or {})
@@ -218,7 +221,6 @@ def export_list_view(form_params):
     filters = form_params.get("filters") or []
     or_filters = form_params.get("or_filters") or []
 
-    # Build columns from what the user sees; keep only valid, permitted fields
     requested = form_params.get("columns") or []
     valid_standard = {"name", "owner", "creation", "modified", "modified_by", "docstatus", "idx"}
     columns = []
@@ -232,13 +234,23 @@ def export_list_view(form_params):
                 continue
             columns.append({"fieldname": fn, "label": df.label or fn, "fieldtype": df.fieldtype})
         elif fn in valid_standard:
-            ftype = {"creation": "Datetime", "modified": "Datetime", "docstatus": "Int", "idx": "Int"}.get(fn, "Data")
-            columns.append({"fieldname": fn, "label": c.get("label") or fn.replace("_", " ").title(), "fieldtype": ftype})
+            ftype = {
+                "creation": "Datetime",
+                "modified": "Datetime",
+                "docstatus": "Int",
+                "idx": "Int",
+            }.get(fn, "Data")
+            columns.append(
+                {
+                    "fieldname": fn,
+                    "label": c.get("label") or fn.replace("_", " ").title(),
+                    "fieldtype": ftype,
+                }
+            )
 
     if not columns:
         columns = [{"fieldname": "name", "label": _("ID"), "fieldtype": "Data"}]
 
-    # Safe order_by
     sort_by = form_params.get("sort_by") or "modified"
     sort_order = (form_params.get("sort_order") or "desc").lower()
     if sort_order not in ("asc", "desc"):

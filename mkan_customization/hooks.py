@@ -31,7 +31,7 @@ app_include_css = [
     
 ]
 app_include_js = [
-	"/assets/mkan_customization/js/excel_export.js?v=1.2",
+	"/assets/mkan_customization/js/excel_export.js?v=1.4",
 ]
 # app_include_js = "/assets/mkan_customization/js/mkan_customization.js"
 # app_include_js = "/assets/mkan_customization/js/doctype_list.js"

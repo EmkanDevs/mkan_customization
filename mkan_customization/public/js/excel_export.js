@@ -10,8 +10,6 @@
         const payload = { form_params: JSON.stringify(params) };
         if (typeof open_url_post === "function") {
             open_url_post(url, payload);
-        } else if (frappe?.utils?.open_url_post) {
-            frappe.utils.open_url_post(url, payload);
         } else {
             const form = document.createElement("form");
             form.method = "POST";
@@ -33,7 +31,7 @@
         }
     }
 
-    // ------------------------- Query Report -------------------------
+    // ------------------------- Query / Script Report -------------------------
     function download_report_excel(report) {
         report = report || frappe.query_report;
         if (!report || !report.report_name) {
@@ -94,74 +92,71 @@
         return true;
     }
 
-    // --------------------------- List View ---------------------------
-    function download_list_excel(list_view) {
-        if (!list_view?.doctype) {
-            frappe.show_alert({ message: __("Could not detect the current list."), indicator: "red" });
+    // ------------------------------ Report View ------------------------------
+    function download_report_view_excel(view) {
+        if (!view?.doctype) {
+            frappe.show_alert({ message: __("Could not detect the current view."), indicator: "red" });
             return;
         }
 
-        const columns = (list_view.columns || [])
-            .filter((c) => c.df && c.df.fieldname)
-            .map((c) => ({ fieldname: c.df.fieldname, label: c.df.label }));
+        // Report View columns keep their field info in `docfield`
+        const columns = (view.columns || [])
+            .map((c) => c.docfield || c.df)
+            .filter((df) => df && df.fieldname && (!df.parent || df.parent === view.doctype))
+            .map((df) => ({ fieldname: df.fieldname, label: df.label }));
 
-        // Make sure the ID is always included
         if (!columns.some((c) => c.fieldname === "name")) {
             columns.unshift({ fieldname: "name", label: __("ID") });
         }
 
-        const filters = list_view.get_filters_for_args ? list_view.get_filters_for_args() : [];
+        const filters = view.get_filters_for_args ? view.get_filters_for_args() : [];
 
         frappe.show_alert({ message: __("Preparing Excel..."), indicator: "green" });
         post_download(LIST_URL, {
-            doctype: list_view.doctype,
+            doctype: view.doctype,
             filters: filters,
             columns: columns,
-            sort_by: list_view.sort_by,
-            sort_order: list_view.sort_order,
+            sort_by: view.sort_by,
+            sort_order: view.sort_order,
         });
     }
 
-    function add_list_button(list_view) {
-        if (!list_view?.page?.wrapper) return;
-        if (list_view.page.wrapper.find("." + BUTTON_CLASS).length) return;
-        // Respect the Export permission
-        if (!frappe.model.can_export(list_view.doctype)) return;
+    function add_report_view_button(view) {
+        if (!view?.page?.wrapper) return;
+        if (view.page.wrapper.find("." + BUTTON_CLASS).length) return;
+        if (frappe.model.can_export && !frappe.model.can_export(view.doctype)) return;
 
-        const $btn = list_view.page.add_inner_button(BUTTON_LABEL, () => download_list_excel(list_view));
+        const $btn = view.page.add_inner_button(BUTTON_LABEL, () => download_report_view_excel(view));
         if ($btn) $btn.addClass(BUTTON_CLASS);
     }
 
-    function patch_list_view() {
-        const LV = frappe.views?.ListView;
-        if (!LV) return false;
-        if (LV.prototype._custom_export_patched) return true;
-        LV.prototype._custom_export_patched = true;
+    function try_add_report_view_button() {
+        const v = window.cur_list;
+        if (!v || !v.page || !v.page.wrapper) return;
 
-        const original_render = LV.prototype.render;
-        if (original_render) {
-            LV.prototype.render = function (...args) {
-                const result = original_render.apply(this, args);
-                add_list_button(this);
-                return result;
-            };
+        // remove any stale button, then add it only on Report View
+        v.page.wrapper.find("." + BUTTON_CLASS).remove();
+        if (v.doctype && v.view_name === "Report") {
+            add_report_view_button(v);
         }
-        return true;
     }
 
-    // ---------------------------- Bootstrap ----------------------------
+    // ------------------------------- Bootstrap -------------------------------
     frappe.download_report_excel = download_report_excel;
-    frappe.download_list_excel = download_list_excel;
+    frappe.download_report_view_excel = download_report_view_excel;
 
     patch_query_report();
-    patch_list_view();
 
     $(document).on("page-change", () => {
         patch_query_report();
-        patch_list_view();
+        setTimeout(try_add_report_view_button, 400);
         const route = frappe.get_route();
         if (frappe.query_report && route?.[0] === "query-report") {
             setTimeout(() => add_report_button(frappe.query_report), 100);
         }
     });
+
+    if (frappe.router?.on) {
+        frappe.router.on("change", () => setTimeout(try_add_report_view_button, 600));
+    }
 })();
