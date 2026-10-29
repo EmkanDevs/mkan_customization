@@ -54,7 +54,7 @@ app_include_js = [
 doctype_js = {
             "Request for Quotation":"public/js/request_for_quotation.js",
             "Stock Entry":"public/js/stock_entry.js",
-            "Purchase Order":"public/js/purchase_order.js",
+            
             "Expense Claim":"public/js/expense_claim.js",
             "Supplier Quotation":"public/js/supplier_quotation.js",
             "Project":"public/js/project.js",
@@ -70,7 +70,10 @@ doctype_js = {
             "Item":"public/js/item.js",
             "Asset Movement":"public/js/asset_movement.js",
             "Timesheet" : "public/js/timesheet.js",
-            # "Purchase Order": "public/js/purchase_order_amendment_logs.js",
+            "Purchase Order": [
+                "public/js/purchase_order.js",
+                "public/js/purchase_order_amendment_logs.js",
+            ],
 }
 
 doctype_list_js = {
@@ -171,7 +174,11 @@ override_doctype_class = {
 
 doc_events = {
     "Purchase Order":{
-        "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert"
+        "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert",
+        "on_update": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
+        "on_submit": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
+        "on_cancel": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
+        "on_update_after_submit": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
     },
     "Material Request":{
         "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate",
@@ -263,25 +270,25 @@ doc_events = {
         ],
     },
 
-    # "IT Asset Management": {
-    #     # "validate": "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
-    #     "validate": [
-    #         "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
-    #         "mkan_customization.mkan_customization.doc_events.asset_movement.validate_single_new_assignment_row",
-    #         # "mkan_customization.mkan_customization.doc_events.asset_movement.validate_location_locked",
-    #     ],
-    #     "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
-    # },
-    # "Driver History": {
-    #     # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
-    #     "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement_on_submit",
-    #     "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
-    # },
-    # "Equipment Log Register": {
-    #     # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
-    #     "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
-    #     "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
-    # },
+    "IT Asset Management": {
+        # "validate": "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
+        "validate": [
+            "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
+            "mkan_customization.mkan_customization.doc_events.asset_movement.validate_single_new_assignment_row",
+            # "mkan_customization.mkan_customization.doc_events.asset_movement.validate_location_locked",
+        ],
+        "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+    },
+    "Driver History": {
+        # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+        "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement_on_submit",
+        "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
+    },
+    "Equipment Log Register": {
+        # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+        "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+        "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
+    },
 }
 
 
@@ -389,7 +396,7 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project", "Asset-custom_project", "Asset Movement Item-department"]]},
+        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project", "Asset-custom_project", "Asset Movement Item-department","Driver History-custom_asset_movement", "IT Asset Assigned User2-custom_asset_movement",]]},
     },
     {
         "dt": "Property Setter",
