@@ -204,8 +204,8 @@ doc_events = {
     },
     "Payment Entry":{
         "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
-        "on_submit": "mkan_customization.mkan_customization.doc_events.payment_entry.on_submit",
-        "on_cancel": "mkan_customization.mkan_customization.doc_events.payment_entry.on_cancel",
+        # "on_submit": "mkan_customization.mkan_customization.doc_events.payment_entry.on_submit",
+        # "on_cancel": "mkan_customization.mkan_customization.doc_events.payment_entry.on_cancel",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
