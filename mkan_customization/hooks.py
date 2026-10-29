@@ -70,6 +70,7 @@ doctype_js = {
             "Item":"public/js/item.js",
             "Asset Movement":"public/js/asset_movement.js",
             "Timesheet" : "public/js/timesheet.js",
+            # "Purchase Order": "public/js/purchase_order_amendment_logs.js",
 }
 
 doctype_list_js = {
@@ -262,25 +263,25 @@ doc_events = {
         ],
     },
 
-    "IT Asset Management": {
-        # "validate": "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
-        "validate": [
-            "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
-            "mkan_customization.mkan_customization.doc_events.asset_movement.validate_single_new_assignment_row",
-            # "mkan_customization.mkan_customization.doc_events.asset_movement.validate_location_locked",
-        ],
-        "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
-    },
-    "Driver History": {
-        # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
-        "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement_on_submit",
-        "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
-    },
-    "Equipment Log Register": {
-        # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
-        "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
-        "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
-    },
+    # "IT Asset Management": {
+    #     # "validate": "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
+    #     "validate": [
+    #         "mkan_customization.mkan_customization.doc_events.asset_movement.validate_locked_assignment_rows",
+    #         "mkan_customization.mkan_customization.doc_events.asset_movement.validate_single_new_assignment_row",
+    #         # "mkan_customization.mkan_customization.doc_events.asset_movement.validate_location_locked",
+    #     ],
+    #     "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+    # },
+    # "Driver History": {
+    #     # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement",
+    #     "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_asset_movement_on_submit",
+    #     "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
+    # },
+    # "Equipment Log Register": {
+    #     # "on_update": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+    #     "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.create_equipment_log_movements",
+    #     "before_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.cancel_asset_movements",
+    # },
 }
 
 
