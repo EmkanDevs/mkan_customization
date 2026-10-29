@@ -175,10 +175,10 @@ override_doctype_class = {
 doc_events = {
     "Purchase Order":{
         "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert",
-        "on_update": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
-        "on_submit": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
-        "on_cancel": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
-        "on_update_after_submit": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
+        # "on_update": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
+        # "on_submit": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
+        # "on_cancel": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
+        # "on_update_after_submit": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
     },
     "Material Request":{
         "validate":"mkan_customization.mkan_customization.doc_events.material_request.validate",
