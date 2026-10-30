@@ -231,9 +231,11 @@ doc_events = {
     #     "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
     # },
     "Journal Entry": {
+        "before_validate": "mkan_customization.mkan_customization.doc_events.journal_entry.before_validate",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.journal_entry.validate",
         ],
     },
     "Delivery Note": {
@@ -289,7 +291,8 @@ override_whitelisted_methods = {
     "erpnext.stock.doctype.material_request.material_request.make_stock_entry":"mkan_customization.mkan_customization.override.material_request.make_stock_entry",
     "erpnext.stock.doctype.material_request.material_request.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_mr.make_purchase_order",
     "erpnext.buying.doctype.supplier_quotation.supplier_quotation.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_sq.make_purchase_order",
-    "erpnext.stock.doctype.stock_entry.stock_entry.make_stock_in_entry":"mkan_customization.mkan_customization.override.stock_entry.make_stock_in_entry"
+    "erpnext.stock.doctype.stock_entry.stock_entry.make_stock_in_entry":"mkan_customization.mkan_customization.override.stock_entry.make_stock_in_entry",
+    "erpnext.accounts.doctype.journal_entry.journal_entry.get_account_details_and_party_type": "mkan_customization.mkan_customization.override.journal_entry.get_account_details_and_party_type"
 }
 #
 # each overriding function accepts a `data` argument;
@@ -389,3 +392,7 @@ import erpnext.assets.doctype.asset.depreciation as depreciation_module
 depreciation_module._make_journal_entry_for_depreciation = (
     _make_journal_entry_for_depreciation
 )
+
+from mkan_customization.mkan_customization.override.journal_entry import apply_gl_entry_patch
+apply_gl_entry_patch()
+
