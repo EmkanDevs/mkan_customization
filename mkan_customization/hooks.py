@@ -62,7 +62,6 @@ doctype_js = {
             "Material Request":"public/js/material_request.js",
             "Sales Invoice":"public/js/sales_invoice.js",
             "Sales Order":"public/js/sales_order.js",
-            "Supplier":"public/js/supplier.js",
             "Employee":"public/js/employee.js",
             "Purchase Invoice":"public/js/purchase_invoice.js",
             "Journal Entry":"public/js/journal_entry.js",
@@ -70,10 +69,7 @@ doctype_js = {
             "Item":"public/js/item.js",
             "Asset Movement":"public/js/asset_movement.js",
             "Timesheet" : "public/js/timesheet.js",
-            "Purchase Order": [
-                "public/js/purchase_order.js",
-                "public/js/purchase_order_amendment_logs.js",
-            ],
+            "Purchase Order": "public/js/purchase_order.js",
 }
 
 doctype_list_js = {
@@ -251,6 +247,7 @@ doc_events = {
         "validate": [
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
+            "mkan_customization.mkan_customization.doc_events.journal_entry.validate",
         ],
     },
     "Delivery Note": {
@@ -327,7 +324,8 @@ override_whitelisted_methods = {
     "erpnext.stock.doctype.material_request.material_request.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_mr.make_purchase_order",
     "erpnext.buying.doctype.supplier_quotation.supplier_quotation.make_purchase_order":"mkan_customization.mkan_customization.override.purchase_order_sq.make_purchase_order",
     "erpnext.stock.doctype.stock_entry.stock_entry.make_stock_in_entry":"mkan_customization.mkan_customization.override.stock_entry.make_stock_in_entry",
-    "erpnext.assets.doctype.asset.asset.make_asset_movement":"mkan_customization.mkan_customization.override.asset.make_asset_movement"
+    "erpnext.assets.doctype.asset.asset.make_asset_movement":"mkan_customization.mkan_customization.override.asset.make_asset_movement",
+    "erpnext.accounts.doctype.journal_entry.journal_entry.get_account_details_and_party_type": "mkan_customization.mkan_customization.override.journal_entry.get_account_details_and_party_type"
 }
 #
 # each overriding function accepts a `data` argument;
@@ -427,3 +425,6 @@ import erpnext.assets.doctype.asset.depreciation as depreciation_module
 depreciation_module._make_journal_entry_for_depreciation = (
     _make_journal_entry_for_depreciation
 )
+
+from mkan_customization.mkan_customization.override.journal_entry import apply_monkey_patches
+apply_monkey_patches()
