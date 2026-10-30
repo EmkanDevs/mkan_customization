@@ -396,7 +396,7 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project", "Asset-custom_project", "Asset Movement Item-department","Driver History-custom_asset_movement", "IT Asset Assigned User2-custom_asset_movement",]]},
+        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project", "Asset-custom_project", "Asset Movement Item-department","Driver History-custom_asset_movement", "IT Asset Assigned User2-custom_asset_movement", "Material Request-custom_is_created_from_task",]]},
     },
     {
         "dt": "Property Setter",
