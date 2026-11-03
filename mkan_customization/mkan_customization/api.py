@@ -8,6 +8,7 @@ from frappe import _
 from frappe.desk.query_report import get_column_as_dict, run
 from frappe.utils import cint, cstr, flt, get_datetime, strip_html
 from openpyxl import Workbook
+from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils import get_column_letter
 
@@ -49,85 +50,114 @@ def normalize_report_filters(raw):
 # Shared workbook builder + download response
 # ---------------------------------------------------------------------------
 def _build_and_send(title, labels, fieldnames, fieldtypes, rows, filename):
-    wb = Workbook()
-    ws = wb.active
-    ws.title = (title or "Sheet1")[:31]
+    wb = Workbook(write_only=True)
+    ws = wb.create_sheet((title or "Sheet1")[:31])
 
     header_font = Font(bold=True, size=10)
-    thin = Side(style="thin", color="000000")
-    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    thin = Side(style="thin", color="D3D3D3")
+    header_border = Border(left=thin, right=thin, top=thin, bottom=thin)
     center = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    left_align = Alignment(horizontal="left", vertical="center")
     right_align = Alignment(horizontal="right", vertical="center")
+    left_align = Alignment(horizontal="left", vertical="center")
 
-    for idx, label in enumerate(labels, start=1):
-        cell = ws.cell(row=1, column=idx, value=label)
+    header_cells = []
+    for label in labels:
+        cell = WriteOnlyCell(ws, value=label)
         cell.font = header_font
         cell.alignment = center
-        cell.border = border
-    ws.row_dimensions[1].height = 20
+        cell.border = header_border
+        header_cells.append(cell)
+    ws.append(header_cells)
 
-    max_width = [len(str(lbl)) + 4 for lbl in labels]
-
-    for r_idx, row in enumerate(rows):
+    max_width = [min(max(len(str(lbl or "")) + 4, 12), 45) for lbl in labels]
+    sample_rows = rows[:min(len(rows), 100)] if rows else []
+    for row in sample_rows:
         if isinstance(row, dict):
-            values = [row.get(fn, "") for fn in fieldnames]
+            vals = [row.get(fn, "") for fn in fieldnames]
+        elif isinstance(row, (list, tuple)):
+            vals = [row[i] if i < len(row) else "" for i in range(len(fieldnames))]
         else:
-            values = [row[i] if i < len(row) else "" for i in range(len(fieldnames))]
+            continue
+        for idx, val in enumerate(vals):
+            if val is not None and val != "":
+                w = len(cstr(val)) + 3
+                if w > max_width[idx]:
+                    max_width[idx] = min(w, 45)
 
-        excel_row = 2 + r_idx
-        for c_idx, (value, ftype) in enumerate(zip(values, fieldtypes), start=1):
-            if isinstance(value, bool):
-                value = "Yes" if value else "No"
-            if value is None:
-                value = ""
-
-            cell = ws.cell(row=excel_row, column=c_idx)
-
-            if ftype in ("Currency", "Float") and isinstance(value, (int, float)):
-                cell.value = flt(value, 2)
-                cell.number_format = "#,##0.00"
-                cell.alignment = right_align
-            elif ftype == "Percent" and isinstance(value, (int, float)):
-                cell.value = flt(value, 2) / 100
-                cell.number_format = "0.00%"
-                cell.alignment = right_align
-            elif ftype == "Int" and isinstance(value, (int, float)):
-                cell.value = cint(value)
-                cell.number_format = "#,##0"
-                cell.alignment = right_align
-            elif ftype in DATE_FIELDTYPES and value:
-                try:
-                    cell.value = get_datetime(value).date()
-                    cell.number_format = "dd-mm-yyyy"
-                except Exception:
-                    cell.value = cstr(value)
-                cell.alignment = center
-            elif ftype in DATETIME_FIELDTYPES and value:
-                try:
-                    cell.value = get_datetime(value)
-                    cell.number_format = "dd-mm-yyyy hh:mm"
-                except Exception:
-                    cell.value = cstr(value)
-                cell.alignment = center
-            else:
-                if isinstance(value, str) and "<" in value and ">" in value:
-                    value = strip_html(value)
-                if isinstance(value, str) and value.startswith("="):
-                    value = f"'{value}"
-                cell.value = value
-                cell.alignment = left_align
-
-            cell.border = border
-
-            text_len = len(cstr(value)) + 2
-            if text_len > max_width[c_idx - 1]:
-                max_width[c_idx - 1] = min(text_len, 45)
-
-    for idx, width in enumerate(max_width, 1):
-        ws.column_dimensions[get_column_letter(idx)].width = min(max(width, 10), 45)
+    for idx, width in enumerate(max_width, start=1):
+        ws.column_dimensions[get_column_letter(idx)].width = width
 
     ws.freeze_panes = "A2"
+
+    for row in rows:
+        if isinstance(row, dict):
+            values = [row.get(fn, "") for fn in fieldnames]
+        elif isinstance(row, (list, tuple)):
+            values = [row[i] if i < len(row) else "" for i in range(len(fieldnames))]
+        else:
+            continue
+
+        clean_row = []
+        for val, ftype in zip(values, fieldtypes):
+            if isinstance(val, bool):
+                val = "Yes" if val else "No"
+            elif val is None:
+                val = ""
+
+            if ftype in ("Currency", "Float") and val != "":
+                try:
+                    num_val = flt(val, 2)
+                    c = WriteOnlyCell(ws, value=num_val)
+                    c.number_format = "#,##0.00"
+                    c.alignment = right_align
+                    clean_row.append(c)
+                except (ValueError, TypeError):
+                    clean_row.append(cstr(val))
+            elif ftype == "Percent" and val != "":
+                try:
+                    pct_val = flt(val, 2) / 100.0
+                    c = WriteOnlyCell(ws, value=pct_val)
+                    c.number_format = "0.00%"
+                    c.alignment = right_align
+                    clean_row.append(c)
+                except (ValueError, TypeError):
+                    clean_row.append(cstr(val))
+            elif ftype == "Int" and val != "":
+                try:
+                    int_val = cint(val)
+                    c = WriteOnlyCell(ws, value=int_val)
+                    c.number_format = "#,##0"
+                    c.alignment = right_align
+                    clean_row.append(c)
+                except (ValueError, TypeError):
+                    clean_row.append(cstr(val))
+            elif ftype in DATE_FIELDTYPES and val:
+                try:
+                    d_val = get_datetime(val).date()
+                    c = WriteOnlyCell(ws, value=d_val)
+                    c.number_format = "yyyy-mm-dd"
+                    c.alignment = center
+                    clean_row.append(c)
+                except Exception:
+                    clean_row.append(cstr(val))
+            elif ftype in DATETIME_FIELDTYPES and val:
+                try:
+                    dt_val = get_datetime(val)
+                    c = WriteOnlyCell(ws, value=dt_val)
+                    c.number_format = "yyyy-mm-dd hh:mm"
+                    c.alignment = center
+                    clean_row.append(c)
+                except Exception:
+                    clean_row.append(cstr(val))
+            else:
+                if isinstance(val, str):
+                    if "<" in val and ">" in val:
+                        val = strip_html(val)
+                    if val.startswith("="):
+                        val = f"'{val}"
+                clean_row.append(val)
+
+        ws.append(clean_row)
 
     buffer = BytesIO()
     wb.save(buffer)
@@ -155,9 +185,17 @@ def export_query_report(form_params):
     if not report_name:
         frappe.throw(_("report_name is required."))
 
+    report_doc = frappe.get_doc("Report", report_name)
+    if not report_doc.is_permitted():
+        frappe.throw(_("You don't have access to Report: {0}").format(_(report_name)), frappe.PermissionError)
+    if not frappe.has_permission(report_doc.ref_doctype, "report"):
+        frappe.throw(_("You don't have permission to get a report on: {0}").format(_(report_doc.ref_doctype)), frappe.PermissionError)
+    if report_doc.disabled:
+        frappe.throw(_("Report {0} is disabled").format(_(report_name)))
+
     filters = normalize_report_filters(form_params.get("filters"))
 
-    # Normalize date_range
+    # Normalize date_range <-> from_date / to_date
     if "date_range" in filters and isinstance(filters["date_range"], str):
         try:
             filters["date_range"] = json.loads(filters["date_range"])
@@ -169,22 +207,83 @@ def export_query_report(form_params):
 
     if not filters.get("date_range") and filters.get("from_date") and filters.get("to_date"):
         filters["date_range"] = [filters.get("from_date"), filters.get("to_date")]
+    elif filters.get("date_range") and isinstance(filters["date_range"], (list, tuple)) and len(filters["date_range"]) == 2:
+        if not filters.get("from_date"):
+            filters["from_date"] = filters["date_range"][0]
+        if not filters.get("to_date"):
+            filters["to_date"] = filters["date_range"][1]
 
-    try:
-        data = run(report_name, filters, ignore_prepared_report=True, are_default_filters=False)
-    except (frappe.PermissionError, frappe.ValidationError):
-        raise
-    except Exception as e:
-        frappe.log_error(message=traceback.format_exc(), title=f"Excel export failed: {report_name}")
+    data = None
+    prepared_report_name = form_params.get("prepared_report_name") or filters.get("prepared_report_name")
+
+    # 1. If explicit prepared report provided, load completed data directly
+    if prepared_report_name and frappe.db.exists("Prepared Report", prepared_report_name):
+        prep_doc = frappe.get_doc("Prepared Report", prepared_report_name)
+        if prep_doc.status == "Completed":
+            raw_data = prep_doc.get_prepared_data()
+            if raw_data:
+                parsed = json.loads(raw_data.decode("utf-8") if isinstance(raw_data, bytes) else raw_data)
+                if isinstance(parsed, dict) and "columns" in parsed:
+                    data = parsed
+                elif isinstance(parsed, list):
+                    columns = (prep_doc.columns and json.loads(prep_doc.columns)) or (parsed[0] if parsed else [])
+                    data = {"columns": columns, "result": parsed}
+        elif prep_doc.status in ("Queued", "Started"):
+            frappe.throw(
+                _("The report is still being generated in the background. Please try again once complete."),
+                title=_("Report In Progress"),
+            )
+
+    # 2. Check for completed background report matching filters if prepared_report is enabled
+    if not data and getattr(report_doc, "prepared_report", False):
+        from frappe.core.doctype.prepared_report.prepared_report import get_completed_prepared_report
+        comp_dn = get_completed_prepared_report(filters, frappe.session.user, report_doc.report_name)
+        if comp_dn:
+            prep_doc = frappe.get_doc("Prepared Report", comp_dn)
+            raw_data = prep_doc.get_prepared_data()
+            if raw_data:
+                parsed = json.loads(raw_data.decode("utf-8") if isinstance(raw_data, bytes) else raw_data)
+                if isinstance(parsed, dict) and "columns" in parsed:
+                    data = parsed
+                elif isinstance(parsed, list):
+                    columns = (prep_doc.columns and json.loads(prep_doc.columns)) or (parsed[0] if parsed else [])
+                    data = {"columns": columns, "result": parsed}
+
+    # 3. If still no data, run query report (respecting prepared report flow if applicable)
+    if not data:
+        try:
+            res = run(report_name, filters, are_default_filters=False)
+            if res.get("prepared_report") and res.get("doc"):
+                prep_doc = res["doc"]
+                raw_data = prep_doc.get_prepared_data()
+                if raw_data:
+                    parsed = json.loads(raw_data.decode("utf-8") if isinstance(raw_data, bytes) else raw_data)
+                    if isinstance(parsed, dict) and "columns" in parsed:
+                        data = parsed
+                    elif isinstance(parsed, list):
+                        columns = (prep_doc.columns and json.loads(prep_doc.columns)) or (parsed[0] if parsed else [])
+                        data = {"columns": columns, "result": parsed}
+            elif res.get("columns"):
+                data = res
+            elif res.get("prepared_report") and not res.get("doc"):
+                # Report is configured as prepared report but not yet generated in background.
+                # Run with ignore_prepared_report=True to produce synchronous export.
+                data = run(report_name, filters, ignore_prepared_report=True, are_default_filters=False)
+        except (frappe.PermissionError, frappe.ValidationError):
+            raise
+        except Exception as e:
+            frappe.log_error(message=traceback.format_exc(), title=f"Excel export failed: {report_name}")
+            frappe.throw(
+                _("Could not export report {0}: {1}: {2}").format(report_name, type(e).__name__, e),
+                title=_("Excel export failed"),
+            )
+
+    data = frappe._dict(data or {})
+
+    if not data.get("columns"):
         frappe.throw(
-            _("Could not export report {0}: {1}: {2}").format(report_name, type(e).__name__, e),
+            _("Report {0} returned no data to export.").format(report_name),
             title=_("Excel export failed"),
-        )
-    data = frappe._dict(data)
-
-    if "columns" not in data:
-        frappe.throw(
-            _("Report {0} returned no columns (keys: {1}).").format(report_name, ", ".join(data.keys()))
         )
 
     col_dicts = [get_column_as_dict(col) for col in (data.get("columns") or [])]

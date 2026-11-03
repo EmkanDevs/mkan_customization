@@ -8,27 +8,36 @@
 
     function post_download(url, params) {
         const payload = { form_params: JSON.stringify(params) };
-        if (typeof open_url_post === "function") {
-            open_url_post(url, payload);
-        } else {
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = url;
-            form.style.display = "none";
-            const input = document.createElement("input");
-            input.name = "form_params";
-            input.value = payload.form_params;
-            form.appendChild(input);
-            if (frappe.csrf_token && frappe.csrf_token !== "None") {
-                const csrf = document.createElement("input");
-                csrf.name = "csrf_token";
-                csrf.value = frappe.csrf_token;
-                form.appendChild(csrf);
-            }
-            document.body.appendChild(form);
-            form.submit();
-            form.remove();
+        let iframe = document.getElementById("custom-excel-export-iframe");
+        if (!iframe) {
+            iframe = document.createElement("iframe");
+            iframe.id = "custom-excel-export-iframe";
+            iframe.name = "custom-excel-export-iframe";
+            iframe.style.display = "none";
+            document.body.appendChild(iframe);
         }
+
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = url;
+        form.target = "custom-excel-export-iframe";
+        form.style.display = "none";
+
+        const input = document.createElement("input");
+        input.name = "form_params";
+        input.value = payload.form_params;
+        form.appendChild(input);
+
+        if (frappe.csrf_token && frappe.csrf_token !== "None") {
+            const csrf = document.createElement("input");
+            csrf.name = "csrf_token";
+            csrf.value = frappe.csrf_token;
+            form.appendChild(csrf);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        setTimeout(() => form.remove(), 1000);
     }
 
     // ------------------------- Query / Script Report -------------------------
@@ -50,10 +59,16 @@
             return;
         }
 
+        const prepared_report_name = report.prepared_report_name || report.prepared_report_document?.name;
+        if (prepared_report_name) {
+            filters.prepared_report_name = prepared_report_name;
+        }
+
         frappe.show_alert({ message: __("Preparing Excel..."), indicator: "green" });
         post_download(REPORT_URL, {
             report_name: report.report_name,
             filters: filters,
+            prepared_report_name: prepared_report_name,
         });
     }
 
