@@ -55,7 +55,6 @@ doctype_js = {
             "Material Request":"public/js/material_request.js",
             "Sales Invoice":"public/js/sales_invoice.js",
             "Sales Order":"public/js/sales_order.js",
-            "Supplier":"public/js/supplier.js",
             "Employee":"public/js/employee.js",
             "Purchase Invoice":"public/js/purchase_invoice.js",
             "Journal Entry":"public/js/journal_entry.js",
@@ -206,6 +205,7 @@ doc_events = {
         "validate":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.validate"
     },
     "Purchase Invoice":{
+        "before_validate": "mkan_customization.mkan_customization.doc_events.purchase_invoice.before_validate",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.purchase_invoice.validate",
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
