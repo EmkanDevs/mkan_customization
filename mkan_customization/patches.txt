@@ -7,3 +7,4 @@
 
 mkan_customization.mkan_customization.patches.add_project_settings_custom_fields
 mkan_customization.mkan_customization.patches.add_department_cost_center
+mkan_customization.mkan_customization.patches.delete_item_accounting_depends_on
