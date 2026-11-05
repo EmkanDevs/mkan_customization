@@ -63,7 +63,7 @@
    "fieldname": "transaction_type",
    "fieldtype": "Select",
    "label": "Transaction Type",
-   "options": "\nIssue / Receiving\nReturn"
+   "options": "\nIssue / Receiving\nReturn\nTransfer Receipt"
   },
   {
    "depends_on": "eval:doc.transaction_type == 'Issue / Receiving'",

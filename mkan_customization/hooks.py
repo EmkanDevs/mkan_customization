@@ -219,6 +219,7 @@ doc_events = {
         "validate":"mkan_customization.mkan_customization.doc_events.po_invoice_acknowledgment.validate"
     },
     "Purchase Invoice":{
+        "before_validate": "mkan_customization.mkan_customization.doc_events.purchase_invoice.before_validate",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.purchase_invoice.validate",
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
@@ -244,6 +245,7 @@ doc_events = {
     #     "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
     # },
     "Journal Entry": {
+        # "before_validate": "mkan_customization.mkan_customization.doc_events.journal_entry.before_validate",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
