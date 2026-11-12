@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 from mkan_customization.mkan_customization.override.journal_entry import (
 	apply_gl_entry_patch,
-	is_employee_target_account,
+	validate_required_party,
 )
 
 # Ensure patch is active when module loads
@@ -14,6 +14,20 @@ def before_validate(doc, method=None):
 	does not require Party on non-employee accounts (e.g. Accounts Receivable / Payable).
 	"""
 	apply_gl_entry_patch()
+	_force_party_not_required(doc)
+
+
+def _force_party_not_required(doc):
+	"""party_not_required is not allow_on_submit, so on submitted docs changing it
+	on the doc would raise "Not allowed to change ... after submission".
+	Persist it directly in the DB instead, then mirror it on the doc (unchanged vs DB)."""
+	if doc.docstatus == 1 and not doc.is_new():
+		if not frappe.db.get_value(doc.doctype, doc.name, "party_not_required"):
+			frappe.db.set_value(
+				doc.doctype, doc.name, "party_not_required", 1, update_modified=False
+			)
+			if getattr(doc, "_doc_before_save", None):
+				doc._doc_before_save.party_not_required = 1
 	doc.party_not_required = 1
 
 
@@ -21,35 +35,11 @@ def validate(doc, method=None):
 	"""Server validation hook for Journal Entry.
 	- Ensures party_not_required = 1 so ERPNext standard does NOT force Party
 	  on non-employee accounts.
-	- For every row containing one of the 4 designated employee accounts:
-	  * Verifies party_type is set to 'Employee'.
+	- For every row whose Account has "Require Party in Journal Entry" ticked:
+	  * Verifies party_type equals the account's Required Party Type.
 	  * Throws an error if party is not filled.
-	  * Syncs party and employee dimension if present.
 	"""
 	apply_gl_entry_patch()
-	doc.party_not_required = 1
+	_force_party_not_required(doc)
 	for row in doc.get("accounts", []):
-		if is_employee_target_account(row.account):
-			if not row.party_type:
-				row.party_type = "Employee"
-			elif row.party_type != "Employee":
-				frappe.throw(
-					_("Row {0}: Party Type must be 'Employee' for account {1}").format(
-						row.idx, frappe.bold(row.account)
-					),
-					title=_("Invalid Party Type"),
-				)
-			# If accounting dimension employee field exists and is set, sync to party if party not set
-			if not row.party and hasattr(row, "employee") and row.get("employee"):
-				row.party = row.get("employee")
-			if not row.party:
-				frappe.throw(
-					_("Row {0}: Party is mandatory for Employee account {1}").format(
-						row.idx, frappe.bold(row.account)
-					),
-					title=_("Mandatory Field Missing"),
-				)
-			# If accounting dimension employee field is empty, sync from party
-			if hasattr(row, "employee") and not row.get("employee"):
-				row.employee = row.party
-
+		validate_required_party(row)

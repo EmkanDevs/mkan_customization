@@ -1,41 +1,28 @@
-// Target employee accounts matching constants
-const EMPLOYEE_ACCOUNT_NUMBERS = [
-    "1157101",
-    "1152002",
-    "1152001",
-    "1152004"
-];
-const EMPLOYEE_ACCOUNT_NAMES = [
-    "petty cash (business advance)",
-    "employee loans",
-    "employee loan",
-    "employees loan",
-    "employee other deduction",
-    "employee other deductions",
-    "employees other deduction",
-    "employees other deductions",
-    "employee loans (e.o.s)",
-    "employee loan (e.o.s)",
-    "employees loan ( e.o.s",
-    "employees loan (e.o.s)",
-    "mega employee loan"
-];
+// Party-required accounts come from the Account master (checkbox "Require Party in
+// Journal Entry" + "Required Party Type"), never from hard-coded lists. The set is fetched from the server and
+// re-fetched on every form refresh, so changes to Account are picked up automatically.
+const EMPLOYEE_ACCOUNTS_METHOD =
+    "mkan_customization.mkan_customization.override.journal_entry.get_party_required_accounts";
+let party_required_accounts = {}; // { account: required party type }
+
+function load_employee_accounts(frm) {
+    return frappe
+        .xcall(EMPLOYEE_ACCOUNTS_METHOD)
+        .then(names => {
+            party_required_accounts = names || {};
+            sync_row_mandatory_states(frm);
+        })
+        .catch(() => {
+            /* keep the previous set; the server re-validates on save anyway */
+        });
+}
+
+function get_required_party_type(account) {
+    return (account && party_required_accounts[String(account).trim()]) || null;
+}
 
 function is_employee_target_account(account) {
-    if (!account) return false;
-    const acc_str = String(account).trim();
-    for (const num of EMPLOYEE_ACCOUNT_NUMBERS) {
-        if (acc_str.startsWith(num) || acc_str.includes(num)) {
-            return true;
-        }
-    }
-    const lower = acc_str.toLowerCase();
-    for (const name of EMPLOYEE_ACCOUNT_NAMES) {
-        if (lower.includes(name)) {
-            return true;
-        }
-    }
-    return false;
+    return !!get_required_party_type(account);
 }
 
 function reset_shared_table_meta(frm) {
@@ -104,8 +91,13 @@ function sync_row_mandatory_states(frm) {
         const grid_row = grid && grid.grid_rows_by_docname && grid.grid_rows_by_docname[row.name];
         if (grid_row) {
             if (grid_row.grid_form) {
-                grid_row.grid_form.toggle_reqd("party_type", is_target);
-                grid_row.grid_form.toggle_reqd("party", is_target);
+                ["party_type", "party"].forEach(fn => {
+                    const fld = grid_row.grid_form.fields_dict && grid_row.grid_form.fields_dict[fn];
+                    if (fld && fld.df) {
+                        fld.df.reqd = is_target ? 1 : 0;
+                        if (fld.refresh) fld.refresh();
+                    }
+                });
             }
         }
     });
@@ -128,9 +120,10 @@ frappe.ui.form.on("Journal Entry", {
     onload(frm) {
         // set directly (no set_value) so the form isn't marked dirty/"Not Saved"
         frm.doc.party_not_required = 1;
-        sync_row_mandatory_states(frm);
+        load_employee_accounts(frm);
     },
     refresh(frm) {
+        load_employee_accounts(frm);
         frm.doc.party_not_required = 1;
         sync_row_mandatory_states(frm);
     },
@@ -148,13 +141,14 @@ frappe.ui.form.on("Journal Entry", {
         let missing_party_rows = [];
         (frm.doc.accounts || []).forEach(row => {
             if (is_employee_target_account(row.account)) {
+                const required_type = get_required_party_type(row.account);
                 if (!row.party_type) {
-                    frappe.model.set_value(row.doctype, row.name, "party_type", "Employee");
+                    frappe.model.set_value(row.doctype, row.name, "party_type", required_type);
                 }
-                if (!row.party && row.employee) {
+                if (required_type === "Employee" && !row.party && row.employee) {
                     frappe.model.set_value(row.doctype, row.name, "party", row.employee);
                 }
-                if (row.party && !row.employee && frm.fields_dict.accounts?.grid?.docfields?.some(f => f.fieldname === "employee")) {
+                if (required_type === "Employee" && row.party && !row.employee && frm.fields_dict.accounts?.grid?.docfields?.some(f => f.fieldname === "employee")) {
                     frappe.model.set_value(row.doctype, row.name, "employee", row.party);
                 }
                 if (!row.party) {
@@ -164,10 +158,8 @@ frappe.ui.form.on("Journal Entry", {
         });
         if (missing_party_rows.length > 0) {
             frappe.throw(
-                __("Row #{0}: Party is mandatory for Employee accounts.", [missing_party_rows.join(", ")])
+                __("Row #{0}: Party is mandatory for these accounts.", [missing_party_rows.join(", ")])
             );
-            frappe.validated = false;
-            return false;
         }
     },
     custom_project(frm) {
@@ -196,8 +188,9 @@ frappe.ui.form.on("Journal Entry Account", {
     account(frm, cdt, cdn) {
         const row = locals[cdt] && locals[cdt][cdn];
         if (!row) return;
-        if (is_employee_target_account(row.account)) {
-            frappe.model.set_value(cdt, cdn, "party_type", "Employee");
+        const required_type = get_required_party_type(row.account);
+        if (required_type && row.party_type !== required_type) {
+            frappe.model.set_value(cdt, cdn, "party_type", required_type);
         }
         sync_row_mandatory_states(frm);
     },
@@ -206,7 +199,7 @@ frappe.ui.form.on("Journal Entry Account", {
     },
     party(frm, cdt, cdn) {
         const row = locals[cdt] && locals[cdt][cdn];
-        if (row && is_employee_target_account(row.account) && row.party) {
+        if (row && get_required_party_type(row.account) === "Employee" && row.party) {
             if (!row.employee && frm.fields_dict.accounts?.grid?.docfields?.some(f => f.fieldname === "employee")) {
                 frappe.model.set_value(cdt, cdn, "employee", row.party);
             }
@@ -215,7 +208,7 @@ frappe.ui.form.on("Journal Entry Account", {
     },
     employee(frm, cdt, cdn) {
         const row = locals[cdt] && locals[cdt][cdn];
-        if (row && is_employee_target_account(row.account) && row.employee) {
+        if (row && get_required_party_type(row.account) === "Employee" && row.employee) {
             if (!row.party) {
                 frappe.model.set_value(cdt, cdn, "party", row.employee);
             }
@@ -226,7 +219,7 @@ frappe.ui.form.on("Journal Entry Account", {
         const row = locals[cdt] && locals[cdt][cdn];
         if (row && is_employee_target_account(row.account)) {
             if (!row.party_type) {
-                frappe.model.set_value(cdt, cdn, "party_type", "Employee");
+                frappe.model.set_value(cdt, cdn, "party_type", get_required_party_type(row.account));
             }
         }
         sync_row_mandatory_states(frm);

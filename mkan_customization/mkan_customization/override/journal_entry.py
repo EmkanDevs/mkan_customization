@@ -4,61 +4,65 @@ from erpnext.accounts.doctype.journal_entry.journal_entry import (
 	get_account_details_and_party_type as standard_get_account_details_and_party_type,
 )
 
-EMPLOYEE_ACCOUNT_NUMBERS = {
-	"1157101",
-	"1152002",
-	"1152001",
-	"1152004",
-}
-EMPLOYEE_ACCOUNT_NAMES = {
-	"petty cash (business advance)",
-	"employee loans",
-	"employee loan",
-	"employees loan",
-	"employee other deduction",
-	"employee other deductions",
-	"employees other deduction",
-	"employees other deductions",
-	"employee loans (e.o.s)",
-	"employee loan (e.o.s)",
-	"employees loan ( e.o.s",
-	"employees loan (e.o.s)",
-	"mega employee loan",
-}
+PARTY_REQUIRED_FLAG = "custom_party_required_employee"  # Account: "Require Party in Journal Entry"
+PARTY_TYPE_FIELD = "custom_required_party_type"  # Account: "Required Party Type"
+
+
+def get_required_party_type(account):
+	"""Party Type that Journal Entry rows must use for this account, or None when
+	Party is optional. Driven entirely by the Account master (no hard-coded lists)."""
+	if not account or not getattr(frappe, "db", None):
+		return None
+	try:
+		flag, party_type = frappe.get_cached_value(
+			"Account", str(account).strip(), [PARTY_REQUIRED_FLAG, PARTY_TYPE_FIELD]
+		) or (0, None)
+	except Exception:
+		return None
+	return (party_type or "Employee") if flag else None
 
 
 def is_employee_target_account(account):
-	"""Check if an account matches any of the designated 4 employee accounts
-	by account number or account name (regardless of company suffix).
-	"""
-	if not account:
+	"""Kept for backward compatibility: True if Party is required for this account."""
+	return bool(get_required_party_type(account))
+
+
+@frappe.whitelist()
+def get_party_required_accounts():
+	"""{account: party_type} for every account that requires a Party (used by the form script)."""
+	rows = frappe.get_all(
+		"Account", filters={PARTY_REQUIRED_FLAG: 1}, fields=["name", PARTY_TYPE_FIELD]
+	)
+	return {r.name: (r.get(PARTY_TYPE_FIELD) or "Employee") for r in rows}
+
+
+def validate_required_party(row):
+	"""Enforce the Account's required Party Type / Party on a Journal Entry row.
+	Returns True if the account requires a party."""
+	required_type = get_required_party_type(row.account)
+	if not required_type:
 		return False
-	account_str = str(account).strip()
-	# 1. Match account number prefix / substring
-	for num in EMPLOYEE_ACCOUNT_NUMBERS:
-		if account_str.startswith(num) or num in account_str:
-			return True
-	# 2. Match target account names (case-insensitive)
-	lower_name = account_str.lower()
-	for name in EMPLOYEE_ACCOUNT_NAMES:
-		if name in lower_name:
-			return True
-	# 3. Match against Account record fields in DB
-	if getattr(frappe, "db", None):
-		try:
-			acc_data = frappe.get_cached_value(
-				"Account", account_str, ["account_number", "account_name"], as_dict=True
-			)
-			if acc_data:
-				if acc_data.get("account_number") in EMPLOYEE_ACCOUNT_NUMBERS:
-					return True
-				acc_name = (acc_data.get("account_name") or "").strip().lower()
-				for name in EMPLOYEE_ACCOUNT_NAMES:
-					if name in acc_name:
-						return True
-		except Exception:
-			pass
-	return False
+	if not row.party_type:
+		row.party_type = required_type
+	elif row.party_type != required_type:
+		frappe.throw(
+			_("Row {0}: Party Type must be '{1}' for account {2}").format(
+				row.idx, required_type, frappe.bold(row.account)
+			),
+			title=_("Invalid Party Type"),
+		)
+	# Employee accounting dimension mirrors the party for Employee rows
+	if required_type == "Employee":
+		if not row.party and row.get("employee"):
+			row.party = row.get("employee")
+	if not row.party:
+		frappe.throw(
+			_("Row {0}: Party is mandatory for account {1}").format(row.idx, frappe.bold(row.account)),
+			title=_("Mandatory Field Missing"),
+		)
+	if required_type == "Employee" and hasattr(row, "employee") and not row.get("employee"):
+		row.employee = row.party
+	return True
 
 
 @frappe.whitelist()
@@ -78,8 +82,9 @@ def get_account_details_and_party_type(
 	)
 	if res is None:
 		res = {}
-	if is_employee_target_account(account):
-		res["party_type"] = "Employee"
+	required_type = get_required_party_type(account)
+	if required_type:
+		res["party_type"] = required_type
 	return res
 
 
@@ -97,7 +102,7 @@ def patched_validate_account_party_type(self):
 		return
 	party_type = getattr(self, "party_type", None) or (self.get("party_type") if isinstance(self, dict) else None)
 	account = getattr(self, "account", None) or (self.get("account") if isinstance(self, dict) else None)
-	if party_type == "Employee" and is_employee_target_account(account):
+	if party_type and party_type == get_required_party_type(account):
 		return
 	if _orig_validate_account_party_type:
 		return _orig_validate_account_party_type(self)
@@ -111,31 +116,10 @@ def patched_journal_entry_validate_party(self):
 	self.party_not_required = 1
 	for d in self.get("accounts", []):
 		account_type = frappe.get_cached_value("Account", d.account, "account_type")
-		if is_employee_target_account(d.account):
-			if not d.party_type:
-				d.party_type = "Employee"
-			elif d.party_type != "Employee":
-				frappe.throw(
-					_("Row {0}: Party Type must be 'Employee' for account {1}").format(
-						d.idx, frappe.bold(d.account)
-					),
-					title=_("Invalid Party Type"),
-				)
-			# If accounting dimension employee field exists and is set, sync to party if party not set
-			if not d.party and hasattr(d, "employee") and d.get("employee"):
-				d.party = d.get("employee")
-			if not d.party:
-				frappe.throw(
-					_("Row {0}: Party is mandatory for Employee account {1}").format(
-						d.idx, frappe.bold(d.account)
-					),
-					title=_("Mandatory Field Missing"),
-				)
-			# If accounting dimension employee field is empty, sync from party
-			if hasattr(d, "employee") and not d.get("employee"):
-				d.employee = d.party
+		if validate_required_party(d):
+			pass
 		else:
-			# Non-employee accounts: Party is optional.
+			# Accounts without a required party: Party is optional.
 			# Only check account type mismatch IF both party_type and party are provided.
 			if d.party_type and d.party:
 				if (
