@@ -126,13 +126,12 @@ if (!frappe.ui.form._orig_check_mandatory) {
 
 frappe.ui.form.on("Journal Entry", {
     onload(frm) {
-        frm.set_value("party_not_required", 1);
+        // set directly (no set_value) so the form isn't marked dirty/"Not Saved"
+        frm.doc.party_not_required = 1;
         sync_row_mandatory_states(frm);
     },
     refresh(frm) {
-        if (!frm.doc.party_not_required) {
-            frm.set_value("party_not_required", 1);
-        }
+        frm.doc.party_not_required = 1;
         sync_row_mandatory_states(frm);
     },
     before_save(frm) {
