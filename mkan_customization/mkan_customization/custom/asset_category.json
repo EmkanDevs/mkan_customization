@@ -25,7 +25,7 @@
    "hide_border": 0,
    "hide_days": 0,
    "hide_seconds": 0,
-   "idx": 3,
+   "idx": 4,
    "ignore_user_permissions": 0,
    "ignore_xss_filter": 0,
    "in_global_search": 0,
@@ -45,7 +45,7 @@
    "name": "Asset Category-custom_category_type",
    "no_copy": 0,
    "non_negative": 0,
-   "options": "\nEquipment and Machinery\nVehicles\nPortables & Tanks\nFurniture\nTools\nElectrical Devices\nIT & Network\nImprovement Rented Building",
+   "options": "\nEquipment and Machinery\nVehicles\nPortables & Tanks\nFurniture\nTools\nComputer Software\nElectrical Devices\nIT & Network\nImprovement Rented Building",
    "owner": "Administrator",
    "permlevel": 0,
    "placeholder": null,
@@ -74,7 +74,7 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2026-11-13 10:42:52.698612",
+   "creation": "2026-11-13 13:27:22.697777",
    "default_value": null,
    "doc_type": "Asset Category",
    "docstatus": 0,
@@ -82,7 +82,7 @@
    "field_name": null,
    "idx": 0,
    "is_system_generated": 0,
-   "modified": "2026-11-13 10:42:52.698612",
+   "modified": "2026-11-13 13:27:22.697777",
    "modified_by": "Administrator",
    "module": null,
    "name": "Asset Category-main-field_order",
@@ -90,7 +90,7 @@
    "property": "field_order",
    "property_type": "Data",
    "row_name": null,
-   "value": "[\"asset_category_name\", \"column_break_3\", \"depreciation_options\", \"category_type\", \"enable_cwip_accounting\", \"non_depreciable_category\", \"finance_book_detail\", \"finance_books\", \"section_break_2\", \"accounts\"]"
+   "value": "[\"asset_category_name\", \"column_break_3\", \"depreciation_options\", \"custom_category_type\", \"enable_cwip_accounting\", \"non_depreciable_category\", \"finance_book_detail\", \"finance_books\", \"section_break_2\", \"accounts\"]"
   }
  ],
  "sync_on_migrate": 1
