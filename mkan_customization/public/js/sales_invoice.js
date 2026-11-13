@@ -1,69 +1,104 @@
 frappe.ui.form.on('Sales Invoice', {
     retention(frm) {
-        calculate_retention(frm);
-    },
-    sales_order(frm) {
-        fetch_retention_from_sales_order(frm);
-    },
-    total(frm) {
-        calculate_retention(frm);
-        calculate_advance_amount(frm);
-    },
-    validate(frm) {
-        calculate_retention(frm);
-        // calculate_advance_amount(frm);
-    },
-    onload(frm) {
-        if (frm.doc.sales_order && !frm.doc.__islocal) {
-            fetch_retention_from_sales_order(frm);
-            // add_manual_advance_row(frm);
-            // calculate_advance_amount(frm);
-            calculate_retention(frm);
-        }
+        validate_and_calculate(frm);
     },
     advance_payment(frm) {
-        // add_manual_advance_row(frm);
+        validate_and_calculate(frm);
     },
- 
+    total(frm) {
+        calculate_cpc_billing(frm);
+    },
+    net_total(frm) {
+        calculate_cpc_billing(frm);
+    },
+    grand_total(frm) {
+        calculate_cpc_billing(frm);
+    },
+    validate(frm) {
+        // F01: Range validation
+        if (frm.doc.advance_payment !== undefined && frm.doc.advance_payment !== null && frm.doc.advance_payment !== "") {
+            const adv = flt(frm.doc.advance_payment);
+            if (adv < 0 || adv > 100) {
+                frappe.msgprint(__('Advance Recovery % must be between 0 and 100.'));
+                frappe.validated = false;
+                return false;
+            }
+        }
+        if (frm.doc.retention !== undefined && frm.doc.retention !== null && frm.doc.retention !== "") {
+            const ret = flt(frm.doc.retention);
+            if (ret < 0 || ret > 100) {
+                frappe.msgprint(__('Retention % must be between 0 and 100.'));
+                frappe.validated = false;
+                return false;
+            }
+        }
+        calculate_cpc_billing(frm);
+    }
 });
 
-function calculate_retention(frm) {
-    const total = frm.doc.total || 0;
-    const retention_percent = frm.doc.retention || 0;
-    const retention_amount = (total * retention_percent) / 100;
-    // rention_amount
-    if (!frm.doc.retention_amount){
-        frm.set_value('retention_amount', retention_amount);
+function validate_and_calculate(frm) {
+    if (frm.doc.advance_payment !== undefined && frm.doc.advance_payment !== null && frm.doc.advance_payment !== "") {
+        const adv = flt(frm.doc.advance_payment);
+        if (adv < 0 || adv > 100) {
+            frappe.show_alert({
+                message: __('Advance Recovery % must be between 0 and 100.'),
+                indicator: 'red'
+            });
+            return;
+        }
     }
+    if (frm.doc.retention !== undefined && frm.doc.retention !== null && frm.doc.retention !== "") {
+        const ret = flt(frm.doc.retention);
+        if (ret < 0 || ret > 100) {
+            frappe.show_alert({
+                message: __('Retention % must be between 0 and 100.'),
+                indicator: 'red'
+            });
+            return;
+        }
+    }
+    calculate_cpc_billing(frm);
+}
+
+function calculate_cpc_billing(frm) {
+    if (frm.doc.docstatus === 1) return;
+
+    const net_total = flt(frm.doc.net_total || frm.doc.total || 0);
+
+    // 1. Calculate Retention Amount strictly based on THIS invoice's net total
+    const retention_percent = flt(frm.doc.retention || 0);
+    const retention_amount = flt((net_total * retention_percent) / 100, 2);
+    frm.set_value('retention_amount', retention_amount);
+
+    // 2. Adjust Advance Allocation if advances rows exist
+    const recovery_percent = flt(frm.doc.advance_payment || 0);
+    const target_recovery = flt((net_total * recovery_percent) / 100, 2);
+
+    let total_advance = 0;
+    let remaining_recovery = target_recovery;
+
+    if (frm.doc.advances && frm.doc.advances.length) {
+        frm.doc.advances.forEach(row => {
+            const available = flt(row.advance_amount);
+            if (remaining_recovery > 0) {
+                const alloc = Math.min(remaining_recovery, available);
+                row.allocated_amount = alloc;
+                remaining_recovery -= alloc;
+            } else {
+                row.allocated_amount = 0;
+            }
+            total_advance += flt(row.allocated_amount);
+        });
+        frm.refresh_field('advances');
+        frm.set_value('total_advance', total_advance);
+    } else {
+        total_advance = flt(frm.doc.total_advance || 0);
+    }
+
+    // 3. Calculate Custom Outstanding Value (Amount Due Now)
+    const grand_total = flt(frm.doc.rounded_total || frm.doc.grand_total || 0);
+    const current_due = Math.max(0, grand_total - total_advance - retention_amount);
+    frm.set_value('custom_outstanding_value_', current_due);
 }
 
 
-function fetch_retention_from_sales_order(frm) {
-    if (!frm.doc.sales_order) return;
-
-    frappe.db.get_doc('Sales Order', frm.doc.sales_order).then(sales_order => {
-        const retention = sales_order.retention || 0;
-        const advance_payment = sales_order.advance_payment || 0;
-
-        frm.set_value('retention', retention);
-    });
-}
-
-function add_manual_advance_row(frm) {
-    const total = frm.doc.total || 0;
-    const advance_percent = frm.doc.advance_payment || 0;
-    const advance_amount = (total * advance_percent) / 100;
-
-    // Optional: clear old manually added rows
-    frm.clear_table("advances");
-
-    // Add custom row to advances table
-    const row = frm.add_child("advances");
-    // row.reference_type = "Manual"; // or "Payment Entry" if needed
-    row.reference_name = ""; // Leave empty
-    row.allocated_amount = advance_amount;
-    row.difference_posting_date = frappe.datetime.get_today();
-
-    // frm.set_value("advance_amount", advance_amount);
-    frm.refresh_field("advances");
-}

@@ -6,7 +6,7 @@ app_email = "info@finbyz.tech"
 app_license = "GPL-3.0"
 
 # Apps
-# ------------------
+# ------------------ 
 
 # required_apps = []
 
@@ -74,6 +74,7 @@ doctype_js = {
 
 doctype_list_js = {
     "Timesheet": "public/js/timesheet_list.js",
+    "Employee": "public/js/employee_list.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -200,8 +201,8 @@ doc_events = {
     },
     "Payment Entry":{
         "on_update": "mkan_customization.mkan_customization.doc_events.payment_entry.on_update",
-        # "on_submit": "mkan_customization.mkan_customization.doc_events.payment_entry.on_submit",
-        # "on_cancel": "mkan_customization.mkan_customization.doc_events.payment_entry.on_cancel",
+        "on_submit": "mkan_customization.mkan_customization.doc_events.payment_entry.on_submit",
+        "on_cancel": "mkan_customization.mkan_customization.doc_events.payment_entry.on_cancel",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
@@ -396,7 +397,7 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Custom Field",
-        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project", "Asset-custom_project", "Asset Movement Item-department","Driver History-custom_asset_movement", "IT Asset Assigned User2-custom_asset_movement", "Material Request-custom_is_created_from_task",]]},
+        "filters": {"name": ["in", ["Asset Movement Item-custom_source_project", "Asset Movement Item-custom_target_project", "Asset-custom_project", "Asset Movement Item-department","Driver History-custom_asset_movement", "IT Asset Assigned User2-custom_asset_movement", "Material Request-custom_is_created_from_task", "Account-custom_party_required_employee", "Account-custom_required_party_type",]]},
     },
     {
         "dt": "Property Setter",
