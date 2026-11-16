@@ -72,7 +72,6 @@ VALUE_ALIASES = {
 
 GENDER_ALIASES = {"m": "Male", "f": "Female", "male": "Male", "female": "Female"}
 DATE_FORMATS = ("%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%Y-%m-%d")
-COMMIT_EVERY = 25
 SAVEPOINT = "employee_batch_row"
 NON_DATA_FIELDS = (
 	"Section Break", "Column Break", "Tab Break", "HTML", "Button", "Table", "Table MultiSelect",
@@ -156,21 +155,14 @@ def _run(file_url, company, create_masters, dry_run, publish=False):
 
 	ctx = _Ctx(company, create_masters, dry_run)
 	_prepare_masters(data, ctx, targets)
-	if not dry_run:
-		frappe.db.commit()
 
 	results, seen, total = [], {}, len(data)
 	for i, rec in enumerate(data, 1):
 		results.append(_process_row(rec, ctx, targets, seen, dry_run))
-		if not dry_run:
-			if i % COMMIT_EVERY == 0:
-				frappe.db.commit()
-			if publish and (i % 10 == 0 or i == total):
-				frappe.publish_realtime(
-					"employee_batch_upload", {"progress": [i, total]}, user=frappe.session.user
-				)
-	if not dry_run:
-		frappe.db.commit()
+		if publish and (i % 10 == 0 or i == total):
+			frappe.publish_realtime(
+				"employee_batch_upload", {"progress": [i, total]}, user=frappe.session.user
+			)
 
 	counts = defaultdict(int)
 	for r in results:
@@ -556,6 +548,5 @@ def _notify(user, subject):
 		frappe.get_doc(
 			{"doctype": "Notification Log", "subject": subject, "for_user": user, "type": "Alert"}
 		).insert(ignore_permissions=True)
-		frappe.db.commit()
 	except Exception:
 		pass
