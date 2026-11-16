@@ -9,24 +9,32 @@ def execute(filters=None):
 
 
 def get_data(filters):
-    conditions = ""
+    conditions = []
+    values = {}
 
     if filters.get("purchase_order"):
-        conditions += f" and po.name = '{filters.purchase_order}'"
+        conditions.append("po.name = %(purchase_order)s")
+        values["purchase_order"] = filters.get("purchase_order")
     if filters.get("project"):
-        conditions += f"""
-            and exists (
+        conditions.append("""
+            exists (
                 select 1 from `tabPurchase Order Item` poi
                 where poi.parent = po.name
-                and poi.project = '{filters.project}'
+                and poi.project = %(project)s
             )
-        """
+        """)
+        values["project"] = filters.get("project")
     if filters.get("from_date"):
-        conditions += f" and po.transaction_date >= '{filters.from_date}'"
+        conditions.append("po.transaction_date >= %(from_date)s")
+        values["from_date"] = filters.get("from_date")
     if filters.get("to_date"):
-        conditions += f" and po.transaction_date <= '{filters.to_date}'"
+        conditions.append("po.transaction_date <= %(to_date)s")
+        values["to_date"] = filters.get("to_date")
     if filters.get("status"):
-        conditions += f" and po.status = '{filters.status}'"
+        conditions.append("po.status = %(status)s")
+        values["status"] = filters.get("status")
+
+    where_conditions = (" and " + " and ".join(conditions)) if conditions else ""
 
     pos = frappe.db.sql(f"""
         select 
@@ -45,8 +53,8 @@ def get_data(filters):
              limit 1) as item_project
 
         from `tabPurchase Order` po
-        where po.docstatus = 1 {conditions}
-    """, as_dict=1)
+        where po.docstatus = 1 {where_conditions}
+    """, values, as_dict=1)
 
     data = []
 
