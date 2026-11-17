@@ -38,6 +38,8 @@ class UserRoleRequest(Document):
 
 		# Final approval by System Manager - assign roles to user
 		if self.workflow_state == "Approve by System Manager":
+			if frappe.session.user != "Administrator" and "System Manager" not in frappe.get_roles():
+				frappe.throw(_("Only System Managers can approve role requests."), frappe.PermissionError)
 			for row in self.role_request_details:
 				if row.approved and not row.system_manager_approved:
 					row.system_manager_approved = 1
@@ -108,6 +110,9 @@ class UserRoleRequest(Document):
 		"""Assign approved roles to the user"""
 		if not self.user_id:
 			return
+
+		if frappe.session.user != "Administrator" and "System Manager" not in frappe.get_roles():
+			frappe.throw(_("Only System Managers can assign roles to users."), frappe.PermissionError)
 
 		user = frappe.get_doc("User", self.user_id)
 		existing_roles = {r.role for r in user.roles}
@@ -441,7 +446,9 @@ def get_all_approvers():
 @frappe.whitelist()
 def fetch_role_owners_for_doc(docname):
 	"""Fetch and assign role owners for all roles in the document"""
+	frappe.has_permission("User Role Request", "write", doc=docname, throw=True)
 	doc = frappe.get_doc("User Role Request", docname)
+	doc.check_permission("write")
 	
 	for row in doc.role_request_details:
 		if row.requested_role and not row.role_owners:
@@ -455,6 +462,7 @@ def fetch_role_owners_for_doc(docname):
 @frappe.whitelist()
 def share_document_with_role_owners(docname):
     """Share the User Role Request document with all role owners after final approval"""
+    frappe.has_permission("User Role Request", "write", doc=docname, throw=True)
 
     # 🔐 Switch to Administrator context
     original_user = frappe.session.user
@@ -510,7 +518,9 @@ def share_document_with_role_owners(docname):
 
 @frappe.whitelist()
 def close_request(docname):
+	frappe.has_permission("User Role Request", "write", doc=docname, throw=True)
 	doc = frappe.get_doc("User Role Request", docname)
+	doc.check_permission("write")
 	frappe.db.set_value("User Role Request", docname, "status", "Closed")
 	frappe.db.set_value("User Role Request", docname, "workflow_state", "Closed")
 	send_close_notifications(doc)
@@ -615,6 +625,7 @@ def notify_approver_on_close(doc):
 @frappe.whitelist()
 def debug_sharing_info(docname):
 	"""Debug function to check why sharing might not be working"""
+	frappe.has_permission("User Role Request", "read", doc=docname, throw=True)
 	doc = frappe.get_doc("User Role Request", docname)
 	
 	info = {

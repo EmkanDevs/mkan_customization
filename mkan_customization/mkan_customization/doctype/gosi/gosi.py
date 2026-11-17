@@ -60,25 +60,37 @@ class Gosi(Document):
 
 @frappe.whitelist()
 def delete_all_gosi():
+	frappe.only_for("System Manager")
+	frappe.has_permission("Gosi", "delete", throw=True)
 	frappe.db.sql("DELETE FROM `tabGosi`")
 	frappe.db.commit()
 
 @frappe.whitelist()
 def import_gosi_data(file_url):
 	"""Import Gosi data from Excel or CSV file"""
+	frappe.has_permission("Gosi", "create", throw=True)
+	frappe.has_permission("Employee", "write", throw=True)
 	try:		
-		file_url_stripped = file_url.lstrip('/')
-		
-		if file_url_stripped.startswith('private/'):
-			file_url_stripped = file_url_stripped.replace('private/', '', 1)
-		
-		file_path = get_site_path('private', file_url_stripped)
-		
-		if not os.path.exists(file_path):
-			file_path = get_site_path('public', file_url_stripped)
-		
-		if not os.path.exists(file_path):
-			frappe.throw(f"File not found: {file_url}")
+		if not file_url:
+			frappe.throw("file_url is required.")
+
+		file_doc_name = frappe.db.exists("File", {"file_url": file_url})
+		if file_doc_name:
+			file_doc = frappe.get_doc("File", file_doc_name)
+			file_doc.check_permission("read")
+			file_path = file_doc.get_full_path()
+		else:
+			file_url_stripped = file_url.lstrip('/')
+			if file_url_stripped.startswith('private/'):
+				file_url_stripped = file_url_stripped.replace('private/', '', 1)
+			base_dir = get_site_path('private')
+			file_path = os.path.abspath(os.path.join(base_dir, file_url_stripped))
+			if not (file_path.startswith(os.path.abspath(base_dir)) or file_path.startswith(os.path.abspath(get_site_path('public')))):
+				frappe.throw("Invalid file path.")
+			if not os.path.exists(file_path):
+				file_path = os.path.abspath(os.path.join(get_site_path('public'), file_url_stripped))
+				if not os.path.exists(file_path):
+					frappe.throw(f"File not found: {file_url}")
 		
 		# Read the file based on extension
 		file_ext = os.path.splitext(file_path)[1].lower()

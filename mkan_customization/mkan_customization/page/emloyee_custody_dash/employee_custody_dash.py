@@ -1,8 +1,22 @@
 import frappe
 from frappe.utils import nowdate
+from frappe import _
+
+
+def validate_employee_access(employee=None):
+    if frappe.has_permission("Employee", "read"):
+        return
+    if not employee:
+        frappe.throw(_("Not permitted to view employee custody records"), frappe.PermissionError)
+
+    current_employee = frappe.db.get_value("Employee", {"user_id": frappe.session.user}, "name")
+    if not current_employee or current_employee != employee:
+        frappe.throw(_("Not permitted to view this employee's custody records"), frappe.PermissionError)
+
 
 @frappe.whitelist()
 def get_it_assets(employee, active_only=0):
+    validate_employee_access(employee)
     condition = ""
     values = {"employee": employee}
 
@@ -32,6 +46,7 @@ def get_it_assets(employee, active_only=0):
 
 @frappe.whitelist()
 def get_sim_cards(employee, active_only=0):
+    validate_employee_access(employee)
     condition = ""
     values = {"employee": employee}
 
@@ -62,6 +77,7 @@ def get_sim_cards(employee, active_only=0):
 
 @frappe.whitelist()
 def get_vehicles(employee):
+    validate_employee_access(employee)
     data = frappe.db.sql("""
         SELECT
             v.name AS vehicle_id,
@@ -80,6 +96,7 @@ def get_vehicles(employee):
 
 @frappe.whitelist()
 def get_employee_custody(employee=None):
+    validate_employee_access(employee)
     condition = ""
     values = {}
 
@@ -124,6 +141,7 @@ def get_employee_custody(employee=None):
 
 @frappe.whitelist()
 def get_equipment_tools(employee, active_only=0):
+    validate_employee_access(employee)
 
     records = frappe.db.sql("""
 

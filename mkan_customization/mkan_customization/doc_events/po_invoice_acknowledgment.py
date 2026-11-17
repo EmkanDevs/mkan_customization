@@ -34,7 +34,16 @@ def get_allowed_roles():
         
 @frappe.whitelist()
 def lock_document(doctype, docname):
+    frappe.has_permission(doctype, "write", doc=docname, throw=True)
+    frappe.has_permission("Purchase Invoice", "create", throw=True)
+    allowed_roles = get_allowed_roles()
+    if allowed_roles:
+        user_roles = frappe.get_roles()
+        if not any(r in user_roles for r in allowed_roles) and "System Manager" not in user_roles:
+            frappe.throw(frappe._("Not permitted to lock document"), frappe.PermissionError)
+
     doc = frappe.get_doc(doctype, docname)
+    doc.check_permission("write")
     for row in doc.po_acknowledgement:
         po = frappe.get_doc("Purchase Order", row.purchase_order)
 

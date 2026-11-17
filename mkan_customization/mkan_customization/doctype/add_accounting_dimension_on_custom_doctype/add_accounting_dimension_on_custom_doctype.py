@@ -737,11 +737,19 @@ function get_first_row_value(frm, table_df, fieldname) {
         #   where the parent was NOT excluded).
         child_only = _use_child_only_template(cfg)
 
+        if not frappe.db.exists("DocType", dt):
+            continue
+
         template = child_only_js_template if child_only else full_js_template
         child_table = _get_configured_child_table(cfg) or ""
+        if child_table and not frappe.db.exists("DocType", child_table):
+            child_table = ""
+
+        safe_dt = json.dumps(dt)[1:-1]
+        safe_child = json.dumps(child_table)[1:-1] if child_table else ""
         code_for_doctype = (
-            template.replace("__DOCTYPE__", dt.replace("'", "\\'"))
-            .replace("__CHILD_TABLE__", (child_table or "").replace("'", "\\'"))
+            template.replace("__DOCTYPE__", safe_dt)
+            .replace("__CHILD_TABLE__", safe_child)
             .replace(
                 "__ENABLE_CHILD_TABLE_DIMENSIONS__",
                 "true" if child_table else "false",
@@ -1005,6 +1013,7 @@ def _remove_dimension_fields_for_target(target_dt, fieldnames):
 
 @frappe.whitelist()
 def add_dimensions_for_custom_doctypes(doctypes=None, doctype_configs=None):
+    frappe.only_for("System Manager")
     """
     Reads doctypes from the single doctype
     'Add Accounting Dimension On Custom Doctype'.
@@ -1176,6 +1185,7 @@ def _get_accounting_dimension_fieldnames():
 
 @frappe.whitelist()
 def remove_dimensions_for_custom_doctypes(doctypes=None, doctype_configs=None):
+    frappe.only_for("System Manager")
     """
     Removes accounting dimension custom fields from configured doctypes.
 

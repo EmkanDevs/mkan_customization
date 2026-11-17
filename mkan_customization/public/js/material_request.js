@@ -28,6 +28,7 @@ frappe.ui.form.on("Material Request", {
 	onload(frm) {
 		frm.set_query('department', 'items', function(doc, cdt, cdn) {
             let row = locals[cdt][cdn];
+			console.log("Setting department query for row:", row);
             return {
                 filters: { custom_project: row.project }
             };

@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from datetime import datetime
 from frappe.utils import getdate, today
+from frappe.utils.user import get_users_with_role
 from frappe.desk.form.load import get_attachments
 
 class RentalContract(Document):
@@ -22,7 +23,8 @@ def send_rental_reminders_electric_and_water():
         fields=[
             "name", "project_name", "location", "onwer_name", "onwer_contact_no",
             "monthly_reminder_day_elctric", "monthly_reminder_day_water",
-            "start_of_contract", "note"
+            "start_of_contract", "end_of_contract", "contract_type", "contract_no",
+            "accommodation_type", "payment_frequency", "yearly_rent", "note"
         ]
     )
 
@@ -41,8 +43,9 @@ def send_rental_reminders_electric_and_water():
 
 def send_email_reminder_electric_and_water(contract, reminder_type):
     subject = f"{reminder_type} Reminder for {contract.project_name} - {contract.name}"
+    owner_display = getattr(contract, "onwer_name", None) or getattr(contract, "owner_name", "")
     message = f"""
-    <p>Dear {contract.owner_name},</p>
+    <p>Dear {owner_display},</p>
     <p>This is a monthly reminder for your <strong>{reminder_type.lower()} utility</strong> as per your contract at <strong>{contract.location}</strong>.</p>
     <ul>
         <li><b>Contract:</b> {contract.name}</li>
@@ -104,7 +107,8 @@ def send_rent_payment_reminders():
         "Rental Contract",
         filters={"contract_is_active": 1},
         fields=["name", "project_name", "location", "onwer_name", "onwer_contact_no",
-                "yearly_rent", "payment_frequency", "start_of_contract", "owner"]
+                "yearly_rent", "payment_frequency", "start_of_contract", "end_of_contract",
+                "contract_type", "contract_no", "accommodation_type", "owner"]
     )
 
     for contract in contracts:

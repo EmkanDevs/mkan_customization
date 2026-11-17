@@ -2,9 +2,8 @@ from frappe.model.document import Document
 import frappe
 from frappe import _
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import flt
+from frappe.utils import flt, cint, escape_html
 from mkan_customization.mkan_customization.override import assign_to
-from frappe.utils import cint
 
 
 class BidTabulationDiscussion(Document):
@@ -138,7 +137,8 @@ def set_supplier_quotation(request_for_quotation):
 
 @frappe.whitelist()
 def fetch_attachments_and_display(request_for_quotation):
-    # fetch attachments from supplier quotation and display
+	frappe.has_permission("Request for Quotation", "read", throw=True)
+	# fetch attachments from supplier quotation and display
 	doc = frappe.db.sql("""
 		SELECT
 			sqi.name AS item_name,
@@ -175,7 +175,10 @@ def fetch_attachments_and_display(request_for_quotation):
 		
 		for i in range(start_index, end_index):
 			row = doc[i]
-			supplier_name = frappe.db.get_value("Supplier", row.supplier_id, "supplier_name") or "Unknown Supplier"
+			raw_supplier_name = frappe.db.get_value("Supplier", row.supplier_id, "supplier_name") or "Unknown Supplier"
+			supplier_name = escape_html(str(raw_supplier_name))
+			supplier_id = escape_html(str(row.supplier_id or ""))
+			parent_name = escape_html(str(row.parent_name or ""))
 			
 			files = frappe.get_all("File", filters={
 				"attached_to_doctype": "Supplier Quotation",
@@ -183,7 +186,7 @@ def fetch_attachments_and_display(request_for_quotation):
 			}, fields=["file_name", "file_url"])
 			
 			file_links = "".join(
-				f'<a href="{file["file_url"]}" target="_blank" style="display: block; color: #007bff; text-decoration: none; padding: 3px 0;">📎 {file["file_name"]}</a>'
+				f'<a href="{escape_html(str(file["file_url"] or ""))}" target="_blank" style="display: block; color: #007bff; text-decoration: none; padding: 3px 0;">📎 {escape_html(str(file["file_name"] or ""))}</a>'
 				for file in files
 			) if files else "<span style='color: gray;'>No Attachments</span>"
 			
@@ -191,8 +194,8 @@ def fetch_attachments_and_display(request_for_quotation):
 			
 			html_content += f"""
 				<div style="flex: 1; min-width: 45%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: white;">
-					<strong style="color: #333;">Supplier:</strong> {row.supplier_id} ({supplier_name}) <br>
-					<strong style="color: #333;">Supplier Quotation:</strong> <a href="{quotation_link}" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">{row.parent_name}</a><br>
+					<strong style="color: #333;">Supplier:</strong> {supplier_id} ({supplier_name}) <br>
+					<strong style="color: #333;">Supplier Quotation:</strong> <a href="{quotation_link}" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">{parent_name}</a><br>
 					<strong style="color: #333;">Attachments:</strong> {file_links}
 				</div>
 			"""

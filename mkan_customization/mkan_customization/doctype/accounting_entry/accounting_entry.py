@@ -649,7 +649,10 @@ class AccountingEntry(Document):
 	@frappe.whitelist()
 	def create_and_submit_invoice(self):
 		"""Generates, saves, submits the standard invoice on submit and links it to Accounting Entry."""
+		self.check_permission("write")
 		if self.tax_type == "Inward":
+			frappe.has_permission("Purchase Invoice", "create", throw=True)
+			frappe.has_permission("Purchase Invoice", "submit", throw=True)
 			if self.purchase_invoice:
 				return {"doctype": "Purchase Invoice", "name": self.purchase_invoice}
 			invoice = self.make_purchase_invoice()
@@ -667,6 +670,8 @@ class AccountingEntry(Document):
 			)
 			return {"doctype": "Purchase Invoice", "name": invoice.name}
 		else:
+			frappe.has_permission("Sales Invoice", "create", throw=True)
+			frappe.has_permission("Sales Invoice", "submit", throw=True)
 			if self.sales_invoice:
 				return {"doctype": "Sales Invoice", "name": self.sales_invoice}
 			invoice = self.make_sales_invoice()
@@ -718,9 +723,13 @@ class AccountingEntry(Document):
 @frappe.whitelist()
 def make_invoice(docname):
 	"""Returns the mapped Purchase Invoice or Sales Invoice doc as dict for client-side routing/preview."""
+	frappe.has_permission("Accounting Entry", "read", doc=docname, throw=True)
 	doc = frappe.get_doc("Accounting Entry", docname)
+	doc.check_permission("read")
 	if doc.tax_type == "Inward":
+		frappe.has_permission("Purchase Invoice", "create", throw=True)
 		invoice = doc.make_purchase_invoice()
 	else:
+		frappe.has_permission("Sales Invoice", "create", throw=True)
 		invoice = doc.make_sales_invoice()
 	return invoice.as_dict()

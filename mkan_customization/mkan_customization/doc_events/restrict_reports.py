@@ -32,6 +32,26 @@ STOCK_REPORTS = {
 }
 
 
+def is_stock_freeze_period():
+    """
+    Check if current date falls within a configured stock freeze period
+    or standard annual year-end freeze (Dec 29 - Dec 31).
+    """
+    try:
+        freeze_upto = frappe.db.get_single_value("Stock Settings", "stock_frozen_upto")
+        if freeze_upto and getdate() <= getdate(freeze_upto):
+            return True
+    except Exception:
+        pass
+
+    today = getdate()
+    year = today.year
+    if getdate(f"{year}-12-29") <= today <= getdate(f"{year}-12-31"):
+        return True
+
+    return False
+
+
 def has_report_permission(doc, ptype, user):
     """
     Hook for has_permission on 'Report' doctype.
@@ -46,8 +66,7 @@ def has_report_permission(doc, ptype, user):
         return None  # Let standard permissions handle it
 
     # Check if we're in the freeze period
-    today = getdate()
-    if getdate("2025-12-29") <= today <= getdate("2025-12-31"):
+    if is_stock_freeze_period():
         user_roles = frappe.get_roles(user)
         allowed_roles = {"Warehouse Manager", "Finance Manager"}
         
@@ -65,8 +84,6 @@ def check_report_access(doc, method=None):
     """
     if frappe.session.user == "Administrator":
         return
-    
-    today = getdate()
 
     if doc.doctype != "Report":
         return
@@ -75,7 +92,7 @@ def check_report_access(doc, method=None):
         return
 
     # Check if we're in the freeze period
-    if getdate("2025-12-29") <= today <= getdate("2025-12-31"):
+    if is_stock_freeze_period():
         user_roles = frappe.get_roles(frappe.session.user)
         allowed_roles = {"Warehouse Manager", "Finance Manager"}
         
@@ -83,8 +100,8 @@ def check_report_access(doc, method=None):
         
         if not has_allowed_role:
             frappe.throw(
-                f"Access to '{doc.name}' is restricted during the freeze period (Dec 29-31, 2025). "
-                "Only Warehouse Manager and Accounts Manager roles can access this report.",
+                f"Access to '{doc.name}' is restricted during the freeze period. "
+                "Only Warehouse Manager and Finance Manager roles can access this report.",
                 frappe.PermissionError,
             )
 

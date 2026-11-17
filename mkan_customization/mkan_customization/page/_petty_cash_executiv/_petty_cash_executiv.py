@@ -70,6 +70,7 @@ def get_dashboard_data(company=None, year=None, month=None, from_date=None, to_d
 	Returns all dashboard data: KPIs, charts, and grid data.
 	Called from the Petty Cash Executive Dashboard page.
 	"""
+	frappe.has_permission("Purchase Receipt", "read", throw=True)
 	try:
 		from_date, to_date = _resolve_date_range(year, month, from_date, to_date)
 		where_clause, params = _get_conditions(company, from_date, to_date, custodian, project)
@@ -202,6 +203,7 @@ def get_receipts_grid(company=None, year=None, month=None, from_date=None, to_da
 	"""
 	Returns paginated Purchase Receipt data for the Live Log grid.
 	"""
+	frappe.has_permission("Purchase Receipt", "read", throw=True)
 	try:
 		from_date, to_date = _resolve_date_range(year, month, from_date, to_date)
 		where_clause, params = _get_conditions(company, from_date, to_date, custodian, project)
@@ -281,6 +283,7 @@ def get_filter_options():
 	"""
 	Returns dropdown options for filters.
 	"""
+	frappe.has_permission("Purchase Receipt", "read", throw=True)
 	try:
 		custodians = frappe.db.sql("""
 			SELECT name, employee_name

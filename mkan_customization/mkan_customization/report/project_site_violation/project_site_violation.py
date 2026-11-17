@@ -11,12 +11,16 @@ def execute(filters=None):
 
     # Build dynamic conditions
     conditions = []
+    values = {}
     if project:
-        conditions.append(f"project = '{project}'")
+        conditions.append("project = %(project)s")
+        values["project"] = project
     if project_site_violation:
-        conditions.append(f"name = '{project_site_violation}'")
+        conditions.append("name = %(project_site_violation)s")
+        values["project_site_violation"] = project_site_violation
     if violation_penalty_reason:
-        conditions.append(f"violation_penalty_reason = '{violation_penalty_reason}'")
+        conditions.append("violation_penalty_reason = %(violation_penalty_reason)s")
+        values["violation_penalty_reason"] = violation_penalty_reason
 
     # Join conditions with AND
     where_clause = " AND ".join(conditions)
@@ -52,7 +56,7 @@ def execute(filters=None):
         FROM `tabProject Site Violation`
         WHERE docstatus < 2 {where_clause}
         ORDER BY penalty_date DESC
-    """, as_dict=True)
+    """, values, as_dict=True)
 
     # Columns remain unchanged
     columns = [

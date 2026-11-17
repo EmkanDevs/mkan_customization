@@ -153,7 +153,7 @@ def _build_and_send(title, labels, fieldnames, fieldtypes, rows, filename):
                 if isinstance(val, str):
                     if "<" in val and ">" in val:
                         val = strip_html(val)
-                    if val.startswith("="):
+                    if val.startswith(("=", "+", "-", "@", "\t", "\r")):
                         val = f"'{val}"
                 clean_row.append(val)
 

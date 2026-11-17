@@ -1,3 +1,7 @@
+function esc(str) {
+    return frappe.utils.escape_html(String(str == null ? '' : str));
+}
+
 frappe.pages['emloyee-custody-dash'].on_page_load = function(wrapper) {
     const page = frappe.ui.make_app_page({
         parent: wrapper,
@@ -301,16 +305,16 @@ $(page.body).append(employee_info_html);
 				html += `
 					<tr>
 						<td>
-							<a href="/app/it-asset-management/${row.asset_id}" target="_blank">
-								${row.asset_id}
+							<a href="/app/it-asset-management/${encodeURIComponent(row.asset_id || '')}" target="_blank">
+								${esc(row.asset_id)}
 							</a>
 						</td>
-						<td>${row.item || ''}</td>
-						<td>${row.item_name || ''}</td>
-						<td>${row.item_group || ''}</td>
-						<td>${row.manufacturer || ''}</td>
-						<td>${row.from_date || ''}</td>
-						<td>${row.to_date || ''}</td>
+						<td>${esc(row.item)}</td>
+						<td>${esc(row.item_name)}</td>
+						<td>${esc(row.item_group)}</td>
+						<td>${esc(row.manufacturer)}</td>
+						<td>${esc(row.from_date)}</td>
+						<td>${esc(row.to_date)}</td>
 					</tr>
 				`;
 			});
@@ -363,17 +367,17 @@ $(page.body).append(employee_info_html);
 				html += `
 					<tr>
 						<td>
-							<a href="/app/sim-management/${row.sim_id}" target="_blank">
-								${row.sim_id}
+							<a href="/app/sim-management/${encodeURIComponent(row.sim_id || '')}" target="_blank">
+								${esc(row.sim_id)}
 							</a>
 						</td>
-						<td>${row.service_no || ''}</td>
-						<td>${row.serial_number || ''}</td>
-						<td>${row.reason_of_purchase || ''}</td>
-						<td>${row.sim_provider || ''}</td>
-						<td>${row.from_date || ''}</td>
-						<td>${row.to_date || ''}</td>
-						<td>${badge(row.status, get_status_color(row.status))}</td>
+						<td>${esc(row.service_no)}</td>
+						<td>${esc(row.serial_number)}</td>
+						<td>${esc(row.reason_of_purchase)}</td>
+						<td>${esc(row.sim_provider)}</td>
+						<td>${esc(row.from_date)}</td>
+						<td>${esc(row.to_date)}</td>
+						<td>${badge(esc(row.status), get_status_color(row.status))}</td>
 					</tr>
 				`;
 			});
@@ -421,14 +425,14 @@ $(page.body).append(employee_info_html);
 				html += `
 					<tr>
 						<td>
-							<a href="/app/vehicles/${row.vehicle_id}" target="_blank">
-								${row.vehicle_id}
+							<a href="/app/vehicles/${encodeURIComponent(row.vehicle_id || '')}" target="_blank">
+								${esc(row.vehicle_id)}
 							</a>
 						</td>
-						<td>${row.license_plate || ''}</td>
-						<td>${row.door_number || ''}</td>
-						<td>${row.vehicle_types || ''}</td>
-						<td>${row.model_year || ''}</td>
+						<td>${esc(row.license_plate)}</td>
+						<td>${esc(row.door_number)}</td>
+						<td>${esc(row.vehicle_types)}</td>
+						<td>${esc(row.model_year)}</td>
 					</tr>
 				`;
 			});
@@ -507,12 +511,12 @@ $(page.body).append(employee_info_html);
 				html += `
 					<tr style="${row.pending_amount > 0 ? 'background:#fff3cd;' : ''}">
 						<td>
-							<a href="/app/employee/${row.employee}" target="_blank">
-								${row.employee}
+							<a href="/app/employee/${encodeURIComponent(row.employee || '')}" target="_blank">
+								${esc(row.employee)}
 							</a>
 						</td>
-						<td>${row.employee_name}</td>
-						<td>${row.department || ''}</td>
+						<td>${esc(row.employee_name)}</td>
+						<td>${esc(row.department)}</td>
 						<td style="font-weight:bold; color:${color}">
 							${format_currency(row.pending_amount)}
 						</td>
@@ -561,20 +565,20 @@ function render_equipment_tools(data) {
             html += `
                 <tr>
 
-                    <td>${row.item_code || ''}</td>
+                    <td>${esc(row.item_code)}</td>
 
-                    <td>${row.item_name || ''}</td>
+                    <td>${esc(row.item_name)}</td>
 
-                    <td>${row.item_group || ''}</td>
+                    <td>${esc(row.item_group)}</td>
 
-                    <td>${row.stock_asset || ''}</td>
+                    <td>${esc(row.stock_asset)}</td>
 
-                    <td>${row.project || ''}</td>
+                    <td>${esc(row.project)}</td>
 
-                    <td>${row.project_name || ''}</td>
+                    <td>${esc(row.project_name)}</td>
 
                     <td style="font-weight:bold;">
-                        ${row.balance_qty || 0}
+                        ${esc(row.balance_qty || 0)}
                     </td>
 
                 </tr>
