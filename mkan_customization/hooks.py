@@ -149,11 +149,12 @@ doctype_list_js = {
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
+permission_query_conditions = {
+	"Warehouse Staff Evaluation": "mkan_customization.warehouse_kpi.scope.get_evaluation_permission_query_conditions",
+}
 has_permission = {
     "Report": "mkan_customization.mkan_customization.doc_events.restrict_reports.has_report_permission",
+    "Warehouse Staff Evaluation": "mkan_customization.warehouse_kpi.scope.has_evaluation_permission",
 }
 
 # DocType Class
@@ -246,7 +247,7 @@ doc_events = {
     #     "on_submit": "mkan_customization.mkan_customization.doc_events.blanket_order.on_submit"
     # },
     "Journal Entry": {
-        # "before_validate": "mkan_customization.mkan_customization.doc_events.journal_entry.before_validate",
+        "before_validate": "mkan_customization.mkan_customization.doc_events.journal_entry.before_validate",
         "validate": [
             "mkan_customization.mkan_customization.doc_events.accounting_dimension_validation.validate",
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",

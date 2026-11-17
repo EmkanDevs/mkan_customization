@@ -1,37 +1,37 @@
-const EMPLOYEE_TARGET_ACCOUNTS = [
-    "1152001 - Employee Loans - CPC",
-    "1152002 - Employees other deduction - CPC",
-    "1157101 - Petty Cash (Business Advance) - CPC"
-];
+// Party-required accounts come from the Account master (checkbox "Require Party in
+// Journal Entry" + "Required Party Type"), never from hard-coded lists. The map is
+// re-fetched on every form refresh, so Account changes are picked up automatically.
+const PARTY_REQUIRED_METHOD =
+    "mkan_customization.mkan_customization.override.journal_entry.get_party_required_accounts";
+let party_required_accounts = {}; // { account: required party type }
 
-const EMPLOYEE_TARGET_NUMBERS = ["1152001", "1152002", "1157101"];
+function load_party_required_accounts(frm) {
+    return frappe
+        .xcall(PARTY_REQUIRED_METHOD)
+        .then(map => {
+            party_required_accounts = map || {};
+            reset_party_grid_header(frm);
+        })
+        .catch(() => {
+            /* keep previous map; the server re-validates on save anyway */
+        });
+}
 
-const EMPLOYEE_TARGET_NAMES = [
-    "Employee Loans",
-    "Employees other deduction",
-    "Petty Cash (Business Advance)"
-];
+function get_required_party_type(account) {
+    return (account && party_required_accounts[String(account).trim()]) || null;
+}
 
 function is_employee_target_account(account) {
-    if (!account) return false;
-    let acc_str = String(account).trim();
-    if (EMPLOYEE_TARGET_ACCOUNTS.includes(acc_str)) return true;
-
-    let acc_num = acc_str.split(" - ")[0].trim();
-    if (EMPLOYEE_TARGET_NUMBERS.includes(acc_num)) return true;
-
-    for (let target_name of EMPLOYEE_TARGET_NAMES) {
-        if (acc_str.includes(target_name)) return true;
-    }
-    return false;
+    return !!get_required_party_type(account);
 }
 
 frappe.ui.form.on("Journal Entry", {
     onload(frm) {
-        reset_party_grid_header(frm);
+        load_party_required_accounts(frm);
     },
 
     refresh(frm) {
+        load_party_required_accounts(frm);
         reset_party_grid_header(frm);
     },
 
@@ -45,13 +45,14 @@ frappe.ui.form.on("Journal Entry", {
 
     validate(frm) {
         for (let row of (frm.doc.accounts || [])) {
-            if (is_employee_target_account(row.account)) {
+            const required_type = get_required_party_type(row.account);
+            if (required_type) {
                 if (!row.party_type) {
-                    frappe.model.set_value(row.doctype, row.name, "party_type", "Employee");
-                } else if (row.party_type !== "Employee") {
+                    frappe.model.set_value(row.doctype, row.name, "party_type", required_type);
+                } else if (row.party_type !== required_type) {
                     frappe.msgprint({
                         title: __("Validation Error"),
-                        message: __("Row {0}: Party Type must be 'Employee' for account {1}", [row.idx, row.account]),
+                        message: __("Row {0}: Party Type must be '{1}' for account {2}", [row.idx, required_type, row.account]),
                         indicator: "red"
                     });
                     frappe.validated = false;
@@ -75,8 +76,9 @@ frappe.ui.form.on("Journal Entry", {
 frappe.ui.form.on("Journal Entry Account", {
     account(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
-        if (is_employee_target_account(row.account)) {
-            frappe.model.set_value(cdt, cdn, "party_type", "Employee");
+        const required_type = get_required_party_type(row.account);
+        if (required_type && row.party_type !== required_type) {
+            frappe.model.set_value(cdt, cdn, "party_type", required_type);
         }
     },
 
