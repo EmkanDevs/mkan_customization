@@ -149,13 +149,13 @@ doctype_list_js = {
 # -----------
 # Permissions evaluated in scripted ways
 
-permission_query_conditions = {
-	"Warehouse Staff Evaluation": "mkan_customization.warehouse_kpi.scope.get_evaluation_permission_query_conditions",
-}
-has_permission = {
-    "Report": "mkan_customization.mkan_customization.doc_events.restrict_reports.has_report_permission",
-    "Warehouse Staff Evaluation": "mkan_customization.warehouse_kpi.scope.has_evaluation_permission",
-}
+# permission_query_conditions = {
+# 	"Warehouse Staff Evaluation": "mkan_customization.warehouse_kpi.scope.get_evaluation_permission_query_conditions",
+# }
+# has_permission = {
+#     "Report": "mkan_customization.mkan_customization.doc_events.restrict_reports.has_report_permission",
+#     "Warehouse Staff Evaluation": "mkan_customization.warehouse_kpi.scope.has_evaluation_permission",
+# }
 
 # DocType Class
 # ---------------
