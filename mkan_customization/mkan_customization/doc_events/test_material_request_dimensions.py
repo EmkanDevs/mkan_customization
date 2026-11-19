@@ -32,10 +32,17 @@ class TestMaterialRequestDimensions(unittest.TestCase):
 		)
 		translate.start()
 		self.addCleanup(translate.stop)
+		meta = patch(
+			"frappe.get_meta",
+			return_value=frappe._dict(has_field=lambda fieldname: fieldname == "custom_cost_center"),
+		)
+		meta.start()
+		self.addCleanup(meta.stop)
 
 	def get_value(self, doctype, name, fields, **kwargs):
 		if doctype == "Project":
 			return self.projects.get(name)
+		self.assertEqual(fields, "custom_cost_center")
 		return {"Operations": "Department CC", "Unconfigured": None}.get(name)
 
 	def raise_validation(self, message):
@@ -64,19 +71,34 @@ class TestMaterialRequestDimensions(unittest.TestCase):
 		self.assertEqual(doc.get("items")[0].cost_center, "Project CC")
 		self.assertEqual(doc.get("items")[1].cost_center, "Department CC")
 
-	def test_department_takes_priority_for_regular_projects(self):
+	def test_department_is_cleared_for_regular_projects(self):
 		doc = self.make_doc({"project": "PROJ-REGULAR", "department": "Operations"})
+		validate_item_dimensions(doc)
+		self.assertIsNone(doc.get("items")[0].department)
+		self.assertEqual(doc.get("items")[0].cost_center, "Project CC")
+
+	def test_department_takes_priority_for_named_projects(self):
+		doc = self.make_doc({"project": "PROJ-0", "department": "Operations"})
 		validate_item_dimensions(doc)
 		self.assertEqual(doc.get("items")[0].cost_center, "Department CC")
 
+	def test_department_without_cost_center_falls_back_to_project(self):
+		self.projects["PROJ-0"] = frappe._dict(
+			project_name=self.projects["PROJ-0"].project_name, cost_center="Named Project CC"
+		)
+		doc = self.make_doc({"project": "PROJ-0", "department": "Unconfigured"})
+		validate_item_dimensions(doc)
+		self.assertEqual(doc.get("items")[0].department, "Unconfigured")
+		self.assertEqual(doc.get("items")[0].cost_center, "Named Project CC")
+
 	def test_missing_source_cost_center_clears_old_value(self):
 		doc = self.make_doc(
-			{"project": "PROJ-REGULAR", "department": "Unconfigured", "cost_center": "Old CC"},
+			{"project": "PROJ-0", "department": "Unconfigured", "cost_center": "Old CC"},
 			{"cost_center": "Old CC"},
 		)
 		validate_item_dimensions(doc)
 		self.assertIsNone(doc.get("items")[0].cost_center)
-		self.assertEqual(doc.get("items")[1].cost_center, "Old CC")
+		self.assertIsNone(doc.get("items")[1].cost_center)
 
 	def test_repeated_links_are_only_queried_once(self):
 		doc = self.make_doc(

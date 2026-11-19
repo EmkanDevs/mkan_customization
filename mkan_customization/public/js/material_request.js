@@ -3,6 +3,7 @@ const DEPT_MANDATORY_PROJECTS = [
 	"General and Administrative Expenses (G&A)",
 ];
 const material_request_project_names = new Map();
+const department_required_rows = new Map();
 
 frappe.ui.form.on("Material Request", {
 	setup(frm) {
@@ -211,7 +212,7 @@ frappe.ui.form.on("Material Request", {
 			missing.sort((a, b) => a - b);
 			frappe.throw(__("Department is mandatory for row(s): {0}", [missing.join(", ")]));
 		}
-		await Promise.all((frm.doc.items || []).filter(row => row.project || row.department).map(row =>
+		await Promise.all((frm.doc.items || []).map(row =>
 			set_row_cost_center(row.doctype, row.name)
 		));
 	},
@@ -226,10 +227,23 @@ frappe.ui.form.on("Material Request Item", {
 		await set_row_cost_center(cdt, cdn);
 	},
 	async project(frm, cdt, cdn) {
-		await set_row_department_requirement(frm, locals[cdt][cdn]);
+		const row = locals[cdt][cdn];
+		const required = await set_row_department_requirement(frm, row);
+		// A Department only belongs to G&A and Overhead projects.
+		if (required === false && row.department) {
+			await frappe.model.set_value(cdt, cdn, "department", "");
+		}
 		await set_row_cost_center(cdt, cdn);
 	},
+	items_remove(frm) {
+		toggle_department_column(frm);
+	},
 	department(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		// The column can show for other rows, so reject a value typed here.
+		if (row.department && department_required_rows.get(row.name) === false) {
+			return frappe.model.set_value(cdt, cdn, "department", "");
+		}
 		return set_row_cost_center(cdt, cdn);
 	},
 	form_render(frm, cdt, cdn) {
@@ -242,11 +256,27 @@ async function set_row_department_requirement(frm, row) {
 	const project_name = await get_material_request_project_name(project);
 	if (locals[row.doctype]?.[row.name] !== row || row.project !== project) return;
 	const required = DEPT_MANDATORY_PROJECTS.includes(project_name);
+	// This docfield is a copy for this row only, so it hides the row form field.
 	const df = frappe.meta.get_docfield(row.doctype, "department", row.name);
-	if (df) df.reqd = required ? 1 : 0;
+	if (df) {
+		df.reqd = required ? 1 : 0;
+		df.hidden = required ? 0 : 1;
+	}
+	department_required_rows.set(row.name, required);
 	const grid_row = frm.fields_dict.items.grid.grid_rows_by_docname[row.name];
 	if (grid_row) grid_row.toggle_reqd("department", required);
+	grid_row?.grid_form?.layout?.refresh_dependency();
+	grid_row?.grid_form?.fields_dict.department?.refresh();
+	toggle_department_column(frm);
 	return required;
+}
+
+function toggle_department_column(frm) {
+	const grid = frm.fields_dict.items.grid;
+	const show = (frm.doc.items || []).some(row => department_required_rows.get(row.name));
+	// Change the column only when needed, so the grid refresh does not loop.
+	if (Boolean(grid.get_docfield("department").hidden) === !show) return;
+	grid.set_column_disp("department", show);
 }
 
 async function get_material_request_project_name(project) {
@@ -272,12 +302,13 @@ async function get_material_request_project_name(project) {
 async function set_row_cost_center(cdt, cdn) {
 	const row = locals[cdt][cdn];
 	const { project, department } = row;
-	const name = department || project;
 	let cost_center = "";
-	if (name) {
-		const doctype = department ? "Department" : "Project";
-		const result = await frappe.db.get_value(doctype, name, "cost_center");
-		cost_center = result.message?.cost_center || "";
+	if (department || project) {
+		const { message } = await frappe.call({
+			method: "mkan_customization.mkan_customization.doc_events.material_request_dimensions.get_row_cost_center",
+			args: { project, department },
+		});
+		cost_center = message || "";
 	}
 	// Ignore a lookup that finished after the row changed or was deleted.
 	if (locals[cdt]?.[cdn] !== row || row.project !== project || row.department !== department) return;

@@ -19,7 +19,9 @@ def validate_item_dimensions(doc):
 			row.get("project") in DEPARTMENT_PROJECT_NAMES
 			or project.get("project_name") in DEPARTMENT_PROJECT_NAMES
 		)
-		if requires_department and not row.get("department"):
+		if not requires_department:
+			row.department = None
+		elif not row.get("department"):
 			missing_departments.append(row.idx)
 
 	if missing_departments:
@@ -35,12 +37,15 @@ def _set_cost_centers(rows, projects):
 	departments = {}
 	for row in rows:
 		department = row.get("department")
-		if department:
-			if department not in departments:
-				departments[department] = frappe.db.get_value("Department", department, "cost_center")
-			row.cost_center = departments[department] or None
-		elif row.get("project"):
-			row.cost_center = _get_project(row.get("project"), projects).get("cost_center") or None
+		project = row.get("project")
+		if department and department not in departments:
+			departments[department] = _get_department_cost_center(department)
+		# Department cost center first, then the Project cost center.
+		row.cost_center = (
+			(department and departments[department])
+			or (project and _get_project(project, projects).get("cost_center"))
+			or None
+		)
 
 
 def _get_project(name, projects):
@@ -51,3 +56,23 @@ def _get_project(name, projects):
 			"Project", name, ["project_name", "cost_center"], as_dict=True
 		) or frappe._dict()
 	return projects[name]
+
+
+@frappe.whitelist()
+def get_row_cost_center(project=None, department=None):
+	"""Return the cost center for a Material Request row: Department first, then Project."""
+	frappe.has_permission("Material Request", "read", throw=True)
+	return (
+		(department and _get_department_cost_center(department))
+		or (project and frappe.db.get_value("Project", project, "cost_center"))
+		or None
+	)
+
+
+def _get_department_cost_center(department):
+	# The add_department_cost_center patch skips "cost_center" on sites that already have "custom_cost_center".
+	meta = frappe.get_meta("Department")
+	fieldname = "cost_center" if meta.has_field("cost_center") else "custom_cost_center"
+	if not meta.has_field(fieldname):
+		return None
+	return frappe.db.get_value("Department", department, fieldname)

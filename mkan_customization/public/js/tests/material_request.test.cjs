@@ -26,13 +26,25 @@ function make_form(rows, parent_project = "") {
 	});
 	const frm = {
 		doc: { items: rows, custom_project: parent_project },
-		fields_dict: { items: { grid: { grid_rows_by_docname: {} } } },
+		fields_dict: { items: { grid: {
+			grid_rows_by_docname: {},
+			department_column: { hidden: 0 },
+			get_docfield() { return this.department_column; },
+			set_column_disp(field, show) { this.department_column.hidden = show ? 0 : 1; },
+		} } },
 		set_query: (field, table, query) => { queries[field] = query; },
 	};
 	const frappe = {
 		ui: { form: { on: (doctype, events) => { handlers[doctype] = events; } } },
 		meta: { get_docfield: (doctype, field, name) => fields[name] },
 		db: { get_value: async (doctype, name) => ({ message: records[name] || {} }) },
+		// Same rule as get_row_cost_center on the server: Department first, then Project.
+		async call({ args: { project, department } }) {
+			const lookup = async name => name
+				? (await frappe.db.get_value("", name, "cost_center")).message.cost_center || ""
+				: "";
+			return { message: (await lookup(department)) || (await lookup(project)) || null };
+		},
 		model: {
 			async set_value(doctype, name, field, value) {
 				const row = locals[doctype][name];
@@ -85,30 +97,54 @@ test("save awaits defaults and handles mixed row requirements independently", as
 	assert.equal(rows[1].cost_center, "Project CC");
 });
 
-test("changing a row to a regular project removes its department requirement", async () => {
+test("changing a row to a regular project clears and hides its department", async () => {
 	const row = { project: "PROJ-OVERHEAD", department: "Operations" };
 	const { frm, handlers, fields, frappe } = make_form([row]);
 	await handlers["Material Request Item"].form_render(frm, row.doctype, row.name);
 	assert.equal(fields[row.name].reqd, 1);
+	assert.equal(fields[row.name].hidden, 0);
+	assert.equal(row.cost_center, undefined);
 	await frappe.model.set_value(row.doctype, row.name, "project", "PROJ-REGULAR");
 	assert.equal(fields[row.name].reqd, 0);
-	assert.equal(row.cost_center, "Department CC");
-	await frappe.model.set_value(row.doctype, row.name, "department", "");
+	assert.equal(fields[row.name].hidden, 1);
+	assert.equal(row.department, "");
+	assert.equal(row.cost_center, "Project CC");
+	assert.equal(frm.fields_dict.items.grid.department_column.hidden, 1);
+});
+
+test("a department typed on a regular project row is cleared", async () => {
+	const row = { project: "PROJ-REGULAR" };
+	const { frm, handlers, frappe } = make_form([row]);
+	await handlers["Material Request Item"].form_render(frm, row.doctype, row.name);
+	await frappe.model.set_value(row.doctype, row.name, "department", "Operations");
+	assert.equal(row.department, "");
 	assert.equal(row.cost_center, "Project CC");
 });
 
-test("an unconfigured department clears old cost center and does not fall back", async () => {
-	const row = { project: "PROJ-REGULAR", department: "Unconfigured", cost_center: "Old CC" };
+test("an unconfigured department falls back to the project cost center", async () => {
+	const records_row = { project: "PROJ-GA", department: "Unconfigured", cost_center: "Old CC" };
+	const { frm, handlers, frappe } = make_form([records_row]);
+	const get_value = frappe.db.get_value;
+	frappe.db.get_value = async (doctype, name, field) =>
+		name === "PROJ-GA" && field === "cost_center"
+			? { message: { cost_center: "G&A CC" } }
+			: get_value(doctype, name, field);
+	await handlers["Material Request"].validate(frm);
+	assert.equal(records_row.cost_center, "G&A CC");
+});
+
+test("no cost center on department or project clears the old value", async () => {
+	const row = { project: "PROJ-GA", department: "Unconfigured", cost_center: "Old CC" };
 	const { frm, handlers } = make_form([row]);
 	await handlers["Material Request"].validate(frm);
 	assert.equal(row.cost_center, "");
 });
 
-test("save preserves a manual cost center when no dimensions are selected", async () => {
+test("save clears a manual cost center when no dimensions are selected", async () => {
 	const row = { cost_center: "Manual CC" };
 	const { frm, handlers } = make_form([row]);
 	await handlers["Material Request"].validate(frm);
-	assert.equal(row.cost_center, "Manual CC");
+	assert.equal(row.cost_center, "");
 });
 
 test("clearing the last dimension clears its derived cost center", async () => {
@@ -120,6 +156,7 @@ test("clearing the last dimension clears its derived cost center", async () => {
 
 test("a delayed cost center lookup cannot overwrite a newer selection", async () => {
 	const row = { project: "PROJ-REGULAR", department: "Operations" };
+	// The row is not rendered, so its Department is not checked against the project here.
 	const { frm, handlers, frappe } = make_form([row]);
 	const get_value = frappe.db.get_value;
 	let finish_old_lookup;
