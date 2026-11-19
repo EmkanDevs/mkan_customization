@@ -171,6 +171,9 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
+    "Project": {
+        "validate": "mkan_customization.mkan_customization.doc_events.project.fix_null_costing",
+    },
     "Purchase Order":{
         "validate":"mkan_customization.mkan_customization.doc_events.purchase_order.after_insert",
         # "on_update": "mkan_customization.mkan_customization.doctype.po_amendment_log.po_amendment_log.on_purchase_order_change",
