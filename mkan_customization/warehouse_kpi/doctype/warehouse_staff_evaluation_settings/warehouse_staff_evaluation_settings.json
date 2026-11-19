@@ -1,0 +1,87 @@
+{
+ "actions": [],
+ "creation": "2026-11-17 10:00:00.000000",
+ "doctype": "DocType",
+ "document_type": "Other",
+ "engine": "InnoDB",
+ "field_order": [
+  "settings_section",
+  "restrict_manager_by_warehouse",
+  "sec_questions",
+  "questions",
+  "sec_exclusions",
+  "excluded_stock_entry_purposes"
+ ],
+ "fields": [
+  {
+   "fieldname": "settings_section",
+   "fieldtype": "Section Break",
+   "label": "General Settings"
+  },
+  {
+   "default": "1",
+   "description": "If enabled, Stock Managers only see data for warehouses they have User Permissions for.",
+   "fieldname": "restrict_manager_by_warehouse",
+   "fieldtype": "Check",
+   "label": "Restrict Manager By Warehouse"
+  },
+  {
+   "fieldname": "sec_questions",
+   "fieldtype": "Section Break",
+   "label": "Evaluation Questions"
+  },
+  {
+   "fieldname": "questions",
+   "fieldtype": "Table",
+   "label": "Questions",
+   "options": "Warehouse Staff Evaluation Question"
+  },
+  {
+   "fieldname": "sec_exclusions",
+   "fieldtype": "Section Break",
+   "label": "Exclusions"
+  },
+  {
+   "default": "Manufacture\nRepack\nMaterial Transfer for Manufacture\nSend to Subcontractor\nMaterial Consumption for Manufacture",
+   "description": "One Stock Entry purpose per line. These purposes are excluded from warehouse performance metrics.",
+   "fieldname": "excluded_stock_entry_purposes",
+   "fieldtype": "Small Text",
+   "label": "Excluded Stock Entry Purposes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-17 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Warehouse KPI",
+ "name": "Warehouse Staff Evaluation Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Stock Manager",
+   "share": 0,
+   "write": 0
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

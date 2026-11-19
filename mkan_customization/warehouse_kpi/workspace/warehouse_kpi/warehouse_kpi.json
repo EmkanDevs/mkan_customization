@@ -1,0 +1,62 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"wk_h0\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Dashboard</span>\",\"col\":12}},{\"id\":\"wk_s00\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":4}},{\"id\":\"wk_sp0\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"wk_h1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">DocTypes</span>\",\"col\":12}},{\"id\":\"wk_s10\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warehouse Staff Evaluation\",\"col\":4}},{\"id\":\"wk_s11\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Evaluation Settings\",\"col\":4}},{\"id\":\"wk_sp1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"wk_h2\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Reports</span>\",\"col\":12}},{\"id\":\"wk_s20\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Performance Evaluation Report\",\"col\":4}},{\"id\":\"wk_s21\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Transaction Detail\",\"col\":4}}]",
+ "creation": "2026-11-19 10:03:43.835279",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "clipboard",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Warehouse KPI",
+ "links": [],
+ "modified": "2026-11-19 10:22:17.601834",
+ "modified_by": "Administrator",
+ "module": "Warehouse KPI",
+ "name": "Warehouse KPI",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 54.0,
+ "shortcuts": [
+  {
+   "doc_view": "",
+   "label": "Dashboard",
+   "link_to": "warehouse-staff-performance",
+   "type": "Page"
+  },
+  {
+   "doc_view": "",
+   "label": "Performance Evaluation Report",
+   "link_to": "Warehouse Staff Performance Evaluation Report",
+   "report_ref_doctype": "Stock Entry",
+   "type": "Report"
+  },
+  {
+   "doc_view": "",
+   "label": "Transaction Detail",
+   "link_to": "Warehouse Staff Transaction Detail",
+   "report_ref_doctype": "Stock Entry",
+   "type": "Report"
+  },
+  {
+   "doc_view": "List",
+   "label": "Warehouse Staff Evaluation",
+   "link_to": "Warehouse Staff Evaluation",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Evaluation Settings",
+   "link_to": "Warehouse Staff Evaluation Settings",
+   "type": "DocType"
+  }
+ ],
+ "title": "Warehouse KPI"
+}
