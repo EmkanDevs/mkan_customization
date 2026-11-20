@@ -16,6 +16,10 @@
         "posting_date",
         "tax_method",
         "party",
+        "is_paid",
+        "cash_bank_account",
+        "debit_to",
+        "credit_to",
         "company_currency",
         "accounting_entries_section",
         "accounts",
@@ -63,7 +67,7 @@
         },
         {
             "default": "Inward",
-            "description": "Inward = Purchase / Expense  \u00b7  Outward = Sales / Income",
+            "description": "Inward = Purchase / Expense  ·  Outward = Sales / Income",
             "fieldname": "tax_type",
             "fieldtype": "Select",
             "in_list_view": 1,
@@ -107,6 +111,37 @@
             "in_list_view": 1,
             "label": "Supplier (If Any)",
             "options": "party_type"
+        },
+        {
+            "default": "0",
+            "fieldname": "is_paid",
+            "fieldtype": "Check",
+            "label": "Is Paid"
+        },
+        {
+            "depends_on": "eval:doc.is_paid",
+            "mandatory_depends_on": "eval:doc.is_paid",
+            "fieldname": "cash_bank_account",
+            "fieldtype": "Link",
+            "label": "Cash/Bank Account",
+            "options": "Account",
+            "description": "Cash or Bank account the invoice is paid from (Inward) or into (Outward)."
+        },
+        {
+            "fieldname": "debit_to",
+            "fieldtype": "Link",
+            "label": "Debit To",
+            "options": "Account",
+            "depends_on": "eval:doc.tax_type=='Outward' && doc.party",
+            "description": "Fetched from the customer's receivable account. Set on the Sales Invoice."
+        },
+        {
+            "fieldname": "credit_to",
+            "fieldtype": "Link",
+            "label": "Credit To",
+            "options": "Account",
+            "depends_on": "eval:doc.tax_type=='Inward' && doc.party",
+            "description": "Fetched from the supplier's payable account. Set on the Purchase Invoice."
         },
         {
             "fetch_from": "company.default_currency",
@@ -171,7 +206,8 @@
             "fieldtype": "Currency",
             "label": "Difference",
             "options": "company_currency",
-            "read_only": 1
+            "read_only": 1,
+            "hidden": 1
         },
         {
             "fieldname": "reference_section",
@@ -228,7 +264,7 @@
     ],
     "is_submittable": 1,
     "links": [],
-    "modified": "2026-09-01 10:00:00.000000",
+    "modified": "2026-11-19 17:00:00.000000",
     "modified_by": "Administrator",
     "module": "mkan_customization",
     "name": "Accounting Entry",

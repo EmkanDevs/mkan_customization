@@ -4,7 +4,8 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, fmt_money
+from frappe.utils import flt
+from erpnext.accounts.party import get_party_account
 
 
 @frappe.whitelist()
@@ -66,11 +67,12 @@ class AccountingEntry(Document):
 		self.set_party_and_template_types()
 		self.set_row_currencies_and_exchange_rates()
 		self.validate_accounts()
+		self.validate_cash_bank_account()
+		self.validate_party_account()
 		self.sync_auto_tax_rows()
 		self.calculate_totals()
 
 	def on_submit(self):
-		self.validate_balance()
 		self.create_and_submit_invoice()
 
 	def on_cancel(self):
@@ -126,7 +128,7 @@ class AccountingEntry(Document):
 			row.credit_in_company_currency = flt(flt(row.credit) * flt(row.exchange_rate), 2)
 
 	def validate_accounts(self):
-		has_cash_or_bank = False
+		is_inward = self.tax_type == "Inward"
 
 		for idx, row in enumerate(self.accounts, 1):
 			if not row.account:
@@ -136,7 +138,7 @@ class AccountingEntry(Document):
 			account_details = frappe.db.get_value(
 				"Account",
 				row.account,
-				["company", "is_group", "account_type"],
+				["company", "is_group", "account_type", "root_type", "disabled"],
 				as_dict=1
 			)
 			if account_details:
@@ -152,13 +154,114 @@ class AccountingEntry(Document):
 							idx, frappe.bold(row.account)
 						)
 					)
-				if account_details.account_type in ["Cash", "Bank"]:
-					has_cash_or_bank = True
+				if account_details.disabled:
+					frappe.throw(
+						_("Row #{0}: Account {1} is disabled").format(idx, frappe.bold(row.account))
+					)
+				# Same rule as the Purchase / Sales Invoice item account filters
+				blocked_root_type = "Income" if is_inward else "Expense"
+				if account_details.root_type == blocked_root_type:
+					frappe.throw(
+						_("Row #{0}: {1} entries cannot use {2} account {3}").format(
+							idx,
+							_("Inward") if is_inward else _("Outward"),
+							_(blocked_root_type),
+							frappe.bold(row.account),
+						)
+					)
 
-		if not has_cash_or_bank:
+			# Each row becomes an invoice line, so it must sit on the invoice side:
+			# Inward (Purchase) rows are debits, Outward (Sales) rows are credits.
+			if is_inward and flt(row.credit) > 0:
+				frappe.throw(
+					_("Row #{0}: Inward entries take Debit amounts only. Remove the Credit amount on account {1}.").format(
+						idx, frappe.bold(row.account)
+					)
+				)
+			if not is_inward and flt(row.debit) > 0:
+				frappe.throw(
+					_("Row #{0}: Outward entries take Credit amounts only. Remove the Debit amount on account {1}.").format(
+						idx, frappe.bold(row.account)
+					)
+				)
+
+	def validate_cash_bank_account(self):
+		if not self.is_paid:
+			self.cash_bank_account = None
+			return
+
+		if not self.cash_bank_account:
+			frappe.throw(_("Cash/Bank Account is mandatory when Is Paid is checked"))
+
+		account = frappe.db.get_value(
+			"Account",
+			self.cash_bank_account,
+			["company", "is_group", "account_type", "disabled"],
+			as_dict=1,
+		)
+		if not account:
+			frappe.throw(_("Cash/Bank Account {0} does not exist").format(frappe.bold(self.cash_bank_account)))
+		if account.company != self.company:
 			frappe.throw(
-				_("At least one Cash or Bank account (where Account Type is 'Cash' or 'Bank') is required in Accounting Entries to process payment."),
-				frappe.ValidationError
+				_("Cash/Bank Account {0} does not belong to Company {1}").format(
+					frappe.bold(self.cash_bank_account), frappe.bold(self.company)
+				)
+			)
+		if account.is_group or account.disabled:
+			frappe.throw(
+				_("Cash/Bank Account {0} cannot be a group or disabled account").format(
+					frappe.bold(self.cash_bank_account)
+				)
+			)
+		if account.account_type not in ("Cash", "Bank"):
+			frappe.throw(
+				_("Cash/Bank Account {0} must have Account Type Cash or Bank").format(
+					frappe.bold(self.cash_bank_account)
+				)
+			)
+
+	def validate_party_account(self):
+		# Inward creates a Purchase Invoice (Credit To, Payable),
+		# Outward creates a Sales Invoice (Debit To, Receivable).
+		if self.tax_type == "Inward":
+			self.debit_to = None
+			fieldname, account_type, label = "credit_to", "Payable", _("Credit To")
+		else:
+			self.credit_to = None
+			fieldname, account_type, label = "debit_to", "Receivable", _("Debit To")
+
+		# Shown only when a party is chosen, and defaults to that party's account
+		if not self.party:
+			self.debit_to = self.credit_to = None
+			return
+
+		if not self.get(fieldname):
+			self.set(fieldname, get_party_account(self.party_type, self.party, self.company))
+
+		account = self.get(fieldname)
+		if not account:
+			return
+
+		details = frappe.db.get_value(
+			"Account", account, ["company", "is_group", "account_type", "disabled"], as_dict=1
+		)
+		if not details:
+			frappe.throw(_("{0} account {1} does not exist").format(label, frappe.bold(account)))
+		if details.company != self.company:
+			frappe.throw(
+				_("{0} account {1} does not belong to Company {2}").format(
+					label, frappe.bold(account), frappe.bold(self.company)
+				)
+			)
+		if details.is_group or details.disabled:
+			frappe.throw(
+				_("{0} account {1} cannot be a group or disabled account").format(label, frappe.bold(account))
+			)
+		if details.account_type != account_type:
+			frappe.throw(
+				_("{0} account {1} must have Account Type {2}").format(
+					label, frappe.bold(account), _(account_type)
+				)
 			)
 
 	def sync_auto_tax_rows(self):
@@ -248,18 +351,6 @@ class AccountingEntry(Document):
 		self.total_credit_company_currency = flt(total_credit_cc, 2)
 		self.difference = flt(self.total_debit_company_currency - self.total_credit_company_currency, 2)
 
-	def validate_balance(self):
-		self.calculate_totals()
-		if abs(flt(self.difference)) >= 0.01:
-			formatted_diff = fmt_money(abs(self.difference), currency=self.company_currency)
-			direction = _("more debit") if self.difference > 0 else _("more credit")
-			frappe.throw(
-				_("Cannot submit: Debit and Credit are not balanced. Difference: {0} ({1}).").format(
-					formatted_diff, direction
-				),
-				frappe.ValidationError
-			)
-
 	def _linked_invoice_pairs(self):
 		"""Returns [(fieldname, doctype), ...] for whichever invoices this
 		Accounting Entry actually generated."""
@@ -320,30 +411,19 @@ class AccountingEntry(Document):
 				except Exception:
 					pass
 
-	def get_cash_bank_row(self, for_inward=True):
-		"""Finds the Cash or Bank account row in accounts.
-		For Inward (Purchase): Payment is in Credit.
-		For Outward (Sales): Payment is in Debit.
-		"""
-		for row in self.accounts:
-			if row.is_auto_tax_row:
-				continue
-			acc_type = frappe.db.get_value("Account", row.account, "account_type")
-			if acc_type in ["Cash", "Bank"]:
-				if for_inward and flt(row.credit) > 0:
-					return row, acc_type
-				elif not for_inward and flt(row.debit) > 0:
-					return row, acc_type
+	def get_mode_of_payment(self):
+		"""Mode of Payment for the header Cash/Bank Account (only when Is Paid)."""
+		if not (self.is_paid and self.cash_bank_account):
+			return None
+		acc_type = frappe.db.get_value("Account", self.cash_bank_account, "account_type")
+		return get_mode_of_payment_for_account(self.cash_bank_account, self.company, acc_type)
 
-		# Fallback to any Cash/Bank row if strict debit/credit side isn't met
+	def get_invoice_project(self, amount_field):
+		"""First project found on a non-tax row, used on the invoice header."""
 		for row in self.accounts:
-			if row.is_auto_tax_row:
-				continue
-			acc_type = frappe.db.get_value("Account", row.account, "account_type")
-			if acc_type in ["Cash", "Bank"]:
-				return row, acc_type
-
-		return None, None
+			if not row.is_auto_tax_row and flt(row.get(amount_field)) > 0 and row.project:
+				return row.project
+		return None
 
 	def make_purchase_invoice(self):
 		"""Generates a standard ERPNext Purchase Invoice marked as Paid from this Accounting Entry."""
@@ -365,16 +445,8 @@ class AccountingEntry(Document):
 				_("Default Purchase Item is required. Please configure Default Purchase Item in Accounting Entry Settings.")
 			)
 
-		# 3. Identify Cash/Bank Account for Payment
-		cash_bank_row, acc_type = self.get_cash_bank_row(for_inward=True)
-		if not cash_bank_row:
-			frappe.throw(
-				_("No Cash or Bank account with Credit amount found to mark the Purchase Invoice as Paid.")
-			)
-
-		paid_amount = flt(cash_bank_row.credit)
-		base_paid_amount = flt(cash_bank_row.credit_in_company_currency) or paid_amount
-		mode_of_payment = get_mode_of_payment_for_account(cash_bank_row.account, self.company, acc_type)
+		# 3. Mode of Payment for the header Cash/Bank Account (only when Is Paid)
+		mode_of_payment = self.get_mode_of_payment()
 
 		# 3b. Batch-fetch account_type for every distinct account on this entry,
 		# so we can detect tax rows even when is_auto_tax_row wasn't set upstream.
@@ -392,17 +464,14 @@ class AccountingEntry(Document):
 			return bool(row.is_auto_tax_row) or account_type_map.get(row.account) == "Tax"
 
 		# Resolve a project to propagate to the invoice header (needed for accounts with mandatory project)
-		invoice_project = cash_bank_row.project if cash_bank_row.project else None
-		if not invoice_project:
-			for row in self.accounts:
-				if not _is_tax_row(row) and row.name != cash_bank_row.name and flt(row.debit) > 0 and row.project:
-					invoice_project = row.project
-					break
+		invoice_project = self.get_invoice_project("debit")
 
 		# 4. Instantiate Purchase Invoice Doc
 		pi = frappe.new_doc("Purchase Invoice")
 		pi.company = self.company
 		pi.supplier = supplier
+		if self.credit_to:
+			pi.credit_to = self.credit_to
 		pi.posting_date = self.posting_date
 		pi.currency = self.company_currency
 		pi.bill_no = self.ref_number or ""
@@ -415,19 +484,17 @@ class AccountingEntry(Document):
 		# stamps them on the auto-created AP GL / Payment Ledger Entry.
 		self._propagate_accounting_dimensions(pi)
 
-		# Payment Details (Standard ERPNext is_paid flow)
-		pi.is_paid = 1
-		pi.cash_bank_account = cash_bank_row.account
-		pi.paid_amount = paid_amount
-		pi.base_paid_amount = base_paid_amount
-		if mode_of_payment:
-			pi.mode_of_payment = mode_of_payment
+		# Payment Details (Standard ERPNext is_paid flow). Amount is set after
+		# totals are calculated below. Unpaid entries stay outstanding on the supplier.
+		if self.is_paid:
+			pi.is_paid = 1
+			pi.cash_bank_account = self.cash_bank_account
+			if mode_of_payment:
+				pi.mode_of_payment = mode_of_payment
 
 		# 5. Populate Items: Each separate non-tax debit row -> separate item row with its expense_account
 		for row in self.accounts:
 			if _is_tax_row(row):
-				continue
-			if row.name == cash_bank_row.name:
 				continue
 			if flt(row.debit) <= 0:
 				continue
@@ -478,9 +545,12 @@ class AccountingEntry(Document):
 		if _first_tax_category:
 			pi.taxes_and_charges = _first_tax_category
 		pi.run_method("set_missing_values")
+		if self.credit_to:
+			pi.credit_to = self.credit_to
 		pi.run_method("calculate_taxes_and_totals")
-		pi.paid_amount = paid_amount
-		pi.base_paid_amount = base_paid_amount
+		if self.is_paid:
+			pi.paid_amount = flt(pi.rounded_total or pi.grand_total)
+			pi.base_paid_amount = flt(pi.base_rounded_total or pi.base_grand_total)
 		# Restore expense accounts overridden by set_missing_values
 		for _idx, _item in enumerate(pi.items):
 			if _idx < len(_saved_expense_accounts) and _saved_expense_accounts[_idx]:
@@ -508,16 +578,14 @@ class AccountingEntry(Document):
 				_("Default Sales Item is required. Please configure Default Sales Item in Accounting Entry Settings.")
 			)
 
-		# 3. Identify Cash/Bank Account for Payment
-		cash_bank_row, acc_type = self.get_cash_bank_row(for_inward=False)
-		if not cash_bank_row:
+		# 3. Mode of Payment for the header Cash/Bank Account (only when Is Paid)
+		mode_of_payment = self.get_mode_of_payment()
+		if self.is_paid and not mode_of_payment:
 			frappe.throw(
-				_("No Cash or Bank account with Debit amount found to mark the Sales Invoice as Paid.")
+				_("No enabled Mode of Payment found for Cash/Bank Account {0}.").format(
+					frappe.bold(self.cash_bank_account)
+				)
 			)
-
-		paid_amount = flt(cash_bank_row.debit)
-		base_paid_amount = flt(cash_bank_row.debit_in_company_currency) or paid_amount
-		mode_of_payment = get_mode_of_payment_for_account(cash_bank_row.account, self.company, acc_type)
 
 		# 3b. Batch-fetch account_type for every distinct account on this entry,
 		# so we can detect tax rows even when is_auto_tax_row wasn't set upstream.
@@ -535,17 +603,14 @@ class AccountingEntry(Document):
 			return bool(row.is_auto_tax_row) or account_type_map.get(row.account) == "Tax"
 
 		# Resolve a project to propagate to the invoice header (needed for accounts with mandatory project)
-		invoice_project = cash_bank_row.project if cash_bank_row.project else None
-		if not invoice_project:
-			for row in self.accounts:
-				if not _is_tax_row(row) and row.name != cash_bank_row.name and flt(row.credit) > 0 and row.project:
-					invoice_project = row.project
-					break
+		invoice_project = self.get_invoice_project("credit")
 
 		# 4. Instantiate Sales Invoice Doc
 		si = frappe.new_doc("Sales Invoice")
 		si.company = self.company
 		si.customer = customer
+		if self.debit_to:
+			si.debit_to = self.debit_to
 		si.posting_date = self.posting_date
 		si.due_date = self.posting_date
 		si.currency = self.company_currency
@@ -557,19 +622,15 @@ class AccountingEntry(Document):
 		# stamps them on the auto-created AR GL / Payment Ledger Entry.
 		self._propagate_accounting_dimensions(si)
 
-		# Payment Details (Standard ERPNext is_pos flow with payments table)
-		si.is_pos = 1
-		payment_row = si.append("payments", {})
-		payment_row.mode_of_payment = mode_of_payment
-		payment_row.amount = paid_amount
-		payment_row.base_amount = base_paid_amount
-		payment_row.account = cash_bank_row.account
+		# Payment Details (Standard ERPNext is_pos flow with payments table).
+		# The payments row is built after totals are calculated below.
+		# Unpaid entries stay outstanding on the customer.
+		if self.is_paid:
+			si.is_pos = 1
 
 		# 5. Populate Items: Each separate non-tax credit row -> separate item row with its income_account
 		for row in self.accounts:
 			if _is_tax_row(row):
-				continue
-			if row.name == cash_bank_row.name:
 				continue
 			if flt(row.credit) <= 0:
 				continue
@@ -621,29 +682,36 @@ class AccountingEntry(Document):
 		if _first_tax_category:
 			si.taxes_and_charges = _first_tax_category
 		si.run_method("set_missing_values")
+		if self.debit_to:
+			si.debit_to = self.debit_to
 		si.run_method("calculate_taxes_and_totals")
 		# Restore income accounts overridden by set_missing_values
 		for _idx, _item in enumerate(si.items):
 			if _idx < len(_saved_income_accounts) and _saved_income_accounts[_idx]:
 				_item.income_account = _saved_income_accounts[_idx]
 
-		# Re-build the payments table from scratch after set_missing_values and
+		if not self.is_paid:
+			return si
+
+		# Build the payments table after set_missing_values and
 		# calculate_taxes_and_totals, because set_missing_values (via set_pos_data)
 		# rebuilds the payments child table using the Mode of Payment's *default*
-		# account for this company — not our cash_bank_row.account. Clearing and
-		# re-appending the single correct row guarantees the right bank account is used.
+		# account for this company, not our Cash/Bank Account. Clearing and
+		# appending the single correct row guarantees the right bank account is used.
+		paid_amount = flt(si.rounded_total or si.grand_total)
+		base_paid_amount = flt(si.base_rounded_total or si.base_grand_total)
 		si.set("payments", [])
 		payment_row = si.append("payments", {})
 		payment_row.mode_of_payment = mode_of_payment
 		payment_row.amount = paid_amount
 		payment_row.base_amount = base_paid_amount
-		payment_row.account = cash_bank_row.account
+		payment_row.account = self.cash_bank_account
 		si.paid_amount = paid_amount
 		si.base_paid_amount = base_paid_amount
 
 		# Carry the correct account on the doc so create_and_submit_invoice can
 		# patch it after insert() (before_save wipes it via set_account_for_mode_of_payment).
-		si._correct_payment_account = cash_bank_row.account
+		si._correct_payment_account = self.cash_bank_account
 		return si
 
 	@frappe.whitelist()

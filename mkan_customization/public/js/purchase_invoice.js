@@ -1,5 +1,12 @@
 frappe.ui.form.on("Purchase Invoice", {
+    setup(frm) {
+        set_expense_account_query(frm);
+    },
+    onload(frm) {
+        set_expense_account_query(frm);
+    },
     refresh(frm) {
+        set_expense_account_query(frm);
         sync_is_blanket_invoice_flag(frm);
 
         if (frm.doc.docstatus === 0) {
@@ -31,6 +38,7 @@ frappe.ui.form.on("Purchase Invoice", {
         // otherwise silently overwrite ours if it runs later in the same cycle).
         setTimeout(() => {
             set_item_code_filter(frm);
+            set_expense_account_query(frm);
             toggle_rate_readonly(frm);
         }, 0);
     },
@@ -57,6 +65,20 @@ frappe.ui.form.on("Purchase Invoice", {
         frm.refresh();
     }
 });
+
+// Replaces ERPNext's default expense_account query on the Items table.
+function set_expense_account_query(frm) {
+    frm.set_query("expense_account", "items", function (doc) {
+        return {
+            filters: {
+                root_type: ["!=", "Income"],
+                disabled: 0,
+                is_group: 0,
+                company: doc.company
+            }
+        };
+    });
+}
 
 // ---------------- Rate lock (child table: Purchase Invoice Item) ----------------
 // Client-side convenience only — the real guard is the server-side

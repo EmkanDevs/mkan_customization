@@ -1,4 +1,13 @@
 frappe.ui.form.on('Sales Invoice', {
+    setup(frm) {
+        set_income_account_query(frm);
+    },
+    onload(frm) {
+        set_income_account_query(frm);
+    },
+    refresh(frm) {
+        set_income_account_query(frm);
+    },
     retention(frm) {
         validate_and_calculate(frm);
     },
@@ -35,6 +44,21 @@ frappe.ui.form.on('Sales Invoice', {
         calculate_cpc_billing(frm);
     }
 });
+
+// Replaces ERPNext's default income_account query (Income root type only)
+// on the Items table.
+function set_income_account_query(frm) {
+    frm.set_query('income_account', 'items', function (doc) {
+        return {
+            filters: {
+                root_type: ['!=', 'Expense'],
+                disabled: 0,
+                is_group: 0,
+                company: doc.company
+            }
+        };
+    });
+}
 
 function validate_and_calculate(frm) {
     if (frm.doc.advance_payment !== undefined && frm.doc.advance_payment !== null && frm.doc.advance_payment !== "") {

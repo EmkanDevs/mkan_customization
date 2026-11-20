@@ -14,11 +14,37 @@ frappe.ui.form.on('Accounting Entry', {
 
         
 
+        // Same filter as the Purchase / Sales Invoice item accounts:
+        // Inward (Purchase) hides Income, Outward (Sales) hides Expense.
         frm.set_query('account', 'accounts', function (doc, cdt, cdn) {
             return {
                 filters: {
+                    root_type: ['!=', doc.tax_type === 'Outward' ? 'Expense' : 'Income'],
+                    disabled: 0,
+                    is_group: 0,
+                    company: doc.company
+                }
+            };
+        });
+
+        frm.set_query('debit_to', function (doc) {
+            return {
+                filters: {
+                    account_type: 'Receivable',
                     company: doc.company,
-                    is_group: 0
+                    is_group: 0,
+                    disabled: 0
+                }
+            };
+        });
+
+        frm.set_query('credit_to', function (doc) {
+            return {
+                filters: {
+                    account_type: 'Payable',
+                    company: doc.company,
+                    is_group: 0,
+                    disabled: 0
                 }
             };
         });
@@ -31,6 +57,28 @@ frappe.ui.form.on('Accounting Entry', {
                 }
             };
         });
+
+        frm.set_query('cash_bank_account', function (doc) {
+            return {
+                filters: {
+                    account_type: ['in', ['Cash', 'Bank']],
+                    company: doc.company,
+                    is_group: 0,
+                    disabled: 0
+                }
+            };
+        });
+    },
+
+    is_paid: function (frm) {
+        if (!frm.doc.is_paid && frm.doc.cash_bank_account) {
+            frm.set_value('cash_bank_account', '');
+        }
+        frm.trigger('update_balance_indicator');
+    },
+
+    cash_bank_account: function (frm) {
+        frm.trigger('update_balance_indicator');
     },
 
     department: function (frm) {
@@ -74,7 +122,44 @@ frappe.ui.form.on('Accounting Entry', {
         frm.trigger('setup_invoice_actions');
     },
 
+    party: function (frm) {
+        frm.trigger('set_party_account');
+    },
+
+    // Debit To (Outward) / Credit To (Inward) come from the chosen
+    // customer or supplier, and are cleared when there is no party.
+    set_party_account: function (frm) {
+        const is_inward = (frm.doc.tax_type === 'Inward');
+        const field = is_inward ? 'credit_to' : 'debit_to';
+        const other = is_inward ? 'debit_to' : 'credit_to';
+
+        if (frm.doc[other]) {
+            frm.set_value(other, '');
+        }
+        if (!frm.doc.party || !frm.doc.company) {
+            if (frm.doc[field]) {
+                frm.set_value(field, '');
+            }
+            return;
+        }
+        frappe.call({
+            method: 'erpnext.accounts.party.get_party_account',
+            args: {
+                party_type: is_inward ? 'Supplier' : 'Customer',
+                party: frm.doc.party,
+                company: frm.doc.company
+            },
+            callback: function (r) {
+                frm.set_value(field, r.message || '');
+            }
+        });
+    },
+
     company: function (frm) {
+        if (frm.doc.cash_bank_account) {
+            frm.set_value('cash_bank_account', '');
+        }
+        frm.trigger('set_party_account');
         if (frm.doc.company) {
             frappe.db.get_value('Company', frm.doc.company, 'default_currency', function (r) {
                 if (r && r.default_currency) {
@@ -277,23 +362,20 @@ frappe.ui.form.on('Accounting Entry', {
             return;
         }
 
-        let diff = flt(frm.doc.difference, 2);
+        // Rows are one-sided now (Inward = debit, Outward = credit); the other
+        // side is the Cash/Bank Account when Is Paid, else the supplier/customer.
+        const is_inward = (frm.doc.tax_type === 'Inward');
+        const total = is_inward ? total_debit_cc : total_credit_cc;
+        const settled_by = frm.doc.is_paid
+            ? __('paid via {0}', [frm.doc.cash_bank_account || __('Cash/Bank Account')])
+            : __('unpaid, outstanding on the {0}', [is_inward ? __('supplier') : __('customer')]);
 
-        if (Math.abs(diff) < 0.01) {
-            frm.dashboard.set_headline(
-                __('<span class="indicator green">&#10003; Entry is balanced. Debit and Credit both total {0}.</span>', [
-                    format_currency(frm.doc.total_credit_company_currency, frm.doc.company_currency)
-                ])
-            );
-        } else {
-            let direction = diff > 0 ? __('more debit') : __('more credit');
-            frm.dashboard.set_headline(
-                __('<span class="indicator orange">&#9888; Not balanced &mdash; difference of {0} ({1}). Balance rows before submitting.</span>', [
-                    format_currency(Math.abs(diff), frm.doc.company_currency),
-                    direction
-                ])
-            );
-        }
+        frm.dashboard.set_headline(
+            __('<span class="indicator blue">Invoice total {0}, {1}.</span>', [
+                format_currency(total, frm.doc.company_currency),
+                settled_by
+            ])
+        );
     },
 
     validate: function (frm) {
