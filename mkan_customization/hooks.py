@@ -250,6 +250,11 @@ doc_events = {
         "on_submit": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
         "on_cancel": "mkan_customization.mkan_customization.doc_events.asset_movement.update_asset_project",
     },
+    doc_events = {
+    "Stock Entry": {
+        "validate": "mkan_customization.stock_entry.set_material_request_references",
+    },
+}
 
 }
 
