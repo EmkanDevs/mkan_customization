@@ -45,7 +45,7 @@
    "name": "Asset Category-custom_category_type",
    "no_copy": 0,
    "non_negative": 0,
-   "options": "\nEquipment and Machinery\nVehicles\nPortables & Tanks\nFurniture\nTools\nComputer Software\nElectrical Devices\nIT & Network\nImprovement Rented Building",
+   "options": "\nEquipment and Machinery\nVehicles\nPortables & Tanks\nFurniture\nTools\nComputer Software\nElectrical Devices\nIT & Network\nImprovement Rented Building\nBuildings\nLand\nIntangible Assets\nRight-of-Use Assets",
    "owner": "Administrator",
    "permlevel": 0,
    "placeholder": null,
