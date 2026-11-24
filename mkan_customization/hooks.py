@@ -384,7 +384,25 @@ fixtures = [
                 "content": "[{\"id\":\"2a9Wf9dDr6\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"notification_list\",\"col\":12}}]",
             }
         ]
-    }
+    },
+    {
+        "dt": "Workflow State",
+        "filters": [
+            ["name", "in", ["Draft", "Approved", "Rejected", "Pending Technical/Quality", "Pending Procurement", "Pending Finance"]]
+        ]
+    },
+    {
+        "dt": "Workflow Action Master",
+        "filters": [
+            ["name", "in", ["Review", "Approve", "Reject", "Submit for Approval"]]
+        ]
+    },
+    {
+        "dt": "Workflow",
+        "filters": [
+            ["name", "in", ["PO Amendment Log Approval"]]
+        ]
+    },
 ]
 
 from mkan_customization.mkan_customization.override.workflow_action import get_users_next_action_data_for_workflow
