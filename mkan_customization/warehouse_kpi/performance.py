@@ -41,12 +41,13 @@ class Performance:
 		cancelled = self._group(self.m.cancelled, "user")
 		corrections = self._group(self.m.corrections, "original_owner")
 		amended = self._group(self.m.amended, "user")
-		rows = [self._row(u, names, scores, work[u], cancelled[u], corrections[u], amended[u]) for u in page]
+		rows = [self._row(u, names, scores, work[u.lower()], cancelled[u.lower()], corrections[u.lower()], amended[u.lower()]) for u in page]
 		rows.sort(key=lambda r: (r["storekeeper_name"] or "").lower())
 		return {"total": len(self.users), "rows": rows}
 
 	def user_rows(self, user, act):
 		"""Documents behind one number of the table."""
+		user_lower = (user or "").lower()
 		lists = {
 			"transactions": (self.m.work, "user"),
 			"cancelled": (self.m.cancelled, "user"),
@@ -55,13 +56,13 @@ class Performance:
 		}
 		if act in lists:
 			source, key = lists[act]
-			return [r for r in source if r[key] == user]
+			return [r for r in source if (r.get(key) or "").lower() == user_lower]
 		if act in ROW_COLUMNS:
-			return [r for r in self.m.work if r["user"] == user and r[ROW_COLUMNS[act]] > 0]
+			return [r for r in self.m.work if (r.get("user") or "").lower() == user_lower and r[ROW_COLUMNS[act]] > 0]
 		wanted = TYPE_COLUMNS.get(act)
 		if not wanted:
 			frappe.throw("Unknown column.")
-		return [r for r in self.m.work if r["user"] == user and r["type"] == wanted]
+		return [r for r in self.m.work if (r.get("user") or "").lower() == user_lower and r["type"] == wanted]
 
 	def _row(self, user, names, scores, work, cancelled, corrections, amended):
 		row = {
@@ -92,7 +93,8 @@ class Performance:
 	def _group(rows, key):
 		groups = defaultdict(list)
 		for r in rows:
-			groups[r[key]].append(r)
+			val = (r.get(key) or "").lower()
+			groups[val].append(r)
 		return groups
 
 	def _latest_scores(self, users):

@@ -46,7 +46,9 @@ class ActivityQuery:
 
 	def _resolve_users(self, storekeeper, allowed_users):
 		if storekeeper:
-			return [storekeeper] if storekeeper in allowed_users else []
+			allowed_lower = {u.lower(): u for u in allowed_users}
+			matched = allowed_lower.get(storekeeper.lower())
+			return [matched or storekeeper]
 		return list(allowed_users)
 
 	def _included_purposes(self):

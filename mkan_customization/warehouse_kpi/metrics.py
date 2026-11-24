@@ -20,14 +20,14 @@ from mkan_customization.warehouse_kpi.txn_types import (
 
 class Metrics:
 	def __init__(self, rows, users):
-		users = set(users)
+		users_lower = {u.lower() for u in users}
 		counted = [r for r in rows if r["type"] != OPENING]
-		self.rows = [r for r in rows if r["user"] in users]
-		self.work = [r for r in counted if r["docstatus"] == 1 and r["user"] in users]
-		self.cancelled = [r for r in counted if r["docstatus"] == 2 and r["user"] in users]
+		self.rows = [r for r in rows if (r.get("user") or "").lower() in users_lower]
+		self.work = [r for r in counted if r["docstatus"] == 1 and (r.get("user") or "").lower() in users_lower]
+		self.cancelled = [r for r in counted if r["docstatus"] == 2 and (r.get("user") or "").lower() in users_lower]
 		self.opening = [r for r in self.rows if r["type"] == OPENING and r["docstatus"] == 1]
 		self.corrections = [
-			r for r in counted if r["docstatus"] == 1 and r["amended_from"] and r["original_owner"] in users
+			r for r in counted if r["docstatus"] == 1 and r["amended_from"] and (r.get("original_owner") or "").lower() in users_lower
 		]
 		self.amended = [r for r in self.work if r["amended_from"]]
 
