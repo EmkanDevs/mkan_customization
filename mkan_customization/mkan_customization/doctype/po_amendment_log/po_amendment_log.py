@@ -7,6 +7,9 @@ from frappe.model import no_value_fields, table_fields
 from frappe.model.document import Document
 from frappe.utils import cint, cstr, flt, fmt_money, get_link_to_form, now_datetime, strip_html
 
+from mkan_customization.mkan_customization.page.po_amendment_insights.constants import PENDING_STATES
+
+from . import po_context
 from .comparison_engine import compare_items, compare_mr
 
 PO = "Purchase Order"
@@ -28,7 +31,7 @@ OUTPUT_FIELDS = SNAPSHOT_TABLES + SNAPSHOT_SCALARS
 SERVER_OWNED = SNAPSHOT_SCALARS + [
 	"comparison_warnings", "comparison_taken_on", "comparison_taken_by", "snapshot_checksum", "comparison_stale",
 	"prepared_by", "reviewed_by", "approver", "approval_datetime", "pending_since", "log_reference_no",
-	"company", "original_supplier", "replacement_supplier", "budget_impact_currency",
+	"company", "original_supplier", "replacement_supplier", "budget_impact_currency", "project", "po_date_gap_days",
 ]
 USER_FIELDS = [
 	"log_date", "cancelled_po_number", "new_po_number", "requested_by", "requesting_department",
@@ -38,7 +41,7 @@ USER_FIELDS = [
 	"supporting_attachments", "supplier_notified_yesno", "supplier_acknowledgment_status",
 	"supplier_acknowledgment_date", "closure_date",
 ]
-# locked while Pending Approval (everything except the manager's decision fields)
+# locked while pending at any approval gate (everything except the manager's decision fields)
 LOCKED_WHEN_PENDING = USER_FIELDS + OUTPUT_FIELDS + ["company", "original_supplier", "replacement_supplier"]
 
 
@@ -53,7 +56,7 @@ class POAmendmentLog(Document):
 	# ------------------------------------------------------------------ lifecycle
 	def validate(self):
 		self.protect_server_fields()
-		self.workflow_status = self.workflow_status or "Draft"
+		self.mirror_workflow_state()
 		if not self.log_reference_no and self.name:
 			self.log_reference_no = self.name
 
@@ -65,6 +68,14 @@ class POAmendmentLog(Document):
 		self.enforce_edit_rules()
 		self.validate_approval_stage()
 		self.stamp_review_details()
+
+	def mirror_workflow_state(self):
+		"""workflow_state is the live workflow value. workflow_status mirrors it for the older code and reports."""
+		if self.workflow_state:
+			self.workflow_status = self.workflow_state
+		else:
+			self.workflow_status = self.workflow_status or "Draft"
+			self.workflow_state = self.workflow_status
 
 	def before_submit(self):
 		if self.workflow_status != "Approved":
@@ -80,7 +91,7 @@ class POAmendmentLog(Document):
 
 	def on_update(self):
 		before = self.get_doc_before_save()
-		if before and before.workflow_status == "Pending Approval" and self.workflow_status in ("Draft", "Rejected"):
+		if before and before.workflow_status in PENDING_STATES and self.workflow_status in ("Draft", "Rejected"):
 			label = _("Returned for correction") if self.workflow_status == "Draft" else _("Rejected")
 			self.add_comment("Comment", _("{0} by {1}: {2}").format(label, frappe.session.user, self.approval_comments))
 
@@ -174,20 +185,20 @@ class POAmendmentLog(Document):
 		changed = [f for f in LOCKED_WHEN_PENDING if _fingerprint(before, [f]) != _fingerprint(self, [f])]
 		if not changed:
 			return
-		if before.workflow_status == "Pending Approval":
+		if before.workflow_status in PENDING_STATES:
 			frappe.throw(
-				_("This log is locked while Pending Approval. Return it for correction to change: {0}").format(
+				_("This log is locked while pending approval. Return it for correction to change: {0}").format(
 					", ".join(_(self.meta.get_label(f)) for f in changed[:5])),
 				title=_("Locked"),
 			)
 		if before.workflow_status == "Rejected":
-			frappe.throw(_("Reopen the log as Draft before editing it."), title=_("Locked"))
+			frappe.throw(_("A rejected log is final. Create a new log to correct it."), title=_("Locked"))
 		if not (set(frappe.get_roles()) & BUYER_ROLES):
 			frappe.throw(_("Only a Buyer can edit a Draft log."), frappe.PermissionError)
 
 	# ------------------------------------------------------------------ send / approve checks
 	def validate_approval_stage(self):
-		if self.workflow_status not in ("Pending Approval", "Approved"):
+		if self.workflow_status not in (set(PENDING_STATES) | {"Approved"}):
 			return
 		if not cstr(self.amendment_reason_category).strip():
 			frappe.throw(_("Reason for Change is mandatory before sending for approval."))
@@ -207,7 +218,7 @@ class POAmendmentLog(Document):
 			frappe.throw(_("Some repeated item lines could not be matched. Explain the scope in the Detailed Justification."))
 
 		before = self.get_doc_before_save()
-		if not before or before.workflow_status != "Pending Approval" or self.workflow_status == "Approved":
+		if not before or before.workflow_status not in PENDING_STATES or self.workflow_status == "Approved":
 			self.validate_final_po_states()
 			self.verify_snapshot()
 
@@ -240,10 +251,10 @@ class POAmendmentLog(Document):
 		state = self.workflow_status
 		if state == prev:
 			return
-		if state == "Pending Approval":
+		if state in PENDING_STATES and prev not in PENDING_STATES:
 			self.approver = self.approval_datetime = self.approval_comments = None
 			self.pending_since = now_datetime()
-		elif prev == "Pending Approval" and state in ("Approved", "Rejected", "Draft"):
+		elif prev in PENDING_STATES and state in ("Approved", "Rejected", "Draft"):
 			if state != "Approved" and not _text(self.approval_comments):
 				frappe.throw(_("Approval Comments are mandatory when rejecting or returning a log for correction."))
 			if state == "Approved" and self.prepared_by == frappe.session.user:
@@ -288,6 +299,7 @@ def fetch_comparison(name, original_po, replacement_po):
 
 	doc.flags.in_fetch = True
 	apply_comparison(doc, data)
+	po_context.apply(doc)
 	doc.comparison_taken_on = now_datetime()
 	doc.comparison_taken_by = frappe.session.user
 	doc.comparison_stale = 0
@@ -347,7 +359,7 @@ def on_purchase_order_change(doc, method=None):
 	"""Flag Pending Approval logs whose snapshot no longer matches the POs. Only the log is touched."""
 	logs = frappe.get_all(
 		"PO Amendment Log",
-		filters={"docstatus": 0, "workflow_status": "Pending Approval"},
+		filters={"docstatus": 0, "workflow_status": ["in", list(PENDING_STATES)]},
 		or_filters=[["cancelled_po_number", "=", doc.name], ["new_po_number", "=", doc.name]],
 		fields=["name", "cancelled_po_number", "new_po_number", "comparison_hash", "comparison_stale"],
 	)

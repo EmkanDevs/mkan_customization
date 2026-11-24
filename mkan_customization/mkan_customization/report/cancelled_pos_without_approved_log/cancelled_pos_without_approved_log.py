@@ -6,6 +6,8 @@ import json
 import frappe
 from frappe import _
 
+from mkan_customization.mkan_customization.page.po_amendment_insights.constants import PENDING_STATES
+
 
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
@@ -29,7 +31,7 @@ def execute(filters=None):
 				fields=["name", "cancelled_po_number", "workflow_status", "new_po_number"]):
 			logs.setdefault(l.cancelled_po_number, []).append(l)
 
-	rank = ["Approved", "Pending Approval", "Draft", "Rejected"]
+	rank = ["Approved", *PENDING_STATES, "Draft", "Rejected"]
 	data = []
 	for p in pos:
 		ls = logs.get(p.name, [])

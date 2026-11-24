@@ -15,7 +15,7 @@ frappe.query_reports["PO Amendment Register"] = {
 		{ fieldname: "new_po_number", label: __("Replacement PO"), fieldtype: "Link", options: "Purchase Order" },
 		{ fieldname: "amendment_reason_category", label: __("Reason"), fieldtype: "Select",
 			options: "\nBetter Price\nDelivery Issue\nQuality Issue\nSupplier Performance\nQuantity/Scope Change\nPayment Terms\nBudget Constraint\nOther" },
-		{ fieldname: "workflow_status", label: __("Status"), fieldtype: "Select", options: "\nDraft\nPending Approval\nApproved\nRejected\nCancelled" },
+		{ fieldname: "workflow_status", label: __("Status"), fieldtype: "Select", options: "\nDraft\nPending Approval\nPending Technical/Quality\nPending Procurement\nPending Finance\nApproved\nRejected\nCancelled" },
 	],
 
 	onload(report) {

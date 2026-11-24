@@ -17,6 +17,7 @@
   "purchase_orders_reference_section",
   "cancelled_po_number",
   "original_supplier",
+  "project",
   "requested_by",
   "requesting_department",
   "column_break_sjte",
@@ -46,6 +47,7 @@
   "rate_benefit",
   "non_rate_value_change",
   "rate_benefit_status",
+  "po_date_gap_days",
   "items_summary_section",
   "items_added",
   "column_break_itm2",
@@ -86,6 +88,7 @@
   "attachments_section",
   "supporting_attachments",
   "approval_section",
+  "implementation_status",
   "approver",
   "approval_datetime",
   "column_break_apr",
@@ -145,7 +148,7 @@
    "fieldname": "workflow_status",
    "fieldtype": "Select",
    "label": "Workflow Status",
-   "options": "Draft\nPending Approval\nApproved\nRejected\nCancelled",
+   "options": "Draft\nPending Approval\nPending Technical/Quality\nPending Procurement\nPending Finance\nApproved\nRejected\nCancelled",
    "default": "Draft",
    "read_only": 1,
    "no_copy": 1,
@@ -175,6 +178,16 @@
    "options": "Supplier",
    "fetch_from": "cancelled_po_number.supplier",
    "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_standard_filter": 1,
+   "description": "Taken from the Original PO when the comparison is fetched."
   },
   {
    "fieldname": "requested_by",
@@ -376,6 +389,14 @@
    "options": "\nComplete\nPartial\nNot Comparable",
    "read_only": 1,
    "no_copy": 1
+  },
+  {
+   "fieldname": "po_date_gap_days",
+   "fieldtype": "Int",
+   "label": "PO Date Gap (Days)",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Replacement PO date minus Original PO date."
   },
   {
    "fieldname": "items_summary_section",
@@ -624,6 +645,17 @@
    "label": "Approval Details"
   },
   {
+   "fieldname": "implementation_status",
+   "fieldtype": "Select",
+   "label": "Implementation Status",
+   "options": "Under Review\nApproved\nImplemented in ERP\nSupplier Notified\nClosed\nRejected",
+   "default": "Under Review",
+   "allow_on_submit": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
    "fieldname": "approver",
    "fieldtype": "Link",
    "label": "Approver",
@@ -695,7 +727,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-28 12:30:00.000000",
+ "modified": "2026-11-20 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "PO Amendment Log",
@@ -739,6 +771,48 @@
   {
    "role": "Auditor",
    "read": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "PO Amendment Requester",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "email": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Technical Approver",
+   "read": 1,
+   "write": 1,
+   "email": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Procurement Approver",
+   "read": 1,
+   "write": 1,
+   "email": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Finance Approver",
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "email": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Dashboard Manager",
+   "read": 1,
+   "export": 1,
+   "email": 1,
    "print": 1,
    "report": 1
   }

@@ -5,6 +5,8 @@ import frappe
 from frappe import _
 from frappe.utils import date_diff, flt, nowdate
 
+from mkan_customization.mkan_customization.page.po_amendment_insights.constants import PENDING_STATES
+
 
 def execute(filters=None):
 	filters = frappe._dict(filters or {})
@@ -37,7 +39,7 @@ def execute(filters=None):
 		l.total_value_difference = l.total_value_difference if money_ok else None   # None renders as N/A
 		l.rate_benefit = l.rate_benefit if rate_ok else None
 		l.non_rate_value_change = l.non_rate_value_change if rate_ok else None
-		l.days_pending = date_diff(nowdate(), l.pending_since) if (l.workflow_status == "Pending Approval" and l.pending_since) else None
+		l.days_pending = date_diff(nowdate(), l.pending_since) if (l.workflow_status in PENDING_STATES and l.pending_since) else None
 		data.append(l)
 
 	columns = [
@@ -83,7 +85,7 @@ def _summary(rows):
 		{"value": len(approved), "label": _("Approved Change Events"), "datatype": "Int", "indicator": "Green"},
 		{"value": len([r for r in approved if r.original_supplier != r.replacement_supplier]), "label": _("Approved Supplier Changes"), "datatype": "Int"},
 		{"value": len([r for r in approved if r.mr_comparison_status in ("Mismatch", "Missing")]), "label": _("Approved MR Exceptions"), "datatype": "Int", "indicator": "Orange"},
-		{"value": len([r for r in rows if r.workflow_status == "Pending Approval"]), "label": _("Pending Approval"), "datatype": "Int", "indicator": "Blue"},
+		{"value": len([r for r in rows if r.workflow_status in PENDING_STATES]), "label": _("Pending Approval"), "datatype": "Int", "indicator": "Blue"},
 		{"value": fmt(by_cur_move), "label": _("Commitment Movement by Currency (approved, comparable)"), "datatype": "Data"},
 		{"value": fmt(by_cur_rate), "label": _("Matched Rate Benefit by Currency (not realised savings)"), "datatype": "Data"},
 		{"value": excluded, "label": _("Approved Logs Excluded (currency mismatch)"), "datatype": "Int"},

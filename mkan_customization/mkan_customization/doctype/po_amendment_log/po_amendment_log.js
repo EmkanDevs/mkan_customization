@@ -1,4 +1,6 @@
 const NA = __("N/A");
+// Keep in step with PENDING_STATES in page/po_amendment_insights/constants.py
+const PENDING_STATES = ["Pending Approval", "Pending Technical/Quality", "Pending Procurement", "Pending Finance"];
 
 frappe.ui.form.on("PO Amendment Log", {
 	setup(frm) {
@@ -40,8 +42,8 @@ frappe.ui.form.on("PO Amendment Log", {
 				__("Currency differs between the POs: monetary differences and rate benefit are N/A. You can continue."), "orange", true);
 		}
 
-		// Pending Approval: only the manager's comments are editable (the server enforces this too)
-		if (state === "Pending Approval" && frm.doc.docstatus === 0) {
+		// Pending at any gate: only the approver's comments are editable (the server enforces this too)
+		if (PENDING_STATES.includes(state) && frm.doc.docstatus === 0) {
 			const layout = ["Section Break", "Column Break", "Tab Break", "HTML", "Heading", "Button"];
 			frm.meta.fields.forEach((df) => {
 				if (df.fieldname !== "approval_comments" && !layout.includes(df.fieldtype)) {
