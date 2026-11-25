@@ -607,8 +607,8 @@ var po_details_report = {
 				html += '<div class="mr-card ' + workflowClass + '">';
 				html += '<div class="d-flex justify-content-between align-items-center mb-2">';
 				html += '<div class="mr-id" style="margin-bottom:0;">' +
-					'<a href="/app/material-request/' + mr.materialRequest + '" style="color: inherit; text-decoration: none;">' +
-					mr.materialRequest + '</a></div>';
+					'<a href="/app/material-request/' + encodeURIComponent(mr.materialRequest || '') + '" style="color: inherit; text-decoration: none;">' +
+					frappe.utils.escape_html(String(mr.materialRequest || '')) + '</a></div>';
 
 				html += '<div class="mr-workflow-status" style="margin-top:0;">';
 				html += '<div class="status-section text-right mr-3">';
@@ -675,8 +675,8 @@ var po_details_report = {
 						html += '<div class="bid-header">';
 						html += '<div class="bid-title">';
 						html += '<i class="fa fa-file-text-o text-primary mr-2"></i>';
-						html += '<a href="/app/request-for-quotation/' + rfq.requestForQuotation + '" class="text-decoration-none font-weight-bold" style="color: #2c3e50;">' +
-							rfq.requestForQuotation + '</a>';
+						html += '<a href="/app/request-for-quotation/' + encodeURIComponent(rfq.requestForQuotation || '') + '" class="text-decoration-none font-weight-bold" style="color: #2c3e50;">' +
+							frappe.utils.escape_html(String(rfq.requestForQuotation || '')) + '</a>';
 						html += '</div>';
 						html += '<div class="bid-status">' + this.create_status_badge(rfq.rfqStatus) + '</div>';
 						html += '</div>';
@@ -690,8 +690,8 @@ var po_details_report = {
 								html += '<div class="bid-doc-item">';
 								html += '<div class="bid-doc-name">';
 								html += '<i class="fa fa-quote-right text-success mr-2"></i>';
-								html += '<a href="/app/supplier-quotation/' + sqDoc.trim() + '" class="multi-doc-link">' +
-									sqDoc.trim() + '</a>';
+								html += '<a href="/app/supplier-quotation/' + encodeURIComponent(sqDoc.trim()) + '" class="multi-doc-link">' +
+									frappe.utils.escape_html(sqDoc.trim()) + '</a>';
 								html += '</div>';
 								html += '<div class="bid-doc-status">' + this.create_status_badge(rfq.sqStatus) + '</div>';
 								html += '</div>';
@@ -705,8 +705,8 @@ var po_details_report = {
 								html += '<div class="bid-doc-item">';
 								html += '<div class="bid-doc-name">';
 								html += '<i class="fa fa-gavel text-warning mr-2"></i>';
-								html += '<a href="/app/bid-tabulation-discussion/' + btDoc.trim() + '" class="multi-doc-link">' +
-									btDoc.trim() + '</a>';
+								html += '<a href="/app/bid-tabulation-discussion/' + encodeURIComponent(btDoc.trim()) + '" class="multi-doc-link">' +
+									frappe.utils.escape_html(btDoc.trim()) + '</a>';
 								html += '</div>';
 								html += '<div class="bid-doc-status">' + this.create_status_badge(rfq.btStatus) + '</div>';
 								html += '</div>';
@@ -745,26 +745,26 @@ var po_details_report = {
 						html += '<div class="card-body p-3">';
 						html += '<div class="d-flex justify-content-between align-items-center">';
 						html += '<div>';
-						html += '<a href="/app/purchase-order/' + po.purchaseOrder + '" class="font-weight-bold" style="color: #2c3e50; text-decoration: none;">' + po.purchaseOrder + '</a>';
+						html += '<a href="/app/purchase-order/' + encodeURIComponent(po.purchaseOrder || '') + '" class="font-weight-bold" style="color: #2c3e50; text-decoration: none;">' + frappe.utils.escape_html(String(po.purchaseOrder || '')) + '</a>';
 						html += '<div class="text-muted small mt-1">';
 						html += 'Status: ' + this.create_status_badge(po.poStatus) + ' | ';
-						html += 'Workflow: ' + (po.poWorkflowState || '-') + ' | ';
-						html += 'Approval: ' + (po.poApprovalDate || '-') + ' | ';
+						html += 'Workflow: ' + frappe.utils.escape_html(String(po.poWorkflowState || '-')) + ' | ';
+						html += 'Approval: ' + frappe.utils.escape_html(String(po.poApprovalDate || '-')) + ' | ';
 						html += 'Items: ' + po.items.length;
 						html += '</div>';
 						html += '</div>';
 						html += '<div>';
 						if (po.purchaseReceipt) {
-							html += '<div class="text-success small"><i class="fa fa-check-circle"></i> Receipt: ' + po.purchaseReceipt + '</div>';
+							html += '<div class="text-success small"><i class="fa fa-check-circle"></i> Receipt: ' + frappe.utils.escape_html(String(po.purchaseReceipt)) + '</div>';
 						}
 						if (po.purchaseInvoice) {
-							html += '<div class="text-info small"><i class="fa fa-file-invoice"></i> Invoice: ' + po.purchaseInvoice + '</div>';
+							html += '<div class="text-info small"><i class="fa fa-file-invoice"></i> Invoice: ' + frappe.utils.escape_html(String(po.purchaseInvoice)) + '</div>';
 						}
 						if (po.paymentRequest) {
-							html += '<div class="text-warning small"><i class="fa fa-money"></i> PayReq: ' + po.paymentRequest + '</div>';
+							html += '<div class="text-warning small"><i class="fa fa-money"></i> PayReq: ' + frappe.utils.escape_html(String(po.paymentRequest)) + '</div>';
 						}
 						if (po.paymentEntry) {
-							html += '<div class="text-success small"><i class="fa fa-check"></i> Payment: ' + po.paymentEntry + '</div>';
+							html += '<div class="text-success small"><i class="fa fa-check"></i> Payment: ' + frappe.utils.escape_html(String(po.paymentEntry)) + '</div>';
 						}
 						html += '</div>';
 						html += '</div>';
@@ -914,7 +914,7 @@ var po_details_report = {
 			html += '<div style="color: ' + color + '; font-size: 20px; margin-bottom: 5px;">📄</div>';
 
 			html += '<div style="font-weight: bold; font-size: 13px; margin-bottom: 5px; word-break: break-all;">' +
-				mainDoc +
+				frappe.utils.escape_html(mainDoc) +
 				(count > 1 ? ' <span class="count-badge">+' + (count - 1) + '</span>' : '') +
 				'</div>';
 
@@ -957,12 +957,12 @@ var po_details_report = {
 
 		items.forEach((item, idx) => {
 			html += '<tr>';
-			html += '<td>' + (item.itemCode || '-') + '</td>';
-			html += '<td>' + (item.itemName || '-') + '</td>';
-			html += '<td>' + (item.itemGroup || '-') + '</td>';
-			html += '<td>' + (item.qty || '-') + '</td>';
-			html += '<td>' + (item.project || '-') + '</td>';
-			html += '<td>' + (item.scheduleDate || '-') + '</td>';
+			html += '<td>' + frappe.utils.escape_html(String(item.itemCode || '-')) + '</td>';
+			html += '<td>' + frappe.utils.escape_html(String(item.itemName || '-')) + '</td>';
+			html += '<td>' + frappe.utils.escape_html(String(item.itemGroup || '-')) + '</td>';
+			html += '<td>' + frappe.utils.escape_html(String(item.qty || '-')) + '</td>';
+			html += '<td>' + frappe.utils.escape_html(String(item.project || '-')) + '</td>';
+			html += '<td>' + frappe.utils.escape_html(String(item.scheduleDate || '-')) + '</td>';
 			html += '</tr>';
 		});
 
@@ -979,8 +979,8 @@ var po_details_report = {
 		const firstStatus = String(status).split(',')[0].trim();
 		const statusClass = this.STATUS_COLORS[firstStatus] || 'status-pending';
 
-		return '<span class="status-badge ' + statusClass + '">' +
-			'<span style="margin-right:4px;">●</span>' + firstStatus +
+		return '<span class="status-badge ' + frappe.utils.escape_html(statusClass) + '">' +
+			'<span style="margin-right:4px;">●</span>' + frappe.utils.escape_html(firstStatus) +
 			'</span>';
 	},
 

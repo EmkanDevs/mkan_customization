@@ -261,6 +261,12 @@ def get_data(filters):
     """
     bt_po_join = "LEFT JOIN `tabBid Tabulation Discussion` bt ON bt.name = po.bid_tabulation" if bid_tabulation_exists else ""
 
+    def wf_agg(alias, doctype):
+        # workflow_state only exists when the doctype has (or had) a Workflow
+        if frappe.db.has_column(doctype, "workflow_state"):
+            return f"GROUP_CONCAT(DISTINCT {alias}.workflow_state SEPARATOR ', ')"
+        return "NULL"
+
     po_query = f"""
         SELECT
             map.material_request AS material_request,
@@ -325,7 +331,7 @@ def get_data(filters):
                 poi2.parent AS purchase_order,
                 GROUP_CONCAT(DISTINCT pr.name SEPARATOR ', ') AS purchase_receipt,
                 GROUP_CONCAT(DISTINCT pr.status SEPARATOR ', ') AS pr_status,
-                GROUP_CONCAT(DISTINCT pr.workflow_state SEPARATOR ', ') AS pr_workflow_state
+                {wf_agg('pr', 'Purchase Receipt')} AS pr_workflow_state
             FROM `tabPurchase Receipt Item` pri
             JOIN `tabPurchase Receipt` pr ON pr.name = pri.parent
             JOIN `tabPurchase Order Item` poi2 ON poi2.name = pri.purchase_order_item
@@ -336,7 +342,7 @@ def get_data(filters):
                 pii.purchase_order,
                 GROUP_CONCAT(DISTINCT pi.name SEPARATOR ', ') AS purchase_invoice,
                 GROUP_CONCAT(DISTINCT pi.status SEPARATOR ', ') AS pi_status,
-                GROUP_CONCAT(DISTINCT pi.workflow_state SEPARATOR ', ') AS pi_workflow_state
+                {wf_agg('pi', 'Purchase Invoice')} AS pi_workflow_state
             FROM `tabPurchase Invoice Item` pii
             JOIN `tabPurchase Invoice` pi ON pi.name = pii.parent
             GROUP BY pii.purchase_order
@@ -346,7 +352,7 @@ def get_data(filters):
                 pr.reference_name AS purchase_order,
                 GROUP_CONCAT(DISTINCT pr.name SEPARATOR ', ') AS payment_request,
                 GROUP_CONCAT(DISTINCT pr.status SEPARATOR ', ') AS payreq_status,
-                GROUP_CONCAT(DISTINCT pr.workflow_state SEPARATOR ', ') AS payreq_workflow_state
+                {wf_agg('pr', 'Payment Request')} AS payreq_workflow_state
             FROM `tabPayment Request` pr
             GROUP BY pr.reference_name
         ) payreq_agg ON payreq_agg.purchase_order = po.name
@@ -355,7 +361,7 @@ def get_data(filters):
                 per.reference_name AS purchase_order,
                 GROUP_CONCAT(DISTINCT pe.name SEPARATOR ', ') AS payment_entry,
                 GROUP_CONCAT(DISTINCT pe.status SEPARATOR ', ') AS pe_status,
-                GROUP_CONCAT(DISTINCT pe.workflow_state SEPARATOR ', ') AS pe_workflow_state
+                {wf_agg('pe', 'Payment Entry')} AS pe_workflow_state
             FROM `tabPayment Entry Reference` per
             JOIN `tabPayment Entry` pe ON pe.name = per.parent
             GROUP BY per.reference_name

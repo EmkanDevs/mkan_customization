@@ -3,6 +3,7 @@ import frappe
 
 @frappe.whitelist()
 def get_dashboard_data(filters=None):
+    frappe.has_permission("Purchase Order", "read", throw=True)
     filters = frappe.parse_json(filters) if filters else {}
 
     return {

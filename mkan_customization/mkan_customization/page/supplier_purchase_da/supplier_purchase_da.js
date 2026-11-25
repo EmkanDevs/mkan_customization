@@ -148,7 +148,7 @@
 //                 label: "Company",
 //                 fieldtype: "Link",
 //                 options: "Company",
-//                 default: "Construction Pillars Company"
+//                 default: frappe.defaults.get_user_default("Company")
 //             },
 //             {
 //                 fieldname: "year",
@@ -1147,7 +1147,7 @@ class SupplierPurchaseDashboard {
         const currentMonth = now.getMonth() + 1;
 
         const fields = [
-            { fieldname: "company", label: "Company", fieldtype: "Link", options: "Company", default: "Construction Pillars Company" },
+            { fieldname: "company", label: "Company", fieldtype: "Link", options: "Company", default: frappe.defaults.get_user_default("Company") },
             { fieldname: "year", label: "Year ", fieldtype: "Select", options: `\n${currentYear - 1}\n${currentYear}\n${currentYear + 1}`, default: String(currentYear), reqd: 1 },
             { fieldname: "month", label: "Month ", fieldtype: "Select", options: "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12", default: String(currentMonth), reqd: 1 },
             { fieldname: "from_date", label: "From Date", fieldtype: "Date", default: frappe.datetime.month_start() },
@@ -1303,7 +1303,7 @@ class SupplierPurchaseDashboard {
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth() + 1;
 
-        if (this.filters.company) this.filters.company.set_value("Construction Pillars Company");
+        if (this.filters.company) this.filters.company.set_value(frappe.defaults.get_user_default("Company"));
         if (this.filters.year) this.filters.year.set_value(String(currentYear));
         if (this.filters.month) this.filters.month.set_value(String(currentMonth));
         if (this.filters.from_date) this.filters.from_date.set_value(frappe.datetime.month_start());
