@@ -252,7 +252,7 @@ doc_events = {
     },
     
     "Stock Entry": {
-        "validate": "mkan_customization.mkan_customization.stock_entry.set_material_request_references",
+        "validate": "mkan_customization.mkan_customization.doc_events.stock_entry.validate",
     },
 
 }

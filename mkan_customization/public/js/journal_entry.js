@@ -120,7 +120,7 @@ frappe.ui.form.on("Journal Entry", {
     onload(frm) {
         // set directly (no set_value) so the form isn't marked dirty/"Not Saved"
         frm.doc.party_not_required = 1;
-        load_employee_accounts(frm);
+        // The account list is loaded in refresh, which Frappe always runs right after onload.
     },
     refresh(frm) {
         load_employee_accounts(frm);

@@ -21,7 +21,9 @@ def _get_dimensions_for_doctype(submitting_doctype):
 
 	applicable = []
 	for dim in all_dims:
-		dim_doc = frappe.get_doc("Accounting Dimension", dim.name)
+		# Read-only use: the cached copy is cleared by Frappe whenever the
+		# dimension is saved, renamed or deleted, so the data is always current.
+		dim_doc = frappe.get_cached_doc("Accounting Dimension", dim.name)
 
 		# Find the row in the custom_doctype child table that matches this doctype
 		doctype_rows = dim_doc.get("custom_doctype") or []

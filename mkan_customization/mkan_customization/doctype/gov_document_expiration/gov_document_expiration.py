@@ -42,6 +42,8 @@ def send_expiration_reminders():
 		fields=["name", "expire_on", "reminder_in_days", "gov_document_type","issue_on","customer","latest_copy","prev_copy"])
 	
 	today = datetime.today().date()
+	# Users per role do not change during one run, so look each role up once.
+	emails_by_role = {}
 
 	for doc in docs:
 		if not doc.expire_on or not doc.reminder_in_days:
@@ -56,13 +58,17 @@ def send_expiration_reminders():
 		
 		# Check if today is one of the reminder days
 		if (expiry_date - today).days in reminder_days_list:
-			gov_doc_type = frappe.get_doc("Gov Document Type", doc.gov_document_type)
+			# Cached copy, cleared by Frappe when the type is saved. Raises the same
+			# error as get_doc if the type does not exist.
+			gov_doc_type = frappe.get_cached_doc("Gov Document Type", doc.gov_document_type)
 			role = gov_doc_type.remind_by_role
-			
+
 			if not role:
 				continue
 
-			user_emails = get_users_by_role(role)
+			if role not in emails_by_role:
+				emails_by_role[role] = get_users_by_role(role)
+			user_emails = list(emails_by_role[role])
 			if user_emails:
 				send_reminder_email(doc.name, doc.expire_on, user_emails,doc.customer,doc.gov_document_type,doc.issue_on,doc.latest_copy,doc.prev_copy)
 
@@ -70,14 +76,26 @@ def get_users_by_role(role):
 	users = frappe.get_all("Has Role",
 		filters={"role": role},
 		fields=["parent as user"])
-	
+	if not users:
+		return []
+
+	# One query for all users instead of two per user. The list keeps the same
+	# order and the same entries as before.
+	user_details = {
+		u.name: u
+		for u in frappe.get_all(
+			"User",
+			filters={"name": ["in", list({u.user for u in users})]},
+			fields=["name", "enabled", "email"],
+		)
+	}
+
 	email_list = []
 	for u in users:
-		if frappe.db.get_value("User", u.user, "enabled") == 1:
-			email = frappe.db.get_value("User", u.user, "email")
-			if email:
-				email_list.append(email)
-	
+		user = user_details.get(u.user)
+		if user and user.enabled == 1 and user.email:
+			email_list.append(user.email)
+
 	return email_list
 	
 def send_reminder_email(doc_name, expire_on, recipients, customer, gov_document_type, issue_on, latest_copy, prev_copy):
@@ -113,11 +131,12 @@ def send_reminder_email(doc_name, expire_on, recipients, customer, gov_document_
 				file_path = frappe.get_site_path("private", file_doc.file_url.lstrip("/private/"))
 			else:
 				file_path = frappe.get_site_path("public", file_doc.file_url.lstrip("/"))
-			with open(file_path, "rb") as f:
-				return {
-					"fname": file_doc.file_name,
-					"fcontent": f.read()
-				}
+			# Same check as before (the file must be readable now), but the email
+			# stores a reference to the File instead of a copy of its bytes.
+			# Frappe attaches the file, under the same file name, when it sends.
+			with open(file_path, "rb"):
+				pass
+			return {"fid": file_doc.name}
 			# print(f"attachments: {file_doc}")
 
 		except Exception as e:

@@ -3,14 +3,32 @@ from frappe import _
 from frappe.utils import flt
 
 
+SUPPLIER_REQUIRED_FIELDS = (
+    "custom_default_iban_no",
+    "custom_section_materials_services",
+    "tax_id",
+    "custom_cr_number",
+    "primary_address",
+)
+
+
 def after_insert(self, method):
+    # Hooked on validate: the value set here is saved by the normal save,
+    # so no separate db_set write is needed.
     self.custom_bid_tabulation_check = 1
-    self.db_set("custom_bid_tabulation_check", 1)
 
     if not self.supplier:
         return
 
-    supplier = frappe.get_doc("Supplier", self.supplier)
+    # Read only the fields checked below. Fields that do not exist on this
+    # site are skipped, so they read as empty, the same as doc.get() did.
+    supplier_meta = frappe.get_meta("Supplier")
+    supplier = frappe.db.get_value(
+        "Supplier",
+        self.supplier,
+        [f for f in SUPPLIER_REQUIRED_FIELDS if supplier_meta.has_field(f)],
+        as_dict=True,
+    ) or frappe._dict()
 
     missing_fields = []
 

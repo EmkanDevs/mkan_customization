@@ -3,7 +3,6 @@
 
 import frappe
 from frappe.model.document import Document
-import pandas as pd
 import os
 from frappe.utils import get_site_path
 
@@ -66,6 +65,10 @@ def delete_all_gosi():
 @frappe.whitelist()
 def import_gosi_data(file_url):
 	"""Import Gosi data from Excel or CSV file"""
+	# Imported here so pandas only loads when a file is imported, not every
+	# time a GOSI record is opened or saved.
+	import pandas as pd
+
 	try:		
 		file_url_stripped = file_url.lstrip('/')
 		

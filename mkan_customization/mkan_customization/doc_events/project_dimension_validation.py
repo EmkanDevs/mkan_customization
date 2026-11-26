@@ -23,7 +23,8 @@ def _get_project_config_for_doctype(submitting_doctype):
 	submitting doctype is not listed in the Accounting Dimension Doctypes table.
 	"""
 
-	ps = frappe.get_single("Projects Settings")
+	# Read-only use: Frappe clears this cache whenever Projects Settings is saved.
+	ps = frappe.get_cached_doc("Projects Settings")
 
 	# Collect all governed accounts from the accounts child table.
 	# fieldname is "acccount" (three c's) — same schema as Accounting Dimension CT Accounts.

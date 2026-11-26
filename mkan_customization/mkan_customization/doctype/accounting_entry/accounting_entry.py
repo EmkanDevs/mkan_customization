@@ -110,7 +110,7 @@ class AccountingEntry(Document):
 		for row in self.accounts:
 			# Auto fetch account currency if missing
 			if not row.account_currency and row.account:
-				row.account_currency = frappe.db.get_value("Account", row.account, "account_currency") or company_currency
+				row.account_currency = frappe.get_cached_value("Account", row.account, "account_currency") or company_currency
 
 			if not row.currency:
 				row.currency = row.account_currency or company_currency
@@ -133,7 +133,9 @@ class AccountingEntry(Document):
 				frappe.throw(_("Row #{0}: Account is required").format(idx))
 
 			# Ensure account belongs to this company and is not a group
-			account_details = frappe.db.get_value(
+			# Cached copy of the Account (cleared by Frappe when it is saved): same values,
+			# without a query for every row.
+			account_details = frappe.get_cached_value(
 				"Account",
 				row.account,
 				["company", "is_group", "account_type"],
@@ -328,7 +330,7 @@ class AccountingEntry(Document):
 		for row in self.accounts:
 			if row.is_auto_tax_row:
 				continue
-			acc_type = frappe.db.get_value("Account", row.account, "account_type")
+			acc_type = frappe.get_cached_value("Account", row.account, "account_type")
 			if acc_type in ["Cash", "Bank"]:
 				if for_inward and flt(row.credit) > 0:
 					return row, acc_type
@@ -339,7 +341,7 @@ class AccountingEntry(Document):
 		for row in self.accounts:
 			if row.is_auto_tax_row:
 				continue
-			acc_type = frappe.db.get_value("Account", row.account, "account_type")
+			acc_type = frappe.get_cached_value("Account", row.account, "account_type")
 			if acc_type in ["Cash", "Bank"]:
 				return row, acc_type
 
@@ -458,7 +460,7 @@ class AccountingEntry(Document):
 				tax_row.charge_type = "Actual"
 				tax_row.account_head = row.account
 				tax_row.tax_amount = flt(row.debit)
-				tax_row.description = frappe.db.get_value("Account", row.account, "account_name") or row.account
+				tax_row.description = frappe.get_cached_value("Account", row.account, "account_name") or row.account
 				tax_row.category = "Total"
 				tax_row.add_deduct_tax = "Add"
 
@@ -600,7 +602,7 @@ class AccountingEntry(Document):
 				tax_row.charge_type = "Actual"
 				tax_row.account_head = row.account
 				tax_row.tax_amount = flt(row.credit)
-				tax_row.description = frappe.db.get_value("Account", row.account, "account_name") or row.account
+				tax_row.description = frappe.get_cached_value("Account", row.account, "account_name") or row.account
 				tax_row.category = "Total"
 				tax_row.add_deduct_tax = "Add"
 

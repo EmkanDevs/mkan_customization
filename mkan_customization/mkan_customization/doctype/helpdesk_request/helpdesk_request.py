@@ -9,8 +9,18 @@ from mkan_customization.mkan_customization.override import assign_to
 
 class HelpdeskRequest(Document):
     def validate(self):
+        # One query for the open assignments instead of one per row. Users assigned
+        # in this loop are added to the set, the same as the per-row query would find.
+        open_assignees = set(
+            frappe.get_all(
+                "ToDo",
+                filters={"reference_type": "Helpdesk Request", "reference_name": self.name, "status": "Open"},
+                pluck="allocated_to",
+            )
+        )
         for row in self.custom_user_details:
-            if row.user and not frappe.get_all("ToDo", filters={"reference_type": "Helpdesk Request","reference_name": self.name,"status": "Open","allocated_to": row.user}):	
+            if row.user and row.user not in open_assignees:
+                open_assignees.add(row.user)
                 assign_to.add(
                     dict(
                         assign_to=[row.user],

@@ -10,23 +10,32 @@ def execute(filters=None):
 
 def get_data(filters):
     conditions = ""
+    # Filter values are passed as query parameters instead of being pasted into
+    # the SQL text. Same conditions, same rows.
+    values = {
+        "purchase_order": filters.get("purchase_order"),
+        "project": filters.get("project"),
+        "from_date": filters.get("from_date"),
+        "to_date": filters.get("to_date"),
+        "status": filters.get("status"),
+    }
 
     if filters.get("purchase_order"):
-        conditions += f" and po.name = '{filters.purchase_order}'"
+        conditions += " and po.name = %(purchase_order)s"
     if filters.get("project"):
-        conditions += f"""
+        conditions += """
             and exists (
                 select 1 from `tabPurchase Order Item` poi
                 where poi.parent = po.name
-                and poi.project = '{filters.project}'
+                and poi.project = %(project)s
             )
         """
     if filters.get("from_date"):
-        conditions += f" and po.transaction_date >= '{filters.from_date}'"
+        conditions += " and po.transaction_date >= %(from_date)s"
     if filters.get("to_date"):
-        conditions += f" and po.transaction_date <= '{filters.to_date}'"
+        conditions += " and po.transaction_date <= %(to_date)s"
     if filters.get("status"):
-        conditions += f" and po.status = '{filters.status}'"
+        conditions += " and po.status = %(status)s"
 
     pos = frappe.db.sql(f"""
         select 
@@ -46,7 +55,7 @@ def get_data(filters):
 
         from `tabPurchase Order` po
         where po.docstatus = 1 {conditions}
-    """, as_dict=1)
+    """, values, as_dict=1)
 
     data = []
 

@@ -365,7 +365,8 @@ def get_role_owners(roles):
 	if not roles:
 		return []
 
-	role_allotment = frappe.get_doc("Role Allotment")
+	# Read-only use: Frappe clears this cache whenever Role Allotment is saved.
+	role_allotment = frappe.get_cached_doc("Role Allotment")
 	
 	owners = set()
 	for row in role_allotment.role_owner_list:
@@ -398,7 +399,8 @@ def get_owners_for_role(role):
 	if not role:
 		return []
 
-	role_allotment = frappe.get_doc("Role Allotment")
+	# Read-only use: Frappe clears this cache whenever Role Allotment is saved.
+	role_allotment = frappe.get_cached_doc("Role Allotment")
 	
 	owners = []
 	for row in role_allotment.role_owner_list:

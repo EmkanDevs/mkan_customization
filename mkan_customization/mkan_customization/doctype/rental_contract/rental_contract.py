@@ -26,6 +26,9 @@ def send_rental_reminders_electric_and_water():
         ]
     )
 
+    # The recipients are the same for every email in one run, so look them up once.
+    recipients = None
+
     for contract in contracts:
         start_date = getdate(contract.start_of_contract)
 
@@ -34,12 +37,16 @@ def send_rental_reminders_electric_and_water():
 
         # Email triggers
         if contract.monthly_reminder_day_elctric == day_of_month:
-            send_email_reminder_electric_and_water(contract, "Electric")
+            if recipients is None:
+                recipients = get_users_with_role("Public Relation Manager")
+            send_email_reminder_electric_and_water(contract, "Electric", recipients)
 
         if contract.monthly_reminder_day_water == day_of_month:
-            send_email_reminder_electric_and_water(contract, "Water")
+            if recipients is None:
+                recipients = get_users_with_role("Public Relation Manager")
+            send_email_reminder_electric_and_water(contract, "Water", recipients)
 
-def send_email_reminder_electric_and_water(contract, reminder_type):
+def send_email_reminder_electric_and_water(contract, reminder_type, recipients=None):
     subject = f"{reminder_type} Reminder for {contract.project_name} - {contract.name}"
     message = f"""
     <p>Dear {contract.owner_name},</p>
@@ -60,8 +67,10 @@ def send_email_reminder_electric_and_water(contract, reminder_type):
     <p>Regards,<br>Your Team</p>
     """
     attachment_file_names = get_attachments("Rental Contract",contract.name)
+    if recipients is None:
+        recipients = get_users_with_role("Public Relation Manager")
     frappe.sendmail(
-        recipients=get_users_with_role("Public Relation Manager"),
+        recipients=list(recipients),
         subject=subject,
         message=message,
         reference_doctype="Rental Contract",
@@ -100,6 +109,13 @@ def send_rent_payment_reminders():
     current_day = today_date.day
     current_month = today_date.month
 
+    # Every payment frequency below only sends on the 1st of the month,
+    # so on any other day there is nothing to do.
+    if current_day != 1:
+        return
+
+    recipients = None
+
     contracts = frappe.get_all(
         "Rental Contract",
         filters={"contract_is_active": 1},
@@ -131,9 +147,11 @@ def send_rent_payment_reminders():
             should_send = True
 
         if should_send:
-            send_rent_email(contract, round(rent_amount, 2))
+            if recipients is None:
+                recipients = get_users_with_role("Accounts Manager")
+            send_rent_email(contract, round(rent_amount, 2), recipients)
 
-def send_rent_email(contract, rent_amount):
+def send_rent_email(contract, rent_amount, recipients=None):
     subject = f"Rent Payment Reminder - {contract.project_name}"
     message = f"""
     <p>Dear {contract.onwer_name},</p>
@@ -156,8 +174,10 @@ def send_rent_email(contract, rent_amount):
 
     attachment_file_names = get_attachments("Rental Contract",contract.name)
 
+    if recipients is None:
+        recipients = get_users_with_role("Accounts Manager")
     frappe.sendmail(
-        recipients=get_users_with_role("Accounts Manager"),
+        recipients=list(recipients),
         subject=subject,
         message=message,
         reference_doctype="Rental Contract",

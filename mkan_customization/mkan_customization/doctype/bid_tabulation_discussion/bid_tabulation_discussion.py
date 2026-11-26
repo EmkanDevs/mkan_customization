@@ -112,9 +112,9 @@ class BidTabulationDiscussion(Document):
 		""", (self.request_for_quotation), as_dict=True)
 		
 		if doc:
-			for record in doc:
-				parent = frappe.get_doc("Supplier Quotation", record.parent_name)
-				self.db_set("supplier_quotation",parent.name)
+			# The loop used to load every Supplier Quotation and write the field once
+			# per row; only the last write stayed. Write that same last value once.
+			self.db_set("supplier_quotation", doc[-1].parent_name)
 
 @frappe.whitelist()
 def set_supplier_quotation(request_for_quotation):

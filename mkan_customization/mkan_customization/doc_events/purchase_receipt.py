@@ -10,23 +10,21 @@ def validate(self, method):
     purchase_receipt_total = 0
     expense_claim_total = 0
 
-    purchase_receipt = frappe.get_all(
+    # Read grand_total directly instead of loading each full document.
+    # Same rows, same order and the same running sum as before.
+    for grand_total in frappe.get_all(
         "Purchase Receipt",
         filters={"petty_cash_request": self.petty_cash_request},
-        fields=["name"]
-    )
-    for row in purchase_receipt:
-        doc = frappe.get_doc("Purchase Receipt", row.name)
-        purchase_receipt_total += doc.grand_total
-        
-    expense_claim = frappe.get_all(
+        pluck="grand_total",
+    ):
+        purchase_receipt_total += grand_total
+
+    for grand_total in frappe.get_all(
         "Expense Claim",
         filters={"petty_cash_request": self.petty_cash_request},
-        fields=["name"]
-    )
-    for row in expense_claim:
-        doc = frappe.get_doc("Expense Claim", row.name)
-        expense_claim_total += doc.grand_total
+        pluck="grand_total",
+    ):
+        expense_claim_total += grand_total
 
     total = purchase_receipt_total + expense_claim_total
     petty_cash = frappe.get_doc("Petty Cash Request",self.petty_cash_request)

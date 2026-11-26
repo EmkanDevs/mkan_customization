@@ -124,7 +124,7 @@ def patched_journal_entry_validate_party(self):
 			if d.party_type and d.party:
 				if (
 					account_type in ["Receivable", "Payable"]
-					and frappe.db.get_value("Party Type", d.party_type, "account_type") != account_type
+					and frappe.get_cached_value("Party Type", d.party_type, "account_type") != account_type
 					and d.party_type != "Employee"
 				):
 					frappe.throw(

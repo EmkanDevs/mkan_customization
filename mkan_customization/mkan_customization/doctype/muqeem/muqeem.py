@@ -1,6 +1,5 @@
 import frappe
 from frappe.model.document import Document
-import pandas as pd
 import os
 from frappe.utils import get_site_path
 
@@ -69,6 +68,10 @@ def delete_all_muqeem():
 @frappe.whitelist()
 def import_muqeem_data(file_url):
 	"""Import Muqeem data from Excel or CSV file"""
+	# Imported here so pandas only loads when a file is imported, not every
+	# time a Muqeem record is opened or saved.
+	import pandas as pd
+
 	try:
 		# Get the file path from the URL - check both private and public folders
 		# Frappe file URLs can be in formats like:

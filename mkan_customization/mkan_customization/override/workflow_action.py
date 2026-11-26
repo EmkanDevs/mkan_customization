@@ -15,9 +15,9 @@ def get_users_next_action_data_for_workflow(transitions, doc):
 	for transition in transitions:
 		users = get_users_with_role(transition.allowed)
 		for user in users:
-			if has_approval_access(user, doc, transition) and user_has_permission(user) and check_project_permissions(user, doc) and frappe.db.get_value("Workflow",{"document_type":doc.doctype,"is_active":1},"send_email_as_project_condition") == 1:
-				filtered_users.append(user)
-			elif has_approval_access(user, doc, transition) and user_has_permission(user):
+			# The old first branch (project check + workflow flag) appended the same
+			# users as this condition, so it only added queries. Same users are picked.
+			if has_approval_access(user, doc, transition) and user_has_permission(user):
 				filtered_users.append(user)
 
 		if doc.get("owner") in filtered_users and not transition.get("send_email_to_creator"):

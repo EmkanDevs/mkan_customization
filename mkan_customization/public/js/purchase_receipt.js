@@ -110,20 +110,6 @@ frappe.ui.form.on("Purchase Receipt", {
                         }
                     });
                     
-                    // Add handler to auto-fill Material Request fields
-                    d.fields_dict.material_requests.grid.on_row_refresh = function(grid_row) {
-                        let mr = grid_row.doc.material_request;
-                        if(mr) {
-                            frappe.db.get_value('Material Request', mr, ['status', 'transaction_date'], (r) => {
-                                if(r) {
-                                    grid_row.doc.status = r.status;
-                                    grid_row.doc.transaction_date = r.transaction_date;
-                                    d.fields_dict.material_requests.refresh();
-                                }
-                            });
-                        }
-                    };
-                    
                     // Add an empty row to start
                     d.fields_dict.material_requests.df.data = [{}];
                     d.fields_dict.material_requests.refresh();

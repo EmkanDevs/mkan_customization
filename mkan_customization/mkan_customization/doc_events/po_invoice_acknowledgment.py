@@ -48,40 +48,8 @@ def lock_document(doctype, docname):
             
     for row in doc.po_acknowledgement:
         if row.purchase_order:
-
-            posting_date = nowdate()
-            bill_date = nowdate()
-            # pick the larger of posting_date and po.schedule_date
-            due_date = po.schedule_date if po.schedule_date and getdate(po.schedule_date) >= getdate(posting_date) else posting_date
-
-            pi = frappe.get_doc({
-                "doctype": "Purchase Invoice",
-                "company": po.company,
-                "supplier": po.supplier,
-                "currency": po.currency,
-                "buying_price_list": po.buying_price_list,
-                "posting_date": posting_date,
-                "due_date": due_date,
-                "bill_no": row.supplier_invoice_no,
-                "bill_date": row.supplier_invoice_date,
-                "items": []
-            })
-            # Copy PO items into PI
-            for item in po.items:
-                pi.append("items", {
-                    "item_code": item.item_code,
-                    "item_name": item.item_name,
-                    "qty": item.qty,
-                    "uom": item.uom,
-                    "rate": item.rate,
-                    "amount": item.amount,
-                    "purchase_order": po.name,
-                    "expense_account": item.expense_account, 
-                    "cost_center": item.cost_center,
-                    "warehouse": item.warehouse,
-                })
-                
-            # pi.run_method("validate")
+            # An invoice used to be built by hand here and then replaced by the
+            # line below before it was ever used. Only the line below is kept.
             pi = make_purchase_invoice(po.name)
             pi.insert(ignore_permissions=True)
             doc.append("pi_acknowledgement", {

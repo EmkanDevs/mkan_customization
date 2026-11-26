@@ -9,14 +9,20 @@ def execute(filters=None):
     project_site_violation = filters.get("project_site_violation")
     violation_penalty_reason = filters.get("violation_penalty_reason")
 
-    # Build dynamic conditions
+    # Build dynamic conditions. Filter values are passed as query parameters
+    # instead of being pasted into the SQL text. Same conditions, same rows.
+    values = {
+        "project": project,
+        "project_site_violation": project_site_violation,
+        "violation_penalty_reason": violation_penalty_reason,
+    }
     conditions = []
     if project:
-        conditions.append(f"project = '{project}'")
+        conditions.append("project = %(project)s")
     if project_site_violation:
-        conditions.append(f"name = '{project_site_violation}'")
+        conditions.append("name = %(project_site_violation)s")
     if violation_penalty_reason:
-        conditions.append(f"violation_penalty_reason = '{violation_penalty_reason}'")
+        conditions.append("violation_penalty_reason = %(violation_penalty_reason)s")
 
     # Join conditions with AND
     where_clause = " AND ".join(conditions)
@@ -52,7 +58,7 @@ def execute(filters=None):
         FROM `tabProject Site Violation`
         WHERE docstatus < 2 {where_clause}
         ORDER BY penalty_date DESC
-    """, as_dict=True)
+    """, values, as_dict=True)
 
     # Columns remain unchanged
     columns = [

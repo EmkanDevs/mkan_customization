@@ -134,7 +134,8 @@
    "fieldname": "log_date",
    "fieldtype": "Date",
    "label": "Log Date",
-   "default": "Today"
+   "default": "Today",
+   "search_index": 1
   },
   {
    "fieldname": "reviewed_by",
@@ -727,7 +728,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-20 12:00:00.000000",
+ "modified": "2026-11-26 17:30:00.000000",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "PO Amendment Log",
