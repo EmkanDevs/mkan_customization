@@ -175,7 +175,8 @@ doc_events = {
             "mkan_customization.mkan_customization.doc_events.project_dimension_validation.validate",
         ],
         "on_cancel":"mkan_customization.mkan_customization.doc_events.purchase_receipt.on_cancel",
-        "after_insert":"mkan_customization.mkan_customization.doc_events.purchase_receipt.after_insert"
+        # after_insert removed: the petty cash fields are now set in purchase_receipt.validate
+        # "after_insert":"mkan_customization.mkan_customization.doc_events.purchase_receipt.after_insert"
     },
     "Expense Claim":{
         "validate":"mkan_customization.mkan_customization.doc_events.expense_claim.validate",
