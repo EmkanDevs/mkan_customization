@@ -388,19 +388,45 @@ fixtures = [
     {
         "dt": "Workflow State",
         "filters": [
-            ["name", "in", ["Draft", "Approved", "Rejected", "Pending Technical/Quality", "Pending Procurement", "Pending Finance"]]
+            ["name", "in", [
+                "Draft", "Approved", "Rejected", "Pending Technical/Quality", "Pending Procurement", "Pending Finance",
+                # Already in workflow_state.json (used by New Item Request Approval)
+                "To Approve",
+                # New Requisition Approval
+                "Pending", "Work In Progress", "Completed",
+                # User Role Request
+                "Send for Approval", "Approve by Assigned Approver", "Send for Approval (System Manager)",
+                "Approve by System Manager", "Closed", "Cancelled",
+            ]]
         ]
     },
     {
         "dt": "Workflow Action Master",
         "filters": [
-            ["name", "in", ["Review", "Approve", "Reject", "Submit for Approval"]]
+            ["name", "in", [
+                "Review", "Approve", "Reject", "Submit for Approval",
+                # Used by New Requisition Approval and User Role Request
+                "Submit", "Cancel", "Send for Approval",
+            ]]
         ]
     },
     {
         "dt": "Workflow",
         "filters": [
-            ["name", "in", ["PO Amendment Log Approval"]]
+            ["name", "in", [
+                "PO Amendment Log Approval",
+                # Already in workflow.json
+                "New Item Request Approval",
+                # Added 27 Nov 2026
+                "User Role Request", "New Requisition Approval",
+            ]]
+        ]
+    },
+    {
+        # Roles used by the workflows above
+        "dt": "Role",
+        "filters": [
+            ["name", "in", ["Approver", "Requester", "Requisition Approval"]]
         ]
     },
 ]

@@ -1,0 +1,41 @@
+[
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-08-17 16:16:37.273453",
+  "name": "Requisition Approval",
+  "restrict_to_domain": null,
+  "role_name": "Requisition Approval",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-11-27 10:55:54.308676",
+  "name": "Requester",
+  "restrict_to_domain": null,
+  "role_name": "Requester",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-11-27 10:56:15.174444",
+  "name": "Approver",
+  "restrict_to_domain": null,
+  "role_name": "Approver",
+  "two_factor_auth": 0
+ }
+]

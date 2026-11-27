@@ -2,6 +2,20 @@
  {
   "docstatus": 0,
   "doctype": "Workflow Action Master",
+  "modified": "2026-10-07 11:02:40.067355",
+  "name": "Cancel",
+  "workflow_action_name": "Cancel"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-10-07 11:04:02.865934",
+  "name": "Submit",
+  "workflow_action_name": "Submit"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
   "modified": "2024-11-18 21:51:14.662492",
   "name": "Review",
   "workflow_action_name": "Review"
@@ -26,5 +40,12 @@
   "modified": "2026-11-24 10:42:31.540561",
   "name": "Submit for Approval",
   "workflow_action_name": "Submit for Approval"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-10-15 16:43:35.440536",
+  "name": "Send for Approval",
+  "workflow_action_name": "Send for Approval"
  }
 ]

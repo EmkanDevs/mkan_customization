@@ -2,6 +2,87 @@
  {
   "docstatus": 0,
   "doctype": "Workflow State",
+  "icon": "question-sign",
+  "modified": "2025-05-29 18:11:53.055335",
+  "name": "Pending",
+  "style": "",
+  "workflow_state_name": "Pending"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-10-07 11:02:23.846463",
+  "name": "Cancelled",
+  "style": "",
+  "workflow_state_name": "Cancelled"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-27 10:59:08.206998",
+  "name": "Send for Approval",
+  "style": "",
+  "workflow_state_name": "Send for Approval"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-27 11:01:35.376079",
+  "name": "Approve by Assigned Approver",
+  "style": "",
+  "workflow_state_name": "Approve by Assigned Approver"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-27 11:02:37.084844",
+  "name": "Send for Approval (System Manager)",
+  "style": "",
+  "workflow_state_name": "Send for Approval (System Manager)"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-27 11:03:04.180472",
+  "name": "Approve by System Manager",
+  "style": "",
+  "workflow_state_name": "Approve by System Manager"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-27 11:03:48.864477",
+  "name": "Closed",
+  "style": "",
+  "workflow_state_name": "Closed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-27 11:14:39.291564",
+  "name": "Work In Progress",
+  "style": "",
+  "workflow_state_name": "Work In Progress"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-27 11:15:08.810036",
+  "name": "Completed",
+  "style": "",
+  "workflow_state_name": "Completed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
   "icon": "",
   "modified": "2026-11-23 10:52:38.948056",
   "name": "To Approve",
