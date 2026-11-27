@@ -648,7 +648,7 @@ class AccountingEntry(Document):
 		si._correct_payment_account = cash_bank_row.account
 		return si
 
-	@frappe.whitelist()
+	# Not callable from the browser: only on_submit uses it.
 	def create_and_submit_invoice(self):
 		"""Generates, saves, submits the standard invoice on submit and links it to Accounting Entry."""
 		if self.tax_type == "Inward":
@@ -721,6 +721,7 @@ class AccountingEntry(Document):
 def make_invoice(docname):
 	"""Returns the mapped Purchase Invoice or Sales Invoice doc as dict for client-side routing/preview."""
 	doc = frappe.get_doc("Accounting Entry", docname)
+	doc.check_permission("read")
 	if doc.tax_type == "Inward":
 		invoice = doc.make_purchase_invoice()
 	else:

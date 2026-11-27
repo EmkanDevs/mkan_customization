@@ -139,6 +139,8 @@ def set_supplier_quotation(request_for_quotation):
 @frappe.whitelist()
 def fetch_attachments_and_display(request_for_quotation):
     # fetch attachments from supplier quotation and display
+	# Called from the Bid Tabulation form: only users who can open Bid Tabulations.
+	frappe.has_permission("Bid Tabulation Discussion", "read", throw=True)
 	doc = frappe.db.sql("""
 		SELECT
 			sqi.name AS item_name,
@@ -277,6 +279,8 @@ def get_supplier_options(docname):
 
 @frappe.whitelist()
 def get_supplier_details(docname):
+    # Called from the Bid Tabulation form: only users who can open Bid Tabulations.
+    frappe.has_permission("Bid Tabulation Discussion", "read", throw=True)
 
     rfq_doc = frappe.get_doc("Request for Quotation", docname)
 
@@ -526,6 +530,8 @@ def set_supplier_quotation_value(request_for_quotation,supplier):
 
 @frappe.whitelist()
 def get_last_po_for_item(item_code):
+    # Called from the Bid Tabulation form: only users who can open Bid Tabulations.
+    frappe.has_permission("Bid Tabulation Discussion", "read", throw=True)
     settings_list = frappe.get_all(
         "Price Settings",           
         fields=["limit_for_last_fetched_po"],

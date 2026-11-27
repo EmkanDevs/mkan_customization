@@ -23,10 +23,8 @@ class UserRoleRequest(Document):
 			self._auto_share_with_role_owners()
 
 	def _auto_share_with_role_owners(self):
-		from mkan_customization.mkan_customization.doctype.user_role_request.user_role_request import (
-			share_document_with_role_owners
-		)
-		share_document_with_role_owners(self.name)
+		# Server side: share without the System Manager check the browser call has.
+		_share_with_role_owners(self.name)
 
 
 	def handle_auto_approvals(self):
@@ -132,12 +130,35 @@ class UserRoleRequest(Document):
 			if employee:
 				self.employee_id = employee
 
+def _get_request_for_email(doc):
+	"""Return the User Role Request an approval email is built from.
+
+	Server calls (before_save) pass the real document: it is used as before.
+	Browser calls send the form as JSON: only its name is used. The saved record is
+	loaded from the database and the caller must be allowed to read it, so the
+	recipient and the content cannot be supplied by the caller.
+	"""
+	if isinstance(doc, Document):
+		return doc, True
+
+	if isinstance(doc, str):
+		try:
+			doc = json.loads(doc)
+		except ValueError:
+			doc = {"name": doc}
+
+	name = doc.get("name") if isinstance(doc, dict) else None
+	if not name or not frappe.db.exists("User Role Request", name):
+		frappe.throw(_("User Role Request not found"))
+
+	saved = frappe.get_doc("User Role Request", name)
+	saved.check_permission("read")
+	return saved, False
+
+
 @frappe.whitelist()
 def send_approval_email(doc):
-	if isinstance(doc, str):
-		doc = json.loads(doc)
-	
-	doc = frappe.get_doc(doc)
+	doc, _from_server = _get_request_for_email(doc)
 
 	if not doc.approver:
 		return
@@ -177,7 +198,7 @@ def send_approval_email(doc):
 			<p><b>Requested Roles:</b></p>
 			<ul>
 			{% for row in doc.role_request_details %}
-				<li>{{ row.requested_role }}</li>
+				<li>{{ row.requested_role | e }}</li>
 			{% endfor %}
 			</ul>
 
@@ -205,14 +226,11 @@ def send_approval_email(doc):
 
 @frappe.whitelist()
 def send_system_manager_approval_email(doc, **kwargs):
-	if isinstance(doc, str):
-		doc = json.loads(doc)
+	doc, from_server = _get_request_for_email(doc)
 
-	if not isinstance(doc, Document):
-		doc = frappe.get_doc(doc)
-
-	# Get approved roles
-	approved_roles = kwargs.get("roles", [])
+	# Get approved roles. Only the server may pass them in; for browser calls they
+	# are rebuilt from the saved rows (the same rule the form itself uses).
+	approved_roles = kwargs.get("roles", []) if from_server else []
 	if not approved_roles:
 		approved_roles = [row.requested_role for row in doc.role_request_details 
 						 if row.approved and row.requested_role]
@@ -239,7 +257,7 @@ def send_system_manager_approval_email(doc, **kwargs):
 	
 	approved_roles_list = ""
 	for role in approved_roles:
-		approved_roles_list += f"<li>{role}</li>"
+		approved_roles_list += f"<li>{frappe.utils.escape_html(role)}</li>"
 	
 	message = frappe.render_template("""
 		<div style="font-family: Arial, sans-serif; color: #333;">
@@ -295,7 +313,7 @@ def send_system_manager_approval_email(doc, **kwargs):
 		message=message
 	)
 
-@frappe.whitelist()
+# @frappe.whitelist()
 def send_role_owner_notification(doc, role_owner, roles):
 	"""Send notification to role owner after final approval"""
 	if isinstance(doc, str):
@@ -307,7 +325,7 @@ def send_role_owner_notification(doc, role_owner, roles):
 	
 	roles_list = ""
 	for role in roles:
-		roles_list += f"<li>{role}</li>"
+		roles_list += f"<li>{frappe.utils.escape_html(role)}</li>"
 	
 	message = frappe.render_template("""
 		<div style="font-family: Arial, sans-serif; color: #333;">
@@ -444,7 +462,9 @@ def get_all_approvers():
 def fetch_role_owners_for_doc(docname):
 	"""Fetch and assign role owners for all roles in the document"""
 	doc = frappe.get_doc("User Role Request", docname)
-	
+	# Only users who can edit this request (as on the form) may re-save it.
+	doc.check_permission("write")
+
 	for row in doc.role_request_details:
 		if row.requested_role and not row.role_owners:
 			owners = get_owners_for_role(row.requested_role)
@@ -456,10 +476,22 @@ def fetch_role_owners_for_doc(docname):
 
 @frappe.whitelist()
 def share_document_with_role_owners(docname):
+    """Browser call from the form at final approval. Only System Managers reach that step."""
+    frappe.only_for("System Manager")
+    return _share_with_role_owners(docname)
+
+
+def _share_with_role_owners(docname):
     """Share the User Role Request document with all role owners after final approval"""
 
-    # 🔐 Switch to Administrator context
+    # 🔐 Switch to Administrator context, as before, so the shares and their
+    # notifications are unchanged. set_user() also replaces the session id and
+    # empties the session data that Frappe saves at the end of the request,
+    # so keep the real ones and put them back afterwards.
     original_user = frappe.session.user
+    original_sid = frappe.session.sid
+    original_session_data = frappe.session.data
+    original_form_dict = frappe.local.form_dict
     frappe.set_user("Administrator")
 
     try:
@@ -503,15 +535,21 @@ def share_document_with_role_owners(docname):
                 )
                 shared_count += 1
 
-        frappe.db.commit()
+        # No commit here: this runs inside submit, and Frappe commits once the
+        # whole request succeeds (or rolls everything back if a later step fails).
         return shared_count > 0
 
     finally:
-        # 🔁 Always restore user
+        # 🔁 Always restore the real user and their session
         frappe.set_user(original_user)
+        frappe.session.sid = original_sid
+        frappe.session.data = original_session_data
+        frappe.local.form_dict = original_form_dict
 
 @frappe.whitelist()
 def close_request(docname):
+	# The Close button is shown only to System Managers.
+	frappe.only_for("System Manager")
 	doc = frappe.get_doc("User Role Request", docname)
 	frappe.db.set_value("User Role Request", docname, "status", "Closed")
 	frappe.db.set_value("User Role Request", docname, "workflow_state", "Closed")

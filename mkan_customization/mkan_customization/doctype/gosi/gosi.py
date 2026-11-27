@@ -59,6 +59,8 @@ class Gosi(Document):
 
 @frappe.whitelist()
 def delete_all_gosi():
+	# Same people who see the "Delete All" button: anyone who can open the GOSI list.
+	frappe.has_permission("Gosi", "read", throw=True)
 	frappe.db.sql("DELETE FROM `tabGosi`")
 	frappe.db.commit()
 
@@ -68,6 +70,13 @@ def import_gosi_data(file_url):
 	# Imported here so pandas only loads when a file is imported, not every
 	# time a GOSI record is opened or saved.
 	import pandas as pd
+
+	# Same people who see the "Import Excel/CSV" button: anyone who can open the GOSI list.
+	frappe.has_permission("Gosi", "read", throw=True)
+	# Only files uploaded to this site (the import dialog always uploads one),
+	# so a path such as ../ cannot point at other files on the server.
+	if not frappe.db.exists("File", {"file_url": file_url}):
+		frappe.throw(frappe._("File not found: {0}").format(file_url))
 
 	try:		
 		file_url_stripped = file_url.lstrip('/')

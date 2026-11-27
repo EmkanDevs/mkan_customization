@@ -18,6 +18,13 @@ class ProjectSubContracts(Document):
 
 @frappe.whitelist()
 def create_multiple_purchase_orders(docname, version, supplier=None):
+    # Same rule as the form: the "Purchase Order" button is only on submitted
+    # sub-contracts, for users who can open them.
+    sub_contract = frappe.get_doc("Project Sub-Contracts", docname)
+    sub_contract.check_permission("read")
+    if sub_contract.docstatus != 1:
+        frappe.throw(frappe._("Purchase Orders can only be created from a submitted Project Sub-Contract."))
+
     try:
         version = str(version).strip()
         doc = frappe.get_doc("Project Sub-Contracts", docname)

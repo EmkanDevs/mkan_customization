@@ -56,10 +56,34 @@ def validate(self, method):
 
 	set_missing_direct_purchase_invoice_blanket_order_items(self)
 	self.set_advances()
-	for row in self.advances:
-		row.allocated_amount = self.total
+	allocate_advances_up_to_net_total(self)
 
 	validate_against_direct_purchase_invoice_blanket_order(self)
+
+
+def allocate_advances_up_to_net_total(doc):
+	"""Allocate open advances against the invoice net total, one after another.
+
+	Before, every advance row got the full net total. With two or more advances,
+	or one advance smaller than the total, ERPNext rejected the invoice on submit.
+	Now each row gets at most its own advance amount, and all rows together get at
+	most the net total (and never more than ERPNext's own invoice limit). With one
+	advance that covers the net total, the result is the same as before.
+	"""
+	if doc.get("party_account_currency") == doc.company_currency:
+		invoice_limit = doc.get("base_rounded_total") or doc.base_grand_total
+	else:
+		invoice_limit = doc.get("rounded_total") or doc.grand_total
+
+	remaining = min(flt(doc.total), flt(invoice_limit))
+	for row in doc.get("advances"):
+		allocated = max(min(remaining, flt(row.advance_amount)), 0)
+		row.allocated_amount = flt(allocated, row.precision("allocated_amount"))
+		remaining -= row.allocated_amount
+
+	# ERPNext worked out Total Advance and Outstanding before this hook ran,
+	# so recalculate them from the rows above.
+	doc.calculate_taxes_and_totals()
 
 
 def is_direct_blanket_order_row(item):

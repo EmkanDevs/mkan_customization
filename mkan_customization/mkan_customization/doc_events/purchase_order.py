@@ -143,6 +143,8 @@ def validate_rates_against_bid_tabulation(doc):
 
 @frappe.whitelist()
 def check_rate_mismatch(doc):
+    # Called from the Purchase Order form: only users who can open Purchase Orders.
+    frappe.has_permission("Purchase Order", "read", throw=True)
 
     doc = frappe.parse_json(doc)
 

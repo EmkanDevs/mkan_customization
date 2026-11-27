@@ -33,6 +33,10 @@ class SiteViolationCharges(Document):
 
 @frappe.whitelist()
 def create_payment_entries_for_violation(docname):
+    # Only users who can open this Site Violation Charges record may run it,
+    # the same people who see the "Create Payment Entries" button on its form.
+    frappe.get_doc("Site Violation Charges", docname).check_permission("read")
+
     # Get the Site Violation Charges document
     doc = frappe.get_all("Payment Entry",filters={"site_violation_charges":docname})
     if doc:
