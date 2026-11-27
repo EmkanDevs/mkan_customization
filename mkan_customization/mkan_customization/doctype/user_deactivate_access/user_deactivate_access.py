@@ -5,6 +5,10 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from mkan_customization.mkan_customization.doctype.user_role_request.user_role_request import (
+	send_system_manager_approval_email,
+)
+
 
 class UserDeactivateAccess(Document):
 	def validate(self):
@@ -52,14 +56,9 @@ class UserDeactivateAccess(Document):
 			# Rejection notification (optional, assuming handled by workflow notification or specific request)
 			pass
 
-	@frappe.whitelist()
-	def send_approval_email(doc):
-		import json
-		if isinstance(doc, str):
-			doc = json.loads(doc)
-		
-		doc = frappe.get_doc(doc)
-
+	def send_approval_email(self):
+		# Internal: called only from handle_workflow_transition, so it is not whitelisted.
+		doc = self
 		if not doc.approver:
 			return
 
@@ -75,30 +74,30 @@ class UserDeactivateAccess(Document):
 				<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
 					<tr>
 						<td style="padding: 8px; border-bottom: 1px solid #ddd; width: 150px; font-weight: bold;">Requested By:</td>
-						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ requestor_name }}</td>
+						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ requestor_name | e }}</td>
 					</tr>
 					<tr>
 						<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Employee:</td>
-						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name }} ({{ doc.employee_id }})</td>
+						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name | e }} ({{ doc.employee_id | e }})</td>
 					</tr>
 					<tr>
 						<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Department:</td>
-						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department }}</td>
+						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department | e }}</td>
 					</tr>
 					<tr>
 						<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Designation:</td>
-						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.designation }}</td>
+						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.designation | e }}</td>
 					</tr>
 					<tr>
 						<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Priority:</td>
-						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.priority }}</td>
+						<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.priority | e }}</td>
 					</tr>
 				</table>
 
 				<p><b>Requested Roles:</b></p>
 				<ul>
 				{% for row in doc.role_request_details %}
-					<li>{{ row.requested_role }}</li>
+					<li>{{ row.requested_role | e }}</li>
 				{% endfor %}
 				</ul>
 
@@ -166,28 +165,21 @@ def complete_request_logic(doc):
 	send_broadcast_notification(doc)
 
 
-@frappe.whitelist()
 def send_broadcast_notification(doc):
-	if isinstance(doc, str):
-		doc = json.loads(doc)
-
-	if not isinstance(doc, Document):
-		doc = frappe.get_doc(doc)
-
+	# Internal: called only from complete_request_logic, so it is not whitelisted.
 	# Fetch all enabled users with System Manager role except Administrator
 	system_managers = frappe.get_all("Has Role", filters={"role": "System Manager", "parenttype": "User"}, pluck="parent")
-	
+	system_managers = [user for user in system_managers if user != "Administrator"]
+
 	if not system_managers:
 		return
 
+	# A dict cannot hold "name" twice: the second key replaced the first, so this
+	# used to send the notice to every enabled user instead of System Managers only.
 	users = frappe.db.get_all(
 		"User",
-		filters={
-			"name": ["in", system_managers],
-			"enabled": 1,
-			"name": ["!=", "Administrator"]
-		},
-		pluck="name"
+		filters={"name": ["in", system_managers], "enabled": 1},
+		pluck="name",
 	)
 	
 	if not users:
@@ -201,16 +193,16 @@ def send_broadcast_notification(doc):
 		<div style="font-family: Arial, sans-serif; color: #333;">
 			<p>Hello Team,</p>
 			
-			<p>Please be informed that the user access for <b>{{ doc.employee_name }}</b> ({{ doc.designation }}) has been deactivated.</p>
+			<p>Please be informed that the user access for <b>{{ doc.employee_name | e }}</b> ({{ doc.designation | e }}) has been deactivated.</p>
 
 			<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; width: 150px; font-weight: bold;">Employee:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name | e }}</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Department:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department | e }}</td>
 				</tr>
 			</table>
 			

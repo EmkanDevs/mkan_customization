@@ -137,13 +137,10 @@ class UserRoleRequest(Document):
 			if employee:
 				self.employee_id = employee
 
-@frappe.whitelist()
+# The email helpers below are internal: only the controller calls them, with the
+# document it is saving. They are not whitelisted, because a client-sent document
+# would let any user choose the recipients and the email content.
 def send_approval_email(doc):
-	if isinstance(doc, str):
-		doc = json.loads(doc)
-	
-	doc = frappe.get_doc(doc)
-
 	if not doc.approver:
 		return
 
@@ -159,30 +156,30 @@ def send_approval_email(doc):
 			<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; width: 150px; font-weight: bold;">Requested By:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ requestor_name }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ requestor_name | e }}</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Employee:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name }} ({{ doc.employee_id }})</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name | e }} ({{ doc.employee_id | e }})</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Department:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department | e }}</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Designation:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.designation }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.designation | e }}</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Priority:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.priority }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.priority | e }}</td>
 				</tr>
 			</table>
 
 			<p><b>Requested Roles:</b></p>
 			<ul>
 			{% for row in doc.role_request_details %}
-				<li>{{ row.requested_role }}</li>
+				<li>{{ row.requested_role | e }}</li>
 			{% endfor %}
 			</ul>
 
@@ -208,16 +205,9 @@ def send_approval_email(doc):
 		message=message
 	)
 
-@frappe.whitelist()
-def send_system_manager_approval_email(doc, **kwargs):
-	if isinstance(doc, str):
-		doc = json.loads(doc)
-
-	if not isinstance(doc, Document):
-		doc = frappe.get_doc(doc)
-
+def send_system_manager_approval_email(doc, roles=None):
 	# Get approved roles
-	approved_roles = kwargs.get("roles", [])
+	approved_roles = roles or []
 	if not approved_roles:
 		approved_roles = [row.requested_role for row in doc.role_request_details 
 						 if row.approved and row.requested_role]
@@ -238,14 +228,11 @@ def send_system_manager_approval_email(doc, **kwargs):
 		return
 
 	requestor_name = frappe.utils.get_fullname(doc.owner)
-	project_name = doc.project if doc.project else "N/A"
+	# The doctype has no "project" field, so doc.project raised AttributeError here.
+	project_name = doc.get("project") or "N/A"
 
 	subject = _("Action Required: System Manager Approval for User Role Request {0}").format(doc.name)
-	
-	approved_roles_list = ""
-	for role in approved_roles:
-		approved_roles_list += f"<li>{role}</li>"
-	
+
 	message = frappe.render_template("""
 		<div style="font-family: Arial, sans-serif; color: #333;">
 			<p>Dear System Manager,</p>
@@ -255,25 +242,27 @@ def send_system_manager_approval_email(doc, **kwargs):
 			<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; width: 150px; font-weight: bold;">Requested By:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ requestor_name }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ requestor_name | e }}</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Employee:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name }} ({{ doc.employee_id }})</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name | e }} ({{ doc.employee_id | e }})</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Project:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ project_name }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ project_name | e }}</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Priority:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.priority }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.priority | e }}</td>
 				</tr>
 			</table>
 
 			<p><b>Roles Pending Your Approval:</b></p>
 			<ul>
-				{{ approved_roles_list | safe }}
+			{% for role in approved_roles %}
+				<li>{{ role | e }}</li>
+			{% endfor %}
 			</ul>
 
 			<br>
@@ -290,7 +279,7 @@ def send_system_manager_approval_email(doc, **kwargs):
 		"doc": doc,
 		"requestor_name": requestor_name,
 		"project_name": project_name,
-		"approved_roles_list": approved_roles_list,
+		"approved_roles": approved_roles,
 		"link": frappe.utils.get_url_to_form(doc.doctype, doc.name)
 	})
 
@@ -300,44 +289,36 @@ def send_system_manager_approval_email(doc, **kwargs):
 		message=message
 	)
 
-@frappe.whitelist()
 def send_role_owner_notification(doc, role_owner, roles):
 	"""Send notification to role owner after final approval"""
-	if isinstance(doc, str):
-		doc = json.loads(doc)
-	
-	doc = frappe.get_doc(doc)
-	
 	subject = _("Notification: New Roles Assigned to {0}").format(doc.employee_name)
-	
-	roles_list = ""
-	for role in roles:
-		roles_list += f"<li>{role}</li>"
-	
+
 	message = frappe.render_template("""
 		<div style="font-family: Arial, sans-serif; color: #333;">
 			<p>Dear Role Owner,</p>
 			
-			<p>The following roles have been assigned to <b>{{ doc.employee_name }}</b> and you have been designated as the role owner:</p>
+			<p>The following roles have been assigned to <b>{{ doc.employee_name | e }}</b> and you have been designated as the role owner:</p>
 
 			<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; width: 150px; font-weight: bold;">Employee:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name }} ({{ doc.employee_id }})</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.employee_name | e }} ({{ doc.employee_id | e }})</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Project:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.project }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.project | e }}</td>
 				</tr>
 				<tr>
 					<td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Department:</td>
-					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department }}</td>
+					<td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ doc.department | e }}</td>
 				</tr>
 			</table>
 
 			<p><b>Roles Assigned:</b></p>
 			<ul>
-				{{ roles_list | safe }}
+			{% for role in roles %}
+				<li>{{ role | e }}</li>
+			{% endfor %}
 			</ul>
 
 			<br>
@@ -352,7 +333,7 @@ def send_role_owner_notification(doc, role_owner, roles):
 		</div>
 	""", {
 		"doc": doc,
-		"roles_list": roles_list,
+		"roles": roles,
 		"link": frappe.utils.get_url_to_form(doc.doctype, doc.name)
 	})
 

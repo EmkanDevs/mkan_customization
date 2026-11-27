@@ -322,24 +322,11 @@ function send_workflow_notifications(frm, previous_state, current_state) {
 
     console.log(`Sending notifications for state change: ${prev_state} -> ${curr_state}`);
 
-    // Send to Approver when state changes to "Send for Approval"
-    if (curr_state === "Send for Approval" && prev_state !== "Send for Approval") {
-        if (frm.doc.approver) {
-            console.log("Sending notification to approver:", frm.doc.approver);
-            send_email_to_approver(frm);
-        } else {
-            console.warn("No approver assigned, skipping approver notification");
-        }
-    }
-
-    // Send to System Manager when state changes to "Send for Approval (System Manager)"
-    else if (curr_state === "Send for Approval (System Manager)" && prev_state !== "Send for Approval (System Manager)") {
-        console.log("Sending notification to System Managers");
-        send_email_to_system_manager(frm);
-    }
+    // The approver and System Manager emails are sent by the server controller
+    // (UserRoleRequest.handle_workflow_notifications), so they are not sent from here.
 
     // Send final notification and share document when approved by System Manager
-    else if (curr_state === "Approve by System Manager" && prev_state !== "Approve by System Manager") {
+    if (curr_state === "Approve by System Manager" && prev_state !== "Approve by System Manager") {
         console.log("Processing final approval - notifying role owners and sharing document");
 
         // Send approval notification AND share document simultaneously
@@ -376,40 +363,6 @@ function share_document_with_role_owners(frm) {
     });
 }
 
-
-function send_email_to_approver(frm) {
-    frappe.call({
-        method: "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.send_approval_email",
-        args: {
-            doc: frm.doc
-        },
-        callback: function (r) {
-            if (r.message) {
-                console.log("Approval email sent to:", frm.doc.approver);
-            }
-        }
-    });
-}
-
-function send_email_to_system_manager(frm) {
-    // Get approved roles
-    const approved_roles = (frm.doc.role_request_details || [])
-        .filter(row => row.approved && row.requested_role)
-        .map(row => row.requested_role);
-
-    frappe.call({
-        method: "mkan_customization.mkan_customization.doctype.user_role_request.user_role_request.send_system_manager_approval_email",
-        args: {
-            doc: frm.doc,
-            roles: approved_roles
-        },
-        callback: function (r) {
-            if (r.message) {
-                console.log("System Manager approval email sent");
-            }
-        }
-    });
-}
 
 function send_approval_notification(frm) {
     console.log("Final approval detected - sending notifications to role owners");
