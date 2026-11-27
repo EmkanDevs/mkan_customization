@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from mkan_customization.mkan_customization.doctype.user_role_request.user_role_request import send_system_manager_approval_email
 
 
 class UserDeactivateAccess(Document):
