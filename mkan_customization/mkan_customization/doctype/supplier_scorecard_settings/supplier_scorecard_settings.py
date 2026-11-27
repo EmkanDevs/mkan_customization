@@ -3,7 +3,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from mkan_customization.mkan_customization.doctype.supplier_scorecard_settings.defaults import apply_defaults
+from mkan_customization.mkan_customization.doctype.supplier_scorecard_settings.defaults import apply_defaults, ensure_criteria
 
 
 class SupplierScorecardSettings(Document):
@@ -16,6 +16,8 @@ class SupplierScorecardSettings(Document):
         @frappe.whitelist()
         def load_defaults(self):
                 """Fill the form with the sample values. Nothing is saved until the user saves."""
+                self.check_permission("write")
+                ensure_criteria()
                 apply_defaults(self)
                 return self.as_dict()
 

@@ -26,7 +26,7 @@ def suppliers(f, active):
 		return []
 	filters = {"name": ["in", list(names)]}
 	if f.supplier_group:
-		filters["supplier_group"] = f.supplier_group
+		filters["supplier_group"] = ["in", [f.supplier_group, *get_descendants_of("Supplier Group", f.supplier_group)]]
 	return frappe.get_all(
 		"Supplier", filters=filters, fields=["name", "supplier_name", "supplier_group"], order_by="supplier_name asc, name asc"
 	)

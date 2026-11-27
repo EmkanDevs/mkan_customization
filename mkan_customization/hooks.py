@@ -115,7 +115,7 @@ doctype_list_js = {
 # ------------
 
 # before_install = "mkan_customization.install.before_install"
-# after_install = "mkan_customization.install.after_install"
+after_install = "mkan_customization.install.after_install"
 
 # Uninstallation
 # ------------

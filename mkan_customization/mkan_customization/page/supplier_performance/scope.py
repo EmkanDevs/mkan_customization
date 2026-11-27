@@ -19,7 +19,8 @@ def require_view():
 
 
 def allowed_suppliers():
-        """Suppliers the user may see, or None when no user permission restricts them."""
-        if not get_user_permissions().get("Supplier"):
+        """Suppliers the user may see, or None when no User Permission on Supplier or Supplier Group restricts them."""
+        permissions = get_user_permissions()
+        if not (permissions.get("Supplier") or permissions.get("Supplier Group")):
                 return None
         return set(frappe.get_list("Supplier", pluck="name", limit_page_length=0))

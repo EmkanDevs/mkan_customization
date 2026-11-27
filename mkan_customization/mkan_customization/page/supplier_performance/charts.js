@@ -9,7 +9,7 @@ const spd = {
 	num: (v, digits = 1) => (v == null ? null : (+v).toFixed(digits).replace(/\.0+$/, "")),
 
 	band(name) {
-		return name ? `<span class="spd-pill spd-pill-${SPD_BAND_CLASS[name] || "blue"}">${__(name)}</span>` : "";
+		return name ? `<span class="spd-pill spd-pill-${SPD_BAND_CLASS[name] || "blue"}">${spd.esc(__(name))}</span>` : "";
 	},
 
 	overall(row) {

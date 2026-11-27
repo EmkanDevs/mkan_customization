@@ -35,3 +35,24 @@ def apply_defaults(doc):
         doc.set("bands", [])
         for lower, name, color, attention, action in BANDS:
                 doc.append("bands", {"from_score": lower, "band": name, "color": color, "needs_attention": attention, "action": action})
+
+
+def ensure_criteria():
+        """Create the Supplier Scorecard Criteria records the settings rows link to, if missing."""
+        import frappe
+
+        for name, *_rest in CRITERIA:
+                if not frappe.db.exists("Supplier Scorecard Criteria", name):
+                        frappe.get_doc({"doctype": "Supplier Scorecard Criteria", "criteria_name": name,
+                                "max_score": 100, "formula": "0", "weight": 0}).insert(ignore_permissions=True)
+
+
+def seed_settings():
+        """Create the criteria records and fill empty settings with the sample values. Safe to run again."""
+        import frappe
+
+        ensure_criteria()
+        settings = frappe.get_doc("Supplier Scorecard Settings")
+        if not settings.criteria:
+                apply_defaults(settings)
+                settings.save(ignore_permissions=True)

@@ -48,7 +48,7 @@ class SpdOverview {
 
 	bind(on_open) {
 		const $r = this.$root;
-		$r.on("click", "[data-supplier]", (e) => on_open($(e.currentTarget).data("supplier")));
+		$r.on("click", "[data-supplier]", (e) => on_open($(e.currentTarget).attr("data-supplier")));
 		$r.find(".spd-compare-key").on("change", () => this.render_comparison());
 		$r.find(".spd-rank-key").on("change", () => {
 			this.rank_pager.reset();
@@ -101,8 +101,8 @@ class SpdOverview {
 			[__("Evaluated Suppliers"), s.evaluated, __("{0} in view · {1} not evaluated", [s.in_view, s.in_view - s.evaluated]), "navy"],
 			[__("Average Monthly Score"), s.average == null ? "N/A" : `${spd.num(s.average)}%`,
 				s.average == null ? __("No applicable source records") : __("Average evaluated weight: {0}%", [spd.num(s.average_weight)]), "blue"],
-			[__("{0} Suppliers", [s.top_band.name]), s.top_count, __("Overall score of {0}% or above", [s.top_band.from]), "green"],
-			[__("Needs Attention"), s.attention, s.attention_bands.join(", ") || __("No band is marked for attention"), "red"],
+			[__("{0} Suppliers", [spd.esc(s.top_band.name)]), s.top_count, __("Overall score of {0}% or above", [s.top_band.from]), "green"],
+			[__("Needs Attention"), s.attention, s.attention_bands.map(spd.esc).join(", ") || __("No band is marked for attention"), "red"],
 		];
 		this.$root.find(".spd-cards").html(cards.map(([title, value, sub, colour]) => `
 			<div class="spd-stat spd-${colour}">

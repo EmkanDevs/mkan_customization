@@ -9,7 +9,7 @@ class SpdHistory {
                         </div>
                 `).appendTo(parent);
                 this.pager = new SpdPager({ parent: this.$root, on_change: () => this.render_table() });
-                this.$root.on("click", "[data-supplier]", (e) => on_open($(e.currentTarget).data("supplier")));
+                this.$root.on("click", "[data-supplier]", (e) => on_open($(e.currentTarget).attr("data-supplier")));
         }
 
         render(data) {
