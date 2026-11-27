@@ -48,7 +48,7 @@ class SpdDetailPanel {
 		return `
 			<tr>
 				<td><b>${spd.esc(c.label)}</b></td>
-				<td>${na ? `<span class="spd-na">N/A</span><div class="spd-sub">${spd.esc(c.reason)}</div>` : this.metric(c)}</td>
+				<td>${na ? `<span class="spd-pill spd-pill-gray">${__("N/A")}</span><div class="spd-sub">${spd.esc(c.reason)}</div>` : this.metric(c)}</td>
 				<td class="center">${spd.rating(c.rating)}</td>
 				<td class="num">${spd.num(c.weight)}%</td>
 				<td class="num">${na ? `<span class="spd-na">&mdash;</span>` : spd.num(c.points, 2)}</td>

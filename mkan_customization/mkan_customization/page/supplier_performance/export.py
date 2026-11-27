@@ -16,7 +16,7 @@ def build(f, sort_key):
 	rows = sorted(data["rows"], key=lambda r: (r["ranks"][sort_key] is None, r["ranks"][sort_key] or 0, r["supplier_name"]))
 	basis = _("Overall score") if sort_key == "overall" else next(c["label"] for c in criteria if c["key"] == sort_key)
 
-	table = [[_("Month"), _("Rank basis"), _("Rank"), _("Supplier ID"), _("Supplier"), _("Vendor Type"),
+	table = [[_("Month"), _("Rank basis"), _("Rank"), _("Supplier ID"), _("Supplier"), _("Supplier Type"),
 		*[f"{c['label']} ({c['weight']:g}%)" for c in criteria],
 		_("Weighted Score /{0}").format(data["scale"]), _("Overall %"), _("Rating Band"), _("Evaluated Weight %"), _("Comments / Action Required")]]
 	for r in rows:

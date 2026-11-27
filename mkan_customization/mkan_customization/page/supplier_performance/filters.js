@@ -50,7 +50,7 @@ class SpdFilters {
 		add("year", { fieldtype: "Select", label: __("Evaluation Year"), options: this.years() });
 		add("month", { fieldtype: "Select", label: __("Evaluation Month"), options: [] });
 		add("supplier", { fieldtype: "Link", options: "Supplier", label: __("Supplier") });
-		add("supplier_group", { fieldtype: "Link", options: "Supplier Group", label: __("Vendor Type") });
+		add("supplier_group", { fieldtype: "Link", options: "Supplier Group", label: __("Supplier Type") });
 		add("item_group", { fieldtype: "Link", options: "Item Group", label: __("Item Group") });
 		add("item", {
 			fieldtype: "Link", options: "Item", label: __("Item"),

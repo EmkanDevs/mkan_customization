@@ -160,12 +160,12 @@ class SpdOverview {
 			<tr>
 				<td class="spd-rank">${r.ranks[key] ?? "&mdash;"}</td>
 				<td>${spd.supplier(r)}</td>
-				<td class="spd-weighted">${r.weighted == null ? `<span class="spd-na">N/A</span>` : `<b>${r.weighted.toFixed(2)}</b><small> / ${SPD_SCALE.max}</small>`}</td>
+				<td class="spd-weighted">${r.weighted == null ? `<span class="spd-pill spd-pill-gray">${__("N/A")}</span>` : `<b>${r.weighted.toFixed(2)}</b><small> / ${SPD_SCALE.max}</small>`}</td>
 				<td>${spd.overall(r)}</td>
 				<td>${spd.coverage(r, criteria)}</td>
 				<td class="spd-comment"><b>${spd.esc(r.comment.title)}</b><div>${spd.esc(r.comment.text)}</div></td>
 			</tr>`);
-		const head = [__("Rank"), __("Supplier / Vendor Type"), __("Weighted Score /{0}", [SPD_SCALE.max]), __("Overall Score & Rating"),
+		const head = [__("Rank"), __("Supplier / Supplier Type"), __("Weighted Score /{0}", [SPD_SCALE.max]), __("Overall Score & Rating"),
 			__("Evaluated Weight"), __("Comments / Action Required")];
 		this.$root.find(".spd-ranking-table").html(this.table(head, rows));
 	}

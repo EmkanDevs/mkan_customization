@@ -4,6 +4,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "settings_tab",
   "scale_section",
   "max_rating",
   "weak_rating",
@@ -12,9 +13,16 @@
   "rules_section",
   "rating_rules",
   "bands_section",
-  "bands"
+  "bands",
+  "guide_tab",
+  "guide_html"
  ],
  "fields": [
+  {
+   "fieldname": "settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Configuration"
+  },
   {
    "fieldname": "scale_section",
    "fieldtype": "Section Break",
@@ -70,11 +78,21 @@
    "label": "Bands",
    "options": "Supplier Scorecard Band",
    "description": "A supplier gets the band with the highest From % that its overall % reaches. One band must start at 0."
+  },
+  {
+   "fieldname": "guide_tab",
+   "fieldtype": "Tab Break",
+   "label": "Calculation Guide & Manual"
+  },
+  {
+   "fieldname": "guide_html",
+   "fieldtype": "HTML",
+   "label": "Calculation Guide"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-26 19:25:00.000000",
+ "modified": "2026-11-27 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Mkan Customization",
  "name": "Supplier Scorecard Settings",

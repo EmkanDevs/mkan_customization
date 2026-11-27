@@ -18,14 +18,14 @@ const spd = {
 	},
 
 	rating(r) {
-		if (r == null) return `<span class="spd-na">N/A</span>`;
+		if (r == null) return `<span class="spd-pill spd-pill-gray">${__("N/A")}</span>`;
 		// Colour by share of the top rating, so any scale gets the same five shades.
 		const shade = Math.max(1, Math.ceil((r / SPD_SCALE.max) * 5));
 		return `<span class="spd-rating spd-rating-${shade}">${r}</span>`;
 	},
 
 	coverage(row, criteria) {
-		if (!row.weight) return `<span class="spd-na">N/A</span><div class="spd-sub">${__("No activity")}</div>`;
+		if (!row.weight) return `<span class="spd-pill spd-pill-gray">${__("N/A")}</span><div class="spd-sub">${__("No activity")}</div>`;
 		return `<b>${spd.num(row.weight)}%</b>
 			<div class="spd-sub">${__("{0} of {1} criteria", [row.evaluated, criteria.length])}</div>
 			<span class="spd-meter"><span style="width:${row.weight}%"></span></span>`;
