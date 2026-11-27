@@ -28,6 +28,11 @@ from erpnext.assets.doctype.asset_depreciation_schedule.asset_depreciation_sched
 	make_new_active_asset_depr_schedules_and_cancel_current_ones,
 )
 
+from erpnext.assets.doctype.asset.depreciation import (
+	notify_depr_entry_posting_error,
+	set_depr_entry_posting_status_for_failed_assets,
+)
+
 def post_depreciation_entries(date=None):
 	# Return if automatic booking of asset depreciation is disabled
 	if not cint(

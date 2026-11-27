@@ -130,7 +130,8 @@ def send_rent_payment_reminders():
         freq = contract.payment_frequency
         yearly_rent = contract.yearly_rent or 0
 
-        if freq == "2" and current_day == 1:
+        # if freq == "2" and current_day == 1:
+        if freq == "Monthly" and current_day == 1:
             rent_amount = yearly_rent / 12
             should_send = True
 
