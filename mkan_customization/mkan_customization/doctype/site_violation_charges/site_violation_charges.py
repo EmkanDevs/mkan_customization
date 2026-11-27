@@ -33,11 +33,15 @@ class SiteViolationCharges(Document):
 
 @frappe.whitelist()
 def create_payment_entries_for_violation(docname):
-    # Get the Site Violation Charges document
-    doc = frappe.get_all("Payment Entry",filters={"site_violation_charges":docname})
-    if doc:
-        frappe.throw("Payment entry is already created")
     doc = frappe.get_doc("Site Violation Charges", docname)
+    # Only a user who can edit this Site Violation Charges record may create its
+    # Payment Entries. The entries themselves are still inserted with system rights
+    # below, because the Public Relation roles that own this record cannot create
+    # Payment Entries; Accounts reviews and submits the drafts.
+    doc.check_permission("write")
+
+    if frappe.db.exists("Payment Entry", {"site_violation_charges": doc.name}):
+        frappe.throw("Payment entry is already created")
 
     # Validate if penalty amount exists
     if not doc.penalty_amount:
@@ -72,7 +76,7 @@ def create_payment_entries_for_violation(docname):
             pe.company = doc.company
             pe.party_type = "Supplier"
             pe.party = supplier
-            pe.site_violation_charges = docname
+            pe.site_violation_charges = doc.name
             pe.party_name = supplier_name
             pe.paid_from = supplier_account
             pe.paid_to = doc.account_paid_to
@@ -82,10 +86,9 @@ def create_payment_entries_for_violation(docname):
             pe.received_amount = amount_per_distribution
             pe.reference_no = sadad_no
             pe.reference_date = payment_due_date
-            
-            pe.flags.ignore_mandatory = True
-            pe.flags.ignore_validate = True
 
+            # Payment Entry validation and mandatory checks now run, so a wrong
+            # account, party or amount stops here instead of creating a broken draft.
             pe.insert(ignore_permissions=True)
             
             
