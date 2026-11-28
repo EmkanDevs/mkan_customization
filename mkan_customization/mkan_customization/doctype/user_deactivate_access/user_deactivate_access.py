@@ -1,6 +1,8 @@
 # Copyright (c) 2025, Finbyz and contributors
 # For license information, please see license.txt
 
+import json
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -53,7 +55,8 @@ class UserDeactivateAccess(Document):
 			# Rejection notification (optional, assuming handled by workflow notification or specific request)
 			pass
 
-	@frappe.whitelist()
+	# REVIEW FIX (security): not called from any screen; only on_update calls it on the server.
+	# @frappe.whitelist()
 	def send_approval_email(doc):
 		import json
 		if isinstance(doc, str):
@@ -133,17 +136,20 @@ class UserDeactivateAccess(Document):
 		# Since this is triggered by workflow, we assume the transition logic (Allowed Roles) handled permission.
 		complete_request_logic(self)
 
-@frappe.whitelist()
+# REVIEW FIX (security): no-op kept for reference; not callable from the browser.
+# @frappe.whitelist()
 def approve_request(docname):
 	# Deprecated: Handled via Workflow
 	pass
 
-@frappe.whitelist()
+# REVIEW FIX (security): no-op kept for reference; not callable from the browser.
+# @frappe.whitelist()
 def reject_request(docname, reason):
 	# Deprecated: Handled via Workflow
 	pass
 
-@frappe.whitelist()
+# REVIEW FIX (security): no-op kept for reference; not callable from the browser.
+# @frappe.whitelist()
 def complete_request(docname):
 	# Deprecated: Handled via Workflow
 	pass
@@ -156,6 +162,9 @@ def complete_request_logic(doc):
 	if doc.employee_id:
 		user_id = frappe.db.get_value("Employee", doc.employee_id, "user_id")
 		if user_id:
+			# REVIEW FIX (security): only a System Manager may deactivate a System Manager account.
+			if "System Manager" in frappe.get_roles(user_id) and "System Manager" not in frappe.get_roles():
+				frappe.throw(_("Only a System Manager can deactivate the System Manager account {0}.").format(user_id), frappe.PermissionError)
 			user_doc = frappe.get_doc("User", user_id)
 			if user_doc.enabled:
 				user_doc.enabled = 0
@@ -167,7 +176,9 @@ def complete_request_logic(doc):
 	send_broadcast_notification(doc)
 
 
-@frappe.whitelist()
+# REVIEW FIX (security): any logged-in user could call this with their own data and email
+# every user. Only complete_request_logic calls it, on the server.
+# @frappe.whitelist()
 def send_broadcast_notification(doc):
 	if isinstance(doc, str):
 		doc = json.loads(doc)
