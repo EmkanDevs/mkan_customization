@@ -23,6 +23,11 @@ class Gosi(Document):
 			frappe.log_error("No national_code provided", "Gosi Update")
 			return
 		
+		# ===== ADDED (security): saving a Gosi record writes to Employee via db_set,
+		# which skips permission checks, so require Employee write here too =====
+		frappe.has_permission("Employee", "write", throw=True)
+		
+		
 		try:
 			# ✓ Find employee by exact match on national code ONLY
 			employee = frappe.db.get_value(
@@ -59,8 +64,8 @@ class Gosi(Document):
 
 @frappe.whitelist()
 def delete_all_gosi():
-	# Same people who see the "Delete All" button: anyone who can open the GOSI list.
-	frappe.has_permission("Gosi", "read", throw=True)
+	# REVIEW FIX: Delete All wipes the whole table, so it needs delete permission
+	frappe.has_permission("Gosi", "delete", throw=True)
 	frappe.db.sql("DELETE FROM `tabGosi`")
 	frappe.db.commit()
 
@@ -71,8 +76,13 @@ def import_gosi_data(file_url):
 	# time a GOSI record is opened or saved.
 	import pandas as pd
 
-	# Same people who see the "Import Excel/CSV" button: anyone who can open the GOSI list.
-	frappe.has_permission("Gosi", "read", throw=True)
+	# REVIEW FIX: the import creates records and updates Employee data, so it needs create permission
+	frappe.has_permission("Gosi", "create", throw=True)
+
+	# ===== ADDED: import also updates Employee records =====
+	frappe.has_permission("Employee", "write", throw=True)
+	# ===== END ADDED =====
+
 	# Only files uploaded to this site (the import dialog always uploads one),
 	# so a path such as ../ cannot point at other files on the server.
 	if not frappe.db.exists("File", {"file_url": file_url}):
